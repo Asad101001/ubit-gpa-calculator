@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   GraduationCap, Calculator, Award, ChevronDown, Sparkles, 
-  Trophy, Medal, Activity, Database, Code, Zap, Flame,
+  Trophy, Medal, Activity, Database, Code, Zap,
   TrendingUp, TrendingDown, BookOpen
 } from 'lucide-react';
 import { 
@@ -227,12 +227,11 @@ const PodiumLeaderboard = ({ data }: { data: typeof MOCK_LEADERBOARD }) => {
     <div className="space-y-16">
       {/* PODIUM VISUAL */}
       <div className="flex items-end justify-center gap-2 sm:gap-6 pt-10 h-72 sm:h-80">
-        {podiumData.map((student, idx) => {
+        {podiumData.map((student) => {
           if (!student) return null;
           
           const isFirst = student.rank === 1;
           const isSecond = student.rank === 2;
-          const isThird = student.rank === 3;
           
           const heightClass = isFirst ? "h-48 sm:h-56" : isSecond ? "h-36 sm:h-40" : "h-24 sm:h-28";
           const bgClass = isFirst 
