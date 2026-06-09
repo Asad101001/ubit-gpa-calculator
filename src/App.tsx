@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { 
   GraduationCap, Calculator, Award, Sparkles, 
   Trophy, Medal, Activity, Database, Code, Zap,
@@ -119,7 +119,7 @@ const exportToJson = (sem1Grades: any, sem2Grades: any, stats: any) => {
   URL.revokeObjectURL(url);
 };
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -127,7 +127,7 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 10 },
   show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
 };
@@ -372,7 +372,6 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
           // Visual Height classes (strictly by position 0,1,2 in podiumData which are Left/Center/Right)
           const isCenter = idx === 1;
           const isLeft = idx === 0;
-          const isRight = idx === 2;
           
           const heightClass = isCenter ? "h-48 sm:h-56" : isLeft ? "h-36 sm:h-40" : "h-24 sm:h-28";
           
@@ -758,7 +757,7 @@ function App() {
     const rData = Object.keys(typeGroups).length > 0 
       ? Object.keys(typeGroups).map(type => ({
           subject: type,
-          A: (typeGroups[type].total / typeGroups[type].count).toFixed(2),
+          A: Number((typeGroups[type].total / typeGroups[type].count).toFixed(2)),
           fullMark: 4.0
         }))
       : [
