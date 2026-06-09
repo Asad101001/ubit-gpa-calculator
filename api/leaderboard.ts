@@ -7,8 +7,8 @@ export default async function handler(req: Request) {
     return new Response('Method not allowed', { status: 405 });
   }
 
-  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
-  const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+  const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || '';
 
   try {
     const res = await fetch(`${supabaseUrl}/rest/v1/leaderboard?select=*&order=cgpa.desc.nullslast`, {
@@ -28,6 +28,7 @@ export default async function handler(req: Request) {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
+        // Cache globally at the edge for 60 seconds, and allow serving stale data while revalidating for 300 seconds
         'Cache-Control': 's-maxage=60, stale-while-revalidate=300',
         'Access-Control-Allow-Origin': '*',
       },

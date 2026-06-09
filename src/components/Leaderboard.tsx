@@ -209,9 +209,7 @@ export const Leaderboard = ({
   setIsSubmitModalOpen,
   cgpa,
   hasSubmitted,
-  userPercentile,
-  handleDownloadWrapped,
-  isDownloadingWrapped
+  userPercentile
 }: any) => {
   return (
     <section id="leaderboard" className="space-y-4 sm:space-y-8 pt-4 sm:pt-8 pb-12">
@@ -261,16 +259,6 @@ export const Leaderboard = ({
                   <p className="text-brand-600 text-[11px] sm:text-sm font-semibold text-center">
                     You rank in the <span className="font-extrabold text-brand-500 text-sm sm:text-base">{userPercentile}{userPercentile % 10 === 1 && userPercentile !== 11 ? 'st' : userPercentile % 10 === 2 && userPercentile !== 12 ? 'nd' : userPercentile % 10 === 3 && userPercentile !== 13 ? 'rd' : 'th'} percentile</span> of the class.
                   </p>
-                </div>
-
-                <button 
-                  onClick={handleDownloadWrapped}
-                  disabled={isDownloadingWrapped}
-                  className="flex items-center justify-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl sm:rounded-2xl font-bold shadow-[0_10px_30px_rgba(15,23,42,0.3)] transition-all hover:-translate-y-1 active:scale-95 disabled:opacity-50 w-full sm:w-auto text-sm sm:text-base"
-                >
-                  {isDownloadingWrapped ? <Activity className="animate-spin" size={18} /> : <Share2 size={18} />}
-                  {isDownloadingWrapped ? "Generating..." : "Get Your Wrapped Snapshot"}
-                </button>
               </motion.div>
             )}
           </AnimatePresence>

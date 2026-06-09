@@ -179,35 +179,6 @@ function App() {
     };
   }, [leaderboardData]);
 
-  const handleDownloadWrapped = async () => {
-    setIsDownloadingWrapped(true);
-    try {
-      const params = new URLSearchParams({
-        name: submitName || 'Student',
-        cgpa: cgpa,
-        percentile: userPercentile ? userPercentile.toString() : '',
-        bestCourseName: bestCourse.name,
-        bestCourseGP: bestCourse.gp.toFixed(1),
-      });
-
-      const res = await fetch(`/api/wrapped?${params.toString()}`);
-      if (!res.ok) throw new Error('Failed to generate wrapped image');
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `UBIT_Wrapped_${submitName || 'Batch28'}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Failed to fetch wrapped image from edge API", err);
-    } finally {
-      setIsDownloadingWrapped(false);
-    }
-  };
 
   const handleLeaderboardSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -350,8 +321,6 @@ function App() {
               cgpa={cgpa}
               hasSubmitted={hasSubmitted}
               userPercentile={userPercentile}
-              handleDownloadWrapped={handleDownloadWrapped}
-              isDownloadingWrapped={isDownloadingWrapped}
             />
           </div>
         </main>
