@@ -1,17 +1,21 @@
-export default async function handler(req: any, res: any) {
+export const config = {
+  runtime: 'edge',
+};
+
+export default async function handler(req: Request) {
   if (req.method !== 'POST') {
-    return res.status(405).send('Method not allowed');
+    return new Response('Method not allowed', { status: 405 });
   }
 
   try {
-    const ip = req.headers['x-forwarded-for'] || '127.0.0.1';
+    const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
     
     // Parse Data
-    const { name, cgpa, gpa1, gpa2 } = req.body;
+    const body = await req.json();
+    const { name, cgpa, gpa1, gpa2 } = body;
 
     if (!name || cgpa == null) {
-      res.setHeader('Content-Type', 'application/json');
-      return res.status(400).json({ error: 'Missing required fields' });
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
 
     const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
@@ -25,7 +29,7 @@ export default async function handler(req: any, res: any) {
       ip_address: ip
     };
 
-    const response = await fetch(`${supabaseUrl}/rest/v1/leaderboard`, {
+    const res = await fetch(`${supabaseUrl}/rest/v1/leaderboard`, {
       method: 'POST',
       headers: {
         'apikey': supabaseKey,
@@ -36,16 +40,20 @@ export default async function handler(req: any, res: any) {
       body: JSON.stringify(payload)
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
+    if (!res.ok) {
+      const errorText = await res.text();
       throw new Error(`Supabase Error: ${errorText}`);
     }
 
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(200).json({ success: true });
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
 
   } catch (e: any) {
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(500).json({ error: e.message });
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

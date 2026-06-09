@@ -1,31 +1,41 @@
-export default async function handler(req: any, res: any) {
+export const config = {
+  runtime: 'edge',
+};
+
+export default async function handler(req: Request) {
   if (req.method !== 'GET') {
-    return res.status(405).send('Method not allowed');
+    return new Response('Method not allowed', { status: 405 });
   }
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
 
   try {
-    const response = await fetch(`${supabaseUrl}/rest/v1/leaderboard?select=*&order=cgpa.desc.nullslast`, {
+    const res = await fetch(`${supabaseUrl}/rest/v1/leaderboard?select=*&order=cgpa.desc.nullslast`, {
       headers: {
         'apikey': supabaseKey,
         'Authorization': `Bearer ${supabaseKey}`
       }
     });
 
-    if (!response.ok) {
+    if (!res.ok) {
       throw new Error('Failed to fetch from Supabase');
     }
 
-    const data = await response.json();
+    const data = await res.json();
 
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    return res.status(200).json(data);
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 's-maxage=60, stale-while-revalidate=300',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
   } catch (e: any) {
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(500).json({ error: e.message });
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

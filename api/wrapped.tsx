@@ -1,11 +1,82 @@
-import { ImageResponse } from '@vercel/og';export const config = {
+import { ImageResponse } from '@vercel/og';
+
+export const config = {
   runtime: 'edge',
 };
-
 
 export default function handler(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
+
+    const type = searchParams.get('type') || 'wrapped';
+
+    if (type === 'og') {
+      return new ImageResponse(
+        (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#020617',
+              fontFamily: 'sans-serif',
+              position: 'relative',
+              overflow: 'hidden',
+              padding: '80px',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                top: '-20%',
+                left: '-10%',
+                width: '800px',
+                height: '800px',
+                background: 'radial-gradient(circle, rgba(16,185,129,0.2) 0%, rgba(2,6,23,0) 70%)',
+                borderRadius: '50%',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '-20%',
+                right: '-10%',
+                width: '800px',
+                height: '800px',
+                background: 'radial-gradient(circle, rgba(6,182,212,0.15) 0%, rgba(2,6,23,0) 70%)',
+                borderRadius: '50%',
+              }}
+            />
+
+            <div style={{ display: 'flex', flexDirection: 'column', zIndex: 10, flex: 1, justifyContent: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '40px' }}>
+                 <div style={{ display: 'flex', padding: '16px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '24px', border: '2px solid rgba(16, 185, 129, 0.2)' }}>
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                      </svg>
+                 </div>
+                 <span style={{ color: '#fff', fontSize: '48px', fontWeight: 800, marginLeft: '24px' }}>DCS <span style={{ color: '#10b981' }}>UBIT</span></span>
+              </div>
+
+              <span style={{ color: '#f8fafc', fontSize: '96px', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-2px' }}>
+                Batch '28 GPA<br />
+                <span style={{ color: '#10b981' }}>Calculator & Leaderboard</span>
+              </span>
+
+              <span style={{ color: '#94a3b8', fontSize: '40px', fontWeight: 500, marginTop: '32px' }}>
+                Calculate your semester CGPA exactly according to UOK policies.
+              </span>
+            </div>
+          </div>
+        ),
+        {
+          width: 1200,
+          height: 630,
+        },
+      );
+    }
 
     // Extract params
     const name = searchParams.get('name') || 'Student';
@@ -63,110 +134,64 @@ export default function handler(req: Request) {
             }}
           />
 
-          {/* Grid Pattern Simulation */}
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: 'radial-gradient(circle at center, rgba(255,255,255,0.05) 2px, transparent 2px)',
-              backgroundSize: '40px 40px',
-              opacity: 0.5,
-            }}
-          />
-
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              padding: '100px 80px',
-              height: '100%',
-              zIndex: 10,
-            }}
-          >
+          <div style={{ display: 'flex', flexDirection: 'column', padding: '120px', zIndex: 10, flex: 1 }}>
+            
             {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '80px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '120px' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ display: 'flex', padding: '16px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '24px', border: '2px solid rgba(16, 185, 129, 0.2)' }}>
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                  </svg>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '24px' }}>
-                  <span style={{ color: '#fff', fontSize: '48px', fontWeight: 800, letterSpacing: '-1px' }}>DCS <span style={{ color: '#10b981' }}>UBIT</span></span>
-                  <span style={{ color: '#94a3b8', fontSize: '28px', fontWeight: 600, letterSpacing: '4px' }}>BATCH '28 WRAPPED</span>
-                </div>
+                 <div style={{ display: 'flex', padding: '24px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '32px', border: '2px solid rgba(16, 185, 129, 0.2)' }}>
+                      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                      </svg>
+                 </div>
+                 <span style={{ color: '#fff', fontSize: '64px', fontWeight: 800, marginLeft: '32px' }}>DCS <span style={{ color: '#10b981' }}>UBIT</span></span>
               </div>
+              <span style={{ color: '#94a3b8', fontSize: '48px', fontWeight: 600 }}>Batch '28 Wrapped</span>
             </div>
 
-            {/* Main Title */}
-            <div style={{ display: 'flex', flexDirection: 'column', marginTop: '40px', marginBottom: '60px' }}>
-              <span style={{ color: '#10b981', fontSize: '40px', fontWeight: 700, letterSpacing: '2px', marginBottom: '16px' }}>ACADEMIC SNAPSHOT</span>
-              <span style={{ color: '#f8fafc', fontSize: '96px', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-2px' }}>{name}'s<br/>First Year.</span>
-            </div>
+            {/* Main Content */}
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'center' }}>
+              <span style={{ color: '#38bdf8', fontSize: '64px', fontWeight: 700, marginBottom: '24px' }}>
+                Hey, {name}!
+              </span>
+              <span style={{ color: '#f8fafc', fontSize: '100px', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-2px', marginBottom: '80px' }}>
+                You absolutely crushed <br />
+                your first year.
+              </span>
 
-            {/* Big Stats Box */}
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: 'column',
-              background: 'rgba(255,255,255,0.03)', 
-              border: '2px solid rgba(255,255,255,0.05)',
-              borderRadius: '48px',
-              padding: '64px',
-              marginTop: '40px',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
-            }}>
-              
-              <span style={{ color: '#94a3b8', fontSize: '32px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase' }}>Cumulative GPA</span>
-              <div style={{ display: 'flex', alignItems: 'flex-end', marginTop: '16px' }}>
-                <span style={{ color: '#fff', fontSize: '180px', fontWeight: 900, lineHeight: 0.9, letterSpacing: '-6px', textShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>{cgpa}</span>
-                <span style={{ color: '#10b981', fontSize: '64px', fontWeight: 800, marginLeft: '24px', marginBottom: '24px' }}>/ 4.0</span>
+              {/* Big Stats Row */}
+              <div style={{ display: 'flex', gap: '40px', marginBottom: '80px' }}>
+                {/* CGPA Box */}
+                <div style={{ display: 'flex', flexDirection: 'column', background: 'rgba(255, 255, 255, 0.05)', border: '2px solid rgba(255, 255, 255, 0.1)', borderRadius: '48px', padding: '60px', flex: 1 }}>
+                  <span style={{ color: '#94a3b8', fontSize: '40px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '4px', marginBottom: '24px' }}>Final CGPA</span>
+                  <span style={{ color: '#10b981', fontSize: '160px', fontWeight: 900, lineHeight: 1 }}>{cgpa}</span>
+                  <span style={{ color: '#f8fafc', fontSize: '48px', fontWeight: 700, marginTop: '24px' }}>Grade: {grade}</span>
+                </div>
+
+                {/* Percentile Box */}
+                <div style={{ display: 'flex', flexDirection: 'column', background: 'rgba(255, 255, 255, 0.05)', border: '2px solid rgba(255, 255, 255, 0.1)', borderRadius: '48px', padding: '60px', flex: 1 }}>
+                  <span style={{ color: '#94a3b8', fontSize: '40px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '4px', marginBottom: '24px' }}>Top</span>
+                  <span style={{ color: '#38bdf8', fontSize: '160px', fontWeight: 900, lineHeight: 1 }}>{percentile}%</span>
+                  <span style={{ color: '#f8fafc', fontSize: '48px', fontWeight: 700, marginTop: '24px' }}>of Batch '28</span>
+                </div>
               </div>
 
-              <div style={{ display: 'flex', marginTop: '64px', paddingTop: '64px', borderTop: '2px solid rgba(255,255,255,0.1)' }}>
-                {/* Left Stat */}
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <span style={{ color: '#94a3b8', fontSize: '24px', fontWeight: 600, letterSpacing: '1px' }}>Global Percentile</span>
-                  <div style={{ display: 'flex', alignItems: 'baseline', marginTop: '16px' }}>
-                    <span style={{ color: '#fff', fontSize: '72px', fontWeight: 800, letterSpacing: '-2px' }}>{percentile}</span>
-                    <span style={{ color: '#06b6d4', fontSize: '36px', fontWeight: 700, marginLeft: '8px' }}>%</span>
+              {/* Best Course Box */}
+              <div style={{ display: 'flex', flexDirection: 'column', background: 'rgba(255, 255, 255, 0.05)', border: '2px solid rgba(255, 255, 255, 0.1)', borderRadius: '48px', padding: '60px', width: '100%' }}>
+                  <span style={{ color: '#94a3b8', fontSize: '40px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '4px', marginBottom: '24px' }}>Best Performance</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                     <span style={{ color: '#f8fafc', fontSize: '72px', fontWeight: 800, maxWidth: '600px' }}>{bestCourseName}</span>
+                     <span style={{ color: '#10b981', fontSize: '80px', fontWeight: 900 }}>{bestCourseGP} GP</span>
                   </div>
-                </div>
-                {/* Right Stat */}
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, borderLeft: '2px solid rgba(255,255,255,0.1)', paddingLeft: '48px' }}>
-                  <span style={{ color: '#94a3b8', fontSize: '24px', fontWeight: 600, letterSpacing: '1px' }}>Overall Grade</span>
-                  <span style={{ color: '#fff', fontSize: '72px', fontWeight: 800, marginTop: '16px', color: '#10b981' }}>{grade}</span>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Best Course Box */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              background: 'rgba(16, 185, 129, 0.1)',
-              border: '2px solid rgba(16, 185, 129, 0.2)',
-              borderRadius: '32px',
-              padding: '48px',
-              marginTop: '60px'
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ color: '#10b981', fontSize: '28px', fontWeight: 600, letterSpacing: '1px' }}>Top Performing Subject</span>
-                <span style={{ color: '#fff', fontSize: '48px', fontWeight: 800, marginTop: '12px', letterSpacing: '-1px' }}>{bestCourseName}</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                <span style={{ color: '#10b981', fontSize: '28px', fontWeight: 600, letterSpacing: '1px' }}>Grade Point</span>
-                <span style={{ color: '#fff', fontSize: '56px', fontWeight: 800, marginTop: '8px' }}>{bestCourseGP}</span>
               </div>
             </div>
 
             {/* Footer */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 'auto', paddingBottom: '20px' }}>
-              <span style={{ color: '#64748b', fontSize: '28px', fontWeight: 500 }}>Generated securely at ubit-gpa-calculator-28.vercel.app</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '120px', borderTop: '2px solid rgba(255, 255, 255, 0.1)', paddingTop: '60px' }}>
+               <span style={{ color: '#64748b', fontSize: '40px', fontWeight: 500 }}>ubit-gpa-calculator-28.vercel.app</span>
+               <span style={{ color: '#64748b', fontSize: '40px', fontWeight: 500 }}>Share your stats!</span>
             </div>
-
           </div>
         </div>
       ),
@@ -176,9 +201,6 @@ export default function handler(req: Request) {
       },
     );
   } catch (e: any) {
-    console.log(`${e.message}`);
-    return new Response(`Failed to generate the image`, {
-      status: 500,
-    });
+    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
   }
 }
