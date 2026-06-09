@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Medal, Database, Share2, Activity, X } from 'lucide-react';
+import { Trophy, Medal, Database, X } from 'lucide-react';
 
 const rankData = (rawList: any[]) => {
   const sorted = [...rawList].sort((a, b) => b.cgpa - a.cgpa);
@@ -259,6 +259,7 @@ export const Leaderboard = ({
                   <p className="text-brand-600 text-[11px] sm:text-sm font-semibold text-center">
                     You rank in the <span className="font-extrabold text-brand-500 text-sm sm:text-base">{userPercentile}{userPercentile % 10 === 1 && userPercentile !== 11 ? 'st' : userPercentile % 10 === 2 && userPercentile !== 12 ? 'nd' : userPercentile % 10 === 3 && userPercentile !== 13 ? 'rd' : 'th'} percentile</span> of the class.
                   </p>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

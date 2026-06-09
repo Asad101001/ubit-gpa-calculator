@@ -28,7 +28,6 @@ function App() {
   }, [submitName]);
 
   const [isStatsOpen, setIsStatsOpen] = useState(false);
-  const [isDownloadingWrapped, setIsDownloadingWrapped] = useState(false);
 
   // Initialize from LocalStorage
   const [sem1Grades, setSem1Grades] = useState<Record<string, number | ''>>(() => {
