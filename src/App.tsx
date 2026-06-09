@@ -641,10 +641,14 @@ function App() {
 
   // Submit Modal States
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
-  const [submitName, setSubmitName] = useState('');
+  const [submitName, setSubmitName] = useState(() => localStorage.getItem('submitName') || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [hasSubmitted, setHasSubmitted] = useState(() => localStorage.getItem('hasSubmitted') === 'true');
+
+  useEffect(() => {
+    localStorage.setItem('submitName', submitName);
+  }, [submitName]);
 
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isDownloadingWrapped, setIsDownloadingWrapped] = useState(false);
@@ -1241,57 +1245,60 @@ function App() {
         <div className="fixed top-0 left-0 -z-50 opacity-0 pointer-events-none">
           <div 
             ref={wrappedRef}
-            className="w-[1080px] h-[1920px] bg-[#0f172a] flex flex-col justify-between overflow-hidden relative"
+            className="w-[1080px] h-[1920px] bg-slate-950 flex flex-col justify-between overflow-hidden relative"
             style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
           >
-            <div className="absolute top-[-10%] right-[-20%] w-[800px] h-[800px] rounded-full bg-emerald-500/30 blur-[120px] z-0" />
-            <div className="absolute bottom-[-10%] left-[-20%] w-[800px] h-[800px] rounded-full bg-teal-500/30 blur-[120px] z-0" />
+            {/* Background Layers */}
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 z-0" />
+            <div className="absolute top-[-15%] right-[-25%] w-[1000px] h-[1000px] rounded-full bg-emerald-500/40 blur-[150px] z-0" />
+            <div className="absolute bottom-[-15%] left-[-25%] w-[1000px] h-[1000px] rounded-full bg-cyan-500/40 blur-[150px] z-0" />
             
-            <div className="relative z-10 p-20 w-full flex items-center justify-between">
+            <div className="relative z-10 p-20 w-full flex items-center justify-between mt-10">
                <div className="flex items-center gap-6">
-                 <div className="bg-emerald-500/20 p-6 rounded-3xl border border-emerald-500/30">
-                   <GraduationCap size={80} className="text-emerald-400" />
+                 <div className="bg-emerald-500 p-6 rounded-3xl shadow-[0_0_40px_rgba(16,185,129,0.5)]">
+                   <GraduationCap size={80} className="text-white" />
                  </div>
                  <span className="text-5xl font-black text-white tracking-widest">DCS <span className="text-emerald-400">UBIT</span></span>
                </div>
-               <span className="text-4xl font-black text-emerald-400 tracking-widest bg-emerald-500/10 px-8 py-4 rounded-3xl border border-emerald-500/30">BATCH '28</span>
+               <span className="text-4xl font-black text-white tracking-widest bg-white/10 px-10 py-5 rounded-full border border-white/20 backdrop-blur-sm shadow-xl">BATCH '28</span>
             </div>
 
             <div className="relative z-10 px-20 flex-1 flex flex-col justify-center">
-               <p className="text-6xl font-semibold text-slate-400 mb-6 uppercase tracking-widest">Academic Year 2024</p>
-               <h1 className="text-[7rem] font-black text-white mb-20 tracking-tighter leading-[1.1] uppercase line-clamp-2">
-                  {submitName || "Student"}<br/><span className="text-emerald-400">Wrapped.</span>
+               <p className="text-6xl font-semibold text-emerald-400 mb-6 uppercase tracking-[0.2em]">Academic Year 2024</p>
+               <h1 className="text-[7.5rem] font-black text-white mb-20 tracking-tighter leading-[1] uppercase line-clamp-2 drop-shadow-2xl">
+                  {submitName || "Student"}<br/><span className="text-slate-400">Wrapped.</span>
                </h1>
 
-               <div className="bg-white/5 border border-white/10 rounded-[4rem] p-16 backdrop-blur-md mb-12 shadow-2xl">
-                  <p className="text-4xl font-semibold text-slate-400 uppercase tracking-widest mb-6">Final Cumulative GPA</p>
-                  <div className="text-[14rem] leading-none font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-8 tracking-tighter">
+               <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-[4rem] p-16 backdrop-blur-xl mb-12 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-400/20 blur-[80px] rounded-full" />
+                  <p className="text-4xl font-bold text-slate-300 uppercase tracking-[0.15em] mb-4">Final Cumulative GPA</p>
+                  {/* Fixed html2canvas bug: removed bg-clip-text, using solid color */}
+                  <div className="text-[16rem] leading-none font-black text-white mb-8 tracking-tighter drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)]">
                     {cgpa}
                   </div>
                   {userPercentile && (
-                    <div className="inline-block px-10 py-5 bg-emerald-500/20 border border-emerald-500/40 rounded-full">
-                      <p className="text-4xl font-bold text-emerald-400">Top {100 - userPercentile}% of the Batch 🏆</p>
+                    <div className="inline-block px-12 py-6 bg-emerald-500 border-2 border-emerald-400 rounded-full shadow-[0_0_30px_rgba(16,185,129,0.4)]">
+                      <p className="text-4xl font-black text-white tracking-wide">Top {100 - userPercentile}% of the Batch 🏆</p>
                     </div>
                   )}
                </div>
 
                {bestCourse && bestCourse.name !== 'N/A' && (
-                 <div className="bg-white/5 border border-white/10 rounded-[4rem] p-16 backdrop-blur-md shadow-2xl">
-                   <p className="text-4xl font-semibold text-slate-400 uppercase tracking-widest mb-6">Hard Carry Subject</p>
-                   <p className="text-6xl font-bold text-white leading-tight mb-6">{bestCourse.name}</p>
-                   <div className="inline-block px-8 py-4 bg-teal-500/20 border border-teal-500/40 rounded-full">
-                      <p className="text-3xl font-bold text-teal-400">Scored {bestCourse.gp.toFixed(1)} Grade Points 🔥</p>
+                 <div className="bg-gradient-to-br from-cyan-500/10 to-emerald-500/10 border border-white/10 rounded-[4rem] p-16 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                   <p className="text-4xl font-bold text-slate-300 uppercase tracking-[0.15em] mb-6">Hard Carry Subject</p>
+                   <p className="text-6xl font-black text-white leading-tight mb-8 drop-shadow-lg">{bestCourse.name}</p>
+                   <div className="inline-block px-10 py-5 bg-white/10 border border-white/20 rounded-full backdrop-blur-md">
+                      <p className="text-4xl font-bold text-cyan-400">Scored {bestCourse.gp.toFixed(1)} Grade Points 🔥</p>
                    </div>
                  </div>
                )}
             </div>
 
-            <div className="relative z-10 p-20 w-full flex items-center justify-between border-t border-white/10 bg-black/20">
-               <p className="text-4xl font-bold text-slate-500 tracking-wide">ubit-gpa-calculator.vercel.app</p>
-               <div className="flex items-center gap-8 opacity-50">
-                 <Zap size={48} className="text-white" />
-                 <Database size={48} className="text-white" />
-                 <Code size={48} className="text-white" />
+            <div className="relative z-10 p-20 w-full flex items-center justify-between bg-black/40 backdrop-blur-md border-t border-white/10">
+               <p className="text-4xl font-bold text-slate-400 tracking-wider">ubit-gpa-calculator.vercel.app</p>
+               <div className="flex items-center gap-10 opacity-60">
+                 <Sparkles size={56} className="text-emerald-400" />
+                 <Trophy size={56} className="text-white" />
                </div>
             </div>
           </div>
