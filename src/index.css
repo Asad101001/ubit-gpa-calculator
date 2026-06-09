@@ -31,4 +31,12 @@
   ::-webkit-scrollbar-thumb {
     @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
   }
+
+  .pixel-hover {
+    transition: all 0.2s steps(5);
+  }
+  .pixel-hover:hover {
+    transform: scale(1.05);
+    box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.2), -4px -4px 0px rgba(20, 184, 166, 0.2);
+  }
 }
