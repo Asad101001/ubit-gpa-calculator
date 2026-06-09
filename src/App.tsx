@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { GraduationCap, Calculator, Award, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { GraduationCap, Calculator, Award, ChevronDown, Sparkles } from 'lucide-react';
 
 const GRADE_MAPPING = {
   "A+ (90% & above)": 4.0,
@@ -36,48 +36,75 @@ const SEM2_COURSES = [
   { name: "Ideology & Constitution of Pak", credits: 2 }
 ];
 
-const MetricCard = ({ title, value, icon: Icon, highlight = false }: any) => (
+const MetricCard = ({ title, value, icon: Icon, highlight = false, delay = 0 }: any) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
+    initial={{ opacity: 0, y: 30 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5 }}
-    className={`p-6 rounded-2xl ${highlight ? 'bg-brand-600 text-white shadow-xl shadow-brand-500/30' : 'glass'}`}
+    transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
+    className={`relative overflow-hidden p-6 rounded-[2rem] ${highlight ? 'bg-gradient-to-br from-brand-600 to-brand-400 border border-brand-400/50 shadow-[0_0_40px_rgba(20,184,166,0.3)] text-white' : 'glass-card'}`}
   >
-    <div className="flex items-center justify-between mb-4">
-      <h3 className={`text-sm font-semibold uppercase tracking-wider ${highlight ? 'text-brand-100' : 'text-slate-500'}`}>
+    {/* Highlight Decorative Elements */}
+    {highlight && (
+      <>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full blur-xl -ml-8 -mb-8" />
+      </>
+    )}
+
+    <div className="relative z-10 flex items-center justify-between mb-6">
+      <h3 className={`text-sm font-semibold uppercase tracking-widest ${highlight ? 'text-white/80' : 'text-white/50'}`}>
         {title}
       </h3>
-      <div className={`p-2 rounded-xl ${highlight ? 'bg-white/20' : 'bg-brand-50 text-brand-600'}`}>
-        <Icon size={20} />
+      <div className={`p-2.5 rounded-2xl ${highlight ? 'bg-white/20 text-white backdrop-blur-md' : 'bg-white/5 text-brand-400'}`}>
+        <Icon size={20} strokeWidth={2.5} />
       </div>
     </div>
-    <div className="text-4xl font-bold">
-      {value}
+    
+    <div className="relative z-10 flex items-baseline gap-2">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={value}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="text-5xl font-extrabold tracking-tight"
+        >
+          {value}
+        </motion.div>
+      </AnimatePresence>
+      <span className={`text-lg font-medium ${highlight ? 'text-white/70' : 'text-white/40'}`}>/ 4.0</span>
     </div>
   </motion.div>
 );
 
-const CourseSelect = ({ course, value, onChange }: any) => (
-  <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 border-b border-slate-100 last:border-0 gap-3">
-    <div className="flex items-center gap-3">
-      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-semibold text-slate-500">
-        {course.credits}c
+const CourseSelect = ({ course, value, onChange, delay = 0 }: any) => (
+  <motion.div 
+    initial={{ opacity: 0, x: -20 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ duration: 0.5, delay, ease: "easeOut" }}
+    className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl hover:bg-white/[0.02] border border-transparent hover:border-white/[0.05] transition-all gap-4"
+  >
+    <div className="flex items-center gap-4">
+      <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-bold text-brand-400 group-hover:scale-110 group-hover:bg-brand-500/10 transition-all">
+        {course.credits}
+        <span className="text-[10px] text-white/40 ml-[1px]">CR</span>
       </div>
-      <span className="font-medium text-slate-700">{course.name}</span>
+      <span className="font-medium text-white/80 group-hover:text-white transition-colors text-[15px]">{course.name}</span>
     </div>
-    <div className="relative">
+    <div className="relative min-w-[180px]">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="appearance-none w-full sm:w-48 bg-white border border-slate-200 text-slate-700 py-2 pl-4 pr-10 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all cursor-pointer font-medium text-sm"
+        className="appearance-none w-full glass-input text-white/90 py-2.5 pl-4 pr-10 rounded-xl cursor-pointer font-medium text-sm hover:bg-white/[0.05]"
       >
         {GRADE_OPTIONS.map((grade) => (
-          <option key={grade} value={grade}>{grade}</option>
+          <option key={grade} value={grade} className="bg-surface text-white py-2">{grade}</option>
         ))}
       </select>
-      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none group-hover:text-brand-400 transition-colors" size={16} />
     </div>
-  </div>
+  </motion.div>
 );
 
 function App() {
@@ -113,72 +140,89 @@ function App() {
   }, [sem1Grades, sem2Grades]);
 
   return (
-    <div className="min-h-screen bg-slate-50 relative overflow-hidden pb-20">
-      {/* Background decorations */}
-      <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-500/10 blur-[100px] pointer-events-none" />
-      <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/10 blur-[100px] pointer-events-none" />
+    <div className="min-h-screen relative selection:bg-brand-500/30">
+      {/* Animated Background Orbs */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
+        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-brand-500/10 blur-[120px] mix-blend-screen animate-blob" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-blue-600/10 blur-[120px] mix-blend-screen animate-blob animation-delay-2000" />
+        <div className="absolute top-[40%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-purple-500/10 blur-[120px] mix-blend-screen animate-blob animation-delay-4000" />
+      </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-24">
         <motion.div 
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="text-center mb-16 relative"
         >
-          <div className="inline-flex items-center justify-center p-3 bg-brand-100 text-brand-600 rounded-2xl mb-4">
-            <GraduationCap size={32} />
+          <div className="inline-flex items-center justify-center p-4 bg-white/5 border border-white/10 rounded-3xl mb-6 shadow-2xl backdrop-blur-md">
+            <GraduationCap size={40} className="text-brand-400" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
+          <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 mb-6 tracking-tighter">
             DCS UBIT Portal
           </h1>
-          <p className="text-lg text-slate-500 font-medium">BSCS First Year GPA & CGPA Calculator</p>
+          <p className="text-xl text-white/50 font-medium max-w-2xl mx-auto flex items-center justify-center gap-2">
+            <Sparkles size={20} className="text-brand-400" />
+            BSCS First Year GPA & CGPA Calculator
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <MetricCard title="Semester 1 GPA" value={gpa1} icon={Calculator} />
-          <MetricCard title="Semester 2 GPA" value={gpa2} icon={Calculator} />
-          <MetricCard title="Cumulative CGPA" value={cgpa} icon={Award} highlight />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 relative z-10">
+          <MetricCard title="Semester One GPA" value={gpa1} icon={Calculator} delay={0.1} />
+          <MetricCard title="Semester Two GPA" value={gpa2} icon={Calculator} delay={0.2} />
+          <MetricCard title="Cumulative CGPA" value={cgpa} icon={Award} highlight delay={0.3} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
           <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="glass rounded-3xl p-6 md:p-8"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="glass rounded-[2.5rem] p-6 md:p-10 border-white/10"
           >
-            <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-3">
-              <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-sm">01</span>
-              Semester One
-            </h2>
-            <div className="space-y-1">
-              {SEM1_COURSES.map(course => (
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 flex items-center justify-center text-lg font-bold text-brand-400 shadow-[0_0_20px_rgba(20,184,166,0.15)]">
+                01
+              </div>
+              <h2 className="text-2xl font-bold text-white/90 tracking-tight">
+                Semester One
+              </h2>
+            </div>
+            <div className="space-y-2">
+              {SEM1_COURSES.map((course, idx) => (
                 <CourseSelect 
                   key={course.name}
                   course={course}
                   value={sem1Grades[course.name]}
                   onChange={(val: string) => setSem1Grades(prev => ({ ...prev, [course.name]: val }))}
+                  delay={0.5 + (idx * 0.05)}
                 />
               ))}
             </div>
           </motion.div>
 
           <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            className="glass rounded-3xl p-6 md:p-8"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="glass rounded-[2.5rem] p-6 md:p-10 border-white/10"
           >
-            <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-3">
-              <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-sm">02</span>
-              Semester Two
-            </h2>
-            <div className="space-y-1">
-              {SEM2_COURSES.map(course => (
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 flex items-center justify-center text-lg font-bold text-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
+                02
+              </div>
+              <h2 className="text-2xl font-bold text-white/90 tracking-tight">
+                Semester Two
+              </h2>
+            </div>
+            <div className="space-y-2">
+              {SEM2_COURSES.map((course, idx) => (
                 <CourseSelect 
                   key={course.name}
                   course={course}
                   value={sem2Grades[course.name]}
                   onChange={(val: string) => setSem2Grades(prev => ({ ...prev, [course.name]: val }))}
+                  delay={0.6 + (idx * 0.05)}
                 />
               ))}
             </div>

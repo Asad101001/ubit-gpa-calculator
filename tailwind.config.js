@@ -10,13 +10,33 @@ export default {
         sans: ['Inter', 'sans-serif'],
       },
       colors: {
+        background: '#0a0a0a',
+        surface: '#171717',
+        surfaceHighlight: '#262626',
         brand: {
-          50: '#f0fdfa',
-          100: '#ccfbf1',
+          400: '#2dd4bf',
           500: '#14b8a6',
           600: '#0d9488',
-          700: '#0f766e',
-          900: '#134e4a',
+        }
+      },
+      animation: {
+        'spin-slow': 'spin 15s linear infinite',
+        'blob': 'blob 7s infinite',
+      },
+      keyframes: {
+        blob: {
+          '0%': {
+            transform: 'translate(0px, 0px) scale(1)',
+          },
+          '33%': {
+            transform: 'translate(30px, -50px) scale(1.1)',
+          },
+          '66%': {
+            transform: 'translate(-20px, 20px) scale(0.9)',
+          },
+          '100%': {
+            transform: 'translate(0px, 0px) scale(1)',
+          },
         }
       }
     },
