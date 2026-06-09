@@ -1,13 +1,16 @@
 # UBIT GPA Calculator (Batch '28)
 
+**Live Demo:** [https://ubit-gpa-calculator-28.vercel.app/](https://ubit-gpa-calculator-28.vercel.app/)
+
 A high-performance, mobile-first web application designed specifically for the students of the Department of Computer Science (UBIT), University of Karachi. Built with a premium "Liquid Neo-Brutalist" aesthetic, this tool calculates semester GPAs and cumulative CGPAs according to the official UOK grading policy.
 
 ## Features
 - **Accurate Grading Logic**: Fully implements the UOK grading scale (e.g., 50-52 = 1.0, <50 = fail).
 - **Mobile-First Design**: Optimized for compact, stutter-free performance on mobile browsers with a polished UI.
 - **Persistent Storage**: Automatically saves your inputted grades locally using `localStorage`.
-- **Advanced Analytics**: Visualizes your performance with responsive Radar and Bar charts.
+- **Advanced Analytics & Insights**: Visualizes your performance with responsive charts and calculates your dynamic global batch percentile.
 - **Global Leaderboard**: Secure, real-time leaderboard powered by Supabase with IP-based rate limiting to prevent spam.
+- **Shareable "Wrapped" Snapshot**: Generate beautiful, exportable PNG snapshots of your academic performance to share on social media.
 - **JSON Transcript Export**: Download a structured JSON transcript of your grades.
 
 ## Tech Stack
