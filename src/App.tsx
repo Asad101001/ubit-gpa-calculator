@@ -70,14 +70,14 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+  show: { opacity: 1, y: 0, transition: { type: "spring" as any, stiffness: 100 } }
 };
 
 const Header = () => (
   <motion.header 
     initial={{ y: -100 }}
     animate={{ y: 0 }}
-    transition={{ type: "spring", stiffness: 100, damping: 20 }}
+    transition={{ type: "spring" as any, stiffness: 100, damping: 20 }}
     className="sticky top-0 z-50 w-full glass border-b border-white/5 py-4"
   >
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
@@ -248,7 +248,7 @@ const PodiumLeaderboard = ({ data }: { data: typeof MOCK_LEADERBOARD }) => {
               key={student.rank}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: isFirst ? 0.1 : isSecond ? 0.3 : 0.5, type: "spring", stiffness: 100 }}
+              transition={{ delay: isFirst ? 0.1 : isSecond ? 0.3 : 0.5, type: "spring" as any, stiffness: 100 }}
               viewport={{ once: true }}
               className={`flex flex-col items-center w-1/3 max-w-[140px] relative ${isFirst ? 'z-10' : 'z-0'}`}
             >
