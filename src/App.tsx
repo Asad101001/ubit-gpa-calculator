@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { 
   GraduationCap, Calculator, Award, Sparkles, 
@@ -10,8 +10,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, 
   Cell, ReferenceLine, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
-import html2canvas from 'html2canvas';
-import { supabase } from './lib/supabase';
+// html2canvas removed - using serverless OG instead
 
 const getGradePoint = (marks: number): number => {
   if (marks >= 85) return 4.0; // Covers 90+ and 85-89
@@ -652,26 +651,49 @@ function App() {
 
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isDownloadingWrapped, setIsDownloadingWrapped] = useState(false);
-  const wrappedRef = useRef<HTMLDivElement>(null);
+
 
   const handleDownloadWrapped = async () => {
-    if (!wrappedRef.current) return;
     setIsDownloadingWrapped(true);
     try {
-      const canvas = await html2canvas(wrappedRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#0f172a'
+      // Find the best course based on GPA point
+      let bestCourseName = 'N/A';
+      let bestCourseGP = 0;
+      
+      const allCourses = [...SEM1_COURSES, ...SEM2_COURSES];
+      const allGrades = { ...sem1Grades, ...sem2Grades };
+      
+      allCourses.forEach(c => {
+        const score = Number(allGrades[c.code]) || 0;
+        const gp = getGradePoint(score);
+        if (gp > bestCourseGP) {
+          bestCourseGP = gp;
+          bestCourseName = c.name;
+        }
       });
-      const url = canvas.toDataURL('image/png');
+
+      const params = new URLSearchParams({
+        name: submitName || 'Student',
+        cgpa: cgpa,
+        percentile: userPercentile ? userPercentile.toString() : '',
+        bestCourseName,
+        bestCourseGP: bestCourseGP.toFixed(1),
+      });
+
+      const res = await fetch(`/api/wrapped?${params.toString()}`);
+      if (!res.ok) throw new Error('Failed to generate wrapped image');
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `UBIT_Wrapped_${submitName || 'Batch28'}.png`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Failed to generate wrapped image", err);
+      console.error("Failed to fetch wrapped image from edge API", err);
     } finally {
       setIsDownloadingWrapped(false);
     }
@@ -699,15 +721,16 @@ function App() {
   // Fetch Live Leaderboard
   const fetchLeaderboard = async () => {
     setIsLeaderboardLoading(true);
-    const { data, error } = await supabase
-      .from('leaderboard')
-      .select('name, cgpa')
-      .order('cgpa', { ascending: false });
-    
-    if (data) {
-      setLeaderboardData(data);
-    } else if (error) {
-      console.error("Supabase Error:", error);
+    try {
+      const res = await fetch('/api/leaderboard');
+      if (res.ok) {
+        const data = await res.json();
+        setLeaderboardData(data);
+      } else {
+        console.error("Failed to fetch leaderboard from Edge Cache");
+      }
+    } catch (e) {
+      console.error(e);
     }
     setIsLeaderboardLoading(false);
   };
@@ -724,47 +747,29 @@ function App() {
     setSubmitError('');
 
     try {
-      // Fetch IP using ipify
-      const ipRes = await fetch('https://api.ipify.org?format=json');
-      const ipData = await ipRes.json();
-      const ipAddress = ipData.ip;
-
-      // Upsert to Supabase
       const payload = { 
         name: submitName.trim(), 
         cgpa: Number(cgpa), 
         gpa1: Number(gpa1), 
         gpa2: Number(gpa2),
-        ip_address: ipAddress 
       };
       
-      const { error } = await supabase.from('leaderboard').upsert([payload], { onConflict: 'ip_address' });
+      const res = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-      if (error) {
-        if (error.code === '23505') { // Postgres Unique Constraint Violation Code (fallback)
-          throw new Error("Looks like you've already submitted a score from this IP address.");
-        }
-        if (error.code === '42703') { // Undefined column
-           // Fallback to basic payload if new columns don't exist yet
-           const fallbackPayload = {
-             name: submitName.trim(),
-             cgpa: Number(cgpa),
-             ip_address: ipAddress
-           };
-           const fb = await supabase.from('leaderboard').upsert([fallbackPayload], { onConflict: 'ip_address' });
-           if (fb.error) throw new Error(fb.error.message);
-        } else {
-           throw new Error(error.message);
-        }
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Submission failed");
       }
 
-      // Success
-      localStorage.setItem('hasSubmitted', 'true');
       setHasSubmitted(true);
+      localStorage.setItem('hasSubmitted', 'true');
       setIsSubmitModalOpen(false);
-      setLeaderboardData(prev => [{ name: submitName.trim(), cgpa: Number(cgpa), gpa1: Number(gpa1), gpa2: Number(gpa2) }, ...prev].sort((a, b) => b.cgpa - a.cgpa));
-      fetchLeaderboard(); // Refresh the podium
-
+      fetchLeaderboard(); // Refresh from Edge API
     } catch (err: any) {
       setSubmitError(err.message || "Failed to submit. Check your connection.");
     } finally {
@@ -1240,69 +1245,6 @@ function App() {
         </main>
 
         <Footer />
-
-        {/* HIDDEN WRAPPED COMPONENT FOR EXPORT */}
-        <div className="fixed top-0 left-0 -z-50 opacity-0 pointer-events-none">
-          <div 
-            ref={wrappedRef}
-            className="w-[1080px] h-[1920px] bg-slate-950 flex flex-col justify-between overflow-hidden relative"
-            style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
-          >
-            {/* Background Layers */}
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 z-0" />
-            <div className="absolute top-[-15%] right-[-25%] w-[1000px] h-[1000px] rounded-full bg-emerald-500/40 blur-[150px] z-0" />
-            <div className="absolute bottom-[-15%] left-[-25%] w-[1000px] h-[1000px] rounded-full bg-cyan-500/40 blur-[150px] z-0" />
-            
-            <div className="relative z-10 p-20 w-full flex items-center justify-between mt-10">
-               <div className="flex items-center gap-6">
-                 <div className="bg-emerald-500 p-6 rounded-3xl shadow-[0_0_40px_rgba(16,185,129,0.5)]">
-                   <GraduationCap size={80} className="text-white" />
-                 </div>
-                 <span className="text-5xl font-black text-white tracking-widest">DCS <span className="text-emerald-400">UBIT</span></span>
-               </div>
-               <span className="text-4xl font-black text-white tracking-widest bg-white/10 px-10 py-5 rounded-full border border-white/20 backdrop-blur-sm shadow-xl">BATCH '28</span>
-            </div>
-
-            <div className="relative z-10 px-20 flex-1 flex flex-col justify-center">
-               <p className="text-6xl font-semibold text-emerald-400 mb-6 uppercase tracking-[0.2em]">Academic Year 2024</p>
-               <h1 className="text-[7.5rem] font-black text-white mb-20 tracking-tighter leading-[1] uppercase line-clamp-2 drop-shadow-2xl">
-                  {submitName || "Student"}<br/><span className="text-slate-400">Wrapped.</span>
-               </h1>
-
-               <div className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-[4rem] p-16 backdrop-blur-xl mb-12 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-400/20 blur-[80px] rounded-full" />
-                  <p className="text-4xl font-bold text-slate-300 uppercase tracking-[0.15em] mb-4">Final Cumulative GPA</p>
-                  {/* Fixed html2canvas bug: removed bg-clip-text, using solid color */}
-                  <div className="text-[16rem] leading-none font-black text-white mb-8 tracking-tighter drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)]">
-                    {cgpa}
-                  </div>
-                  {userPercentile && (
-                    <div className="inline-block px-12 py-6 bg-emerald-500 border-2 border-emerald-400 rounded-full shadow-[0_0_30px_rgba(16,185,129,0.4)]">
-                      <p className="text-4xl font-black text-white tracking-wide">Top {100 - userPercentile}% of the Batch 🏆</p>
-                    </div>
-                  )}
-               </div>
-
-               {bestCourse && bestCourse.name !== 'N/A' && (
-                 <div className="bg-gradient-to-br from-cyan-500/10 to-emerald-500/10 border border-white/10 rounded-[4rem] p-16 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-                   <p className="text-4xl font-bold text-slate-300 uppercase tracking-[0.15em] mb-6">Hard Carry Subject</p>
-                   <p className="text-6xl font-black text-white leading-tight mb-8 drop-shadow-lg">{bestCourse.name}</p>
-                   <div className="inline-block px-10 py-5 bg-white/10 border border-white/20 rounded-full backdrop-blur-md">
-                      <p className="text-4xl font-bold text-cyan-400">Scored {bestCourse.gp.toFixed(1)} Grade Points 🔥</p>
-                   </div>
-                 </div>
-               )}
-            </div>
-
-            <div className="relative z-10 p-20 w-full flex items-center justify-between bg-black/40 backdrop-blur-md border-t border-white/10">
-               <p className="text-4xl font-bold text-slate-400 tracking-wider">ubit-gpa-calculator.vercel.app</p>
-               <div className="flex items-center gap-10 opacity-60">
-                 <Sparkles size={56} className="text-emerald-400" />
-                 <Trophy size={56} className="text-white" />
-               </div>
-            </div>
-          </div>
-        </div>
       </div>
     </>
   );
