@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { 
   GraduationCap, Calculator, Award, Sparkles, 
   Trophy, Medal, Activity, Database, Code, Zap,
