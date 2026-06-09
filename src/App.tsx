@@ -265,8 +265,8 @@ const CourseSelect = ({ course, value, onChange }: any) => {
             <span className="text-xs sm:text-base font-extrabold">{course.code.split('-')[1]}</span>
           </div>
           <div>
-            <div className="font-semibold text-white/90 group-hover:text-white transition-colors text-[13px] sm:text-[15px] leading-tight">
-              {course.name}
+            <div className="font-semibold text-white/90 group-hover:text-white transition-colors text-[13px] sm:text-[15px] leading-tight min-h-[32px] sm:min-h-[44px] flex items-end sm:items-center">
+              <span className="line-clamp-2">{course.name}</span>
             </div>
             <div className="text-[9px] sm:text-[11px] font-medium text-white/40 mt-0.5 sm:mt-1 truncate max-w-[200px] sm:max-w-none">
               {course.instructor}
@@ -520,7 +520,7 @@ const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="fixed inset-0 z-[200] bg-[#000000] flex flex-col items-center justify-center"
+      className="fixed inset-0 z-[200] bg-[#1c120c] flex flex-col items-center justify-center"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
@@ -826,14 +826,14 @@ function App() {
           currentCgpa={cgpa}
         />
 
-        <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10 bg-[#000000]">
+        <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10 bg-[#1c120c]">
           {/* Heavy animated blobs are hidden on mobile to prevent Android UI thread lag and save battery */}
           <div className="hidden sm:block absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-brand-600/10 blur-[150px] mix-blend-screen animate-blob" />
-          <div className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-brand-500/10 blur-[150px] mix-blend-screen animate-blob animation-delay-2000" />
-          <div className="hidden sm:block absolute top-[30%] left-[30%] w-[50vw] h-[50vw] rounded-full bg-red-500/10 blur-[150px] mix-blend-screen animate-blob animation-delay-4000" />
+          <div className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-amber-700/10 blur-[150px] mix-blend-screen animate-blob animation-delay-2000" />
+          <div className="hidden sm:block absolute top-[30%] left-[30%] w-[50vw] h-[50vw] rounded-full bg-orange-600/10 blur-[150px] mix-blend-screen animate-blob animation-delay-4000" />
           
           {/* Lightweight static fallback for mobile devices */}
-          <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-brand-900/20 via-[#000000] to-red-900/20" />
+          <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-brand-900/20 via-[#1c120c] to-amber-900/20" />
         </div>
 
         <main className="pb-6 sm:pb-16 space-y-6 sm:space-y-16">
@@ -847,7 +847,7 @@ function App() {
                   className="w-full h-full object-cover opacity-20"
                   style={{ WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)' }}
                />
-               <div className="absolute inset-0 bg-gradient-to-b from-[#000000]/50 via-[#000000]/90 to-[#000000]" />
+               <div className="absolute inset-0 bg-gradient-to-b from-[#1c120c]/60 via-[#1c120c]/90 to-[#1c120c]" />
             </div>
 
             <motion.div 

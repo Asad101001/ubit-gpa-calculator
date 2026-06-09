@@ -10,13 +10,13 @@ export default {
         sans: ['-apple-system', 'BlinkMacSystemFont', 'San Francisco', 'Helvetica Neue', 'sans-serif'],
       },
       colors: {
-        background: '#0a0a0a',
-        surface: '#171717',
-        surfaceHighlight: '#262626',
+        background: '#1c120c',
+        surface: '#291a13',
+        surfaceHighlight: '#3e2723',
         brand: {
-          400: '#ff4b68',
-          500: '#fa243c',
-          600: '#e01e34',
+          400: '#fbbf24', // amber-400
+          500: '#f59e0b', // amber-500
+          600: '#d97706', // amber-600
         }
       },
       animation: {
