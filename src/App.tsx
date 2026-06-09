@@ -833,12 +833,12 @@ function App() {
             
           />
           {/* Heavy animated blobs are hidden on mobile to prevent Android UI thread lag and save battery */}
-          <div className="hidden sm:block absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-emerald-400/20 blur-[150px] mix-blend-screen animate-blob" />
-          <div className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-teal-400/20 blur-[150px] mix-blend-screen animate-blob animation-delay-2000" />
-          <div className="hidden sm:block absolute top-[30%] left-[30%] w-[50vw] h-[50vw] rounded-full bg-emerald-300/20 blur-[150px] mix-blend-screen animate-blob animation-delay-4000" />
+          <div className="hidden sm:block absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-emerald-400/40 blur-[150px] mix-blend-multiply animate-blob" />
+          <div className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-teal-400/40 blur-[150px] mix-blend-multiply animate-blob animation-delay-2000" />
+          <div className="hidden sm:block absolute top-[30%] left-[30%] w-[50vw] h-[50vw] rounded-full bg-emerald-300/40 blur-[150px] mix-blend-multiply animate-blob animation-delay-4000" />
           
           {/* Lightweight static fallback for mobile devices */}
-          <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-emerald-50 via-slate-50 to-teal-50" />
+          <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-emerald-100 via-slate-50 to-teal-100" />
         </div>
 
         <main className="pb-6 sm:pb-16 space-y-6 sm:space-y-16">
@@ -863,7 +863,7 @@ function App() {
                 </div>
               </div>
               
-              <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white via-white/90 to-white/40 mb-3 sm:mb-4 tracking-tighter">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-slate-900 via-slate-800 to-slate-500 mb-3 sm:mb-4 tracking-tighter">
                 GPA Calculator
               </h1>
               <p className="text-sm sm:text-lg md:text-xl text-slate-600 font-medium max-w-2xl mx-auto flex items-center justify-center gap-2 sm:gap-3">
