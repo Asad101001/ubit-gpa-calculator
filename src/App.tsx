@@ -139,7 +139,7 @@ const Header = () => (
     transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
     className="sticky top-0 z-50 w-full glass border-b border-white/5 py-1.5 sm:py-3"
   >
-    <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 flex justify-between items-center">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
       <div className="flex items-center gap-2 sm:gap-3">
         <div className="bg-brand-500/20 p-1 sm:p-2 rounded-lg sm:rounded-xl border border-brand-500/30">
           <GraduationCap className="text-brand-400 w-4 h-4 sm:w-[18px] sm:h-[18px]" />
@@ -292,7 +292,7 @@ const CourseSelect = ({ course, value, onChange }: any) => {
               }}
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="Marks"
-              className="w-full glass-input text-white/90 py-1.5 px-2 sm:py-2 sm:px-3 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm hover:bg-white/[0.08] transition-colors focus:ring-2 focus:ring-brand-500/50 focus:outline-none placeholder:text-white/20 text-center"
+              className="w-full glass-input text-white/90 py-2.5 px-2 sm:py-2 sm:px-3 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm hover:bg-white/[0.08] transition-colors focus:ring-2 focus:ring-brand-500/50 focus:outline-none placeholder:text-white/20 text-center min-h-[40px] sm:min-h-[0px]"
             />
           </div>
           <div className="w-14 sm:w-16 text-center py-1.5 px-1.5 sm:py-2 sm:px-2 rounded-lg sm:rounded-xl bg-white/5 border border-white/10 font-mono font-bold text-brand-400 flex flex-col justify-center">
@@ -309,7 +309,7 @@ const CourseSelect = ({ course, value, onChange }: any) => {
           max="100" 
           value={value === '' ? 0 : value}
           onChange={(e) => onChange(parseInt(e.target.value))}
-          className="w-full h-1 sm:h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-brand-500 hover:accent-brand-400 transition-all opacity-50 group-hover:opacity-100"
+          className="w-full h-2 sm:h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-brand-500 hover:accent-brand-400 transition-all opacity-50 group-hover:opacity-100"
         />
       </div>
     </motion.div>
@@ -367,7 +367,7 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
       {/* PODIUM VISUAL */}
       <div className="flex items-end justify-center gap-2 sm:gap-6 pt-10 h-72 sm:h-80 w-full max-w-2xl mx-auto overflow-hidden">
         {podiumData.map((student, idx) => {
-          if (!student) return <div key={`empty-${idx}`} className="w-1/3 max-w-[140px]" />;
+          if (!student) return <div key={`empty-${idx}`} className="w-1/3 max-w-[120px] sm:max-w-[180px]" />;
           
           // Visual Height classes (strictly by position 0,1,2 in podiumData which are Left/Center/Right)
           const isCenter = idx === 1;
@@ -397,7 +397,7 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
               viewport={{ once: true }}
               className={`flex flex-col justify-end w-1/3 max-w-[140px] relative ${isCenter ? 'z-10' : 'z-0'}`}
             >
-              <div className="mb-2 sm:mb-4 text-center px-1 sm:px-2 w-full flex flex-col items-center justify-end relative h-[80px] sm:h-[100px]">
+              <div className="mb-2 sm:mb-4 text-center px-0.5 sm:px-2 w-full flex flex-col items-center justify-end relative h-[80px] sm:h-[100px]">
                 {student.rank === 1 ? (
                   <motion.div 
                     animate={{ y: [-3, 3, -3] }} 
@@ -410,15 +410,15 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
                   <Medal className={`${rankColorClass} mx-auto mb-2 opacity-80`} size={24} />
                 )}
                 
-                <span className={`font-bold block text-sm sm:text-base w-full truncate overflow-hidden whitespace-nowrap ${student.rank === 1 ? 'text-white' : 'text-white/80'}`} title={student.name}>
-                  {student.name.split(' ')[0]} 
+                <span className={`font-bold block text-[11px] sm:text-base w-full truncate overflow-hidden whitespace-nowrap px-0.5 sm:px-1 ${student.rank === 1 ? 'text-white' : 'text-white/80'}`} title={student.name}>
+                  {student.name.length > 15 ? `${student.name.substring(0, 13)}...` : student.name} 
                 </span>
                 <span className={`text-xl sm:text-3xl font-extrabold block mt-1 ${rankColorClass} ${student.rank === 1 ? 'drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]' : ''}`}>
                   {student.cgpa.toFixed(2)}
                 </span>
               </div>
               <div className={`w-full rounded-t-xl flex justify-center pt-4 font-extrabold ${heightClass} ${rankBgClass} ${rankColorClass}`}>
-                <span className={student.rank === 1 ? "text-6xl opacity-90" : "text-4xl opacity-50"}>{student.rank}</span>
+                <span className={student.rank === 1 ? "text-5xl sm:text-6xl opacity-90" : "text-3xl sm:text-4xl opacity-50"}>{student.rank}</span>
               </div>
             </motion.div>
           );
@@ -511,7 +511,7 @@ const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onComplete();
-    }, 800);
+    }, 300);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
@@ -519,13 +519,13 @@ const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
     <motion.div 
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
       className="fixed inset-0 z-[200] bg-[#020617] flex flex-col items-center justify-center"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
         className="relative"
       >
         <div className="absolute inset-0 bg-brand-500/30 blur-3xl rounded-full" />
@@ -873,7 +873,7 @@ function App() {
             </motion.div>
           </section>
 
-          <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 space-y-8 sm:space-y-16">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-16">
             
             <section className="space-y-4 sm:space-y-8">
               <motion.div 
