@@ -1,14 +1,16 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { 
   GraduationCap, Calculator, Award, Sparkles, 
   Trophy, Medal, Activity, Database, Code, Zap,
-  TrendingUp, TrendingDown, BookOpen, AlertTriangle, X
+  TrendingUp, TrendingDown, BookOpen, AlertTriangle, X,
+  ChevronDown, ChevronUp, Share2, Users
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, 
   Cell, ReferenceLine, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts';
+import html2canvas from 'html2canvas';
 import { supabase } from './lib/supabase';
 
 const getGradePoint = (marks: number): number => {
@@ -644,6 +646,33 @@ function App() {
   const [submitError, setSubmitError] = useState('');
   const [hasSubmitted, setHasSubmitted] = useState(() => localStorage.getItem('hasSubmitted') === 'true');
 
+  const [isStatsOpen, setIsStatsOpen] = useState(false);
+  const [isDownloadingWrapped, setIsDownloadingWrapped] = useState(false);
+  const wrappedRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadWrapped = async () => {
+    if (!wrappedRef.current) return;
+    setIsDownloadingWrapped(true);
+    try {
+      const canvas = await html2canvas(wrappedRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#0f172a'
+      });
+      const url = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `UBIT_Wrapped_${submitName || 'Batch28'}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error("Failed to generate wrapped image", err);
+    } finally {
+      setIsDownloadingWrapped(false);
+    }
+  };
+
   // Initialize from LocalStorage
   const [sem1Grades, setSem1Grades] = useState<Record<string, number | ''>>(() => {
     const saved = localStorage.getItem('sem1Grades');
@@ -820,6 +849,33 @@ function App() {
       }))
     ];
   }, [sem1Grades, sem2Grades]);
+
+  const userPercentile = useMemo(() => {
+    if (!hasSubmitted || Number(cgpa) <= 0 || leaderboardData.length === 0) return null;
+    const userScore = Number(cgpa);
+    const lowerScores = leaderboardData.filter(student => student.cgpa < userScore).length;
+    const percentile = Math.floor((lowerScores / leaderboardData.length) * 100);
+    return Math.max(1, percentile); 
+  }, [hasSubmitted, cgpa, leaderboardData]);
+
+  const globalStats = useMemo(() => {
+    if (leaderboardData.length === 0) return null;
+    
+    const sorted = [...leaderboardData].sort((a, b) => a.cgpa - b.cgpa);
+    const total = sorted.length;
+    const sum = sorted.reduce((acc, curr) => acc + curr.cgpa, 0);
+    const avg = sum / total;
+    const median = sorted[Math.floor(total / 2)].cgpa;
+    const top10Index = Math.floor(total * 0.9);
+    const top10Cutoff = sorted[top10Index]?.cgpa || sorted[total - 1].cgpa;
+
+    return {
+      total,
+      avg: avg.toFixed(2),
+      median: median.toFixed(2),
+      top10Cutoff: top10Cutoff.toFixed(2)
+    };
+  }, [leaderboardData]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -1069,6 +1125,47 @@ function App() {
                   </ResponsiveContainer>
                 </motion.div>
               </div>
+
+              <div className="mt-8">
+                <button 
+                  onClick={() => setIsStatsOpen(!isStatsOpen)}
+                  className="w-full flex items-center justify-between p-4 sm:p-6 glass rounded-2xl border border-slate-300 hover:bg-white/60 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-500/10 p-2 rounded-lg group-hover:bg-blue-500/20 transition-colors">
+                      <Users className="text-blue-500 w-5 h-5" />
+                    </div>
+                    <span className="font-bold text-slate-800 text-sm sm:text-base">View Global Batch Insights</span>
+                  </div>
+                  {isStatsOpen ? <ChevronUp className="text-slate-400" /> : <ChevronDown className="text-slate-400" />}
+                </button>
+
+                <AnimatePresence>
+                  {isStatsOpen && globalStats && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                        <div className="glass-card p-5 sm:p-6 rounded-2xl border border-slate-300">
+                           <p className="text-sm font-bold text-slate-800 mb-3 tracking-wide">The Competition is Strong ⚔️</p>
+                           <p className="text-slate-600 text-sm leading-relaxed">
+                             Based on <span className="font-bold text-brand-500">{globalStats.total}</span> students currently on the leaderboard, the median CGPA sits at a solid <span className="font-bold text-slate-800">{globalStats.median}</span>. Half the batch is scoring above this mark!
+                           </p>
+                        </div>
+                        <div className="glass-card p-5 sm:p-6 rounded-2xl border border-slate-300">
+                           <p className="text-sm font-bold text-slate-800 mb-3 tracking-wide">The Elite Tier 👑</p>
+                           <p className="text-slate-600 text-sm leading-relaxed">
+                             Want to break into the Top 10% of Batch '28? You'll need to aim for a <span className="font-bold text-brand-500">{globalStats.top10Cutoff}</span> or higher to secure your spot among the absolute best.
+                           </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </section>
 
             <section id="leaderboard" className="space-y-4 sm:space-y-8 pt-4 sm:pt-8 pb-12">
@@ -1105,6 +1202,32 @@ function App() {
                     {hasSubmitted ? "Update Score on Leaderboard" : "Submit Your CGPA to Leaderboard"}
                   </button>
                   <p className="text-slate-500 text-xs mt-4">Powered by Supabase</p>
+
+                  <AnimatePresence>
+                    {hasSubmitted && userPercentile && (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="mt-8 flex flex-col items-center gap-5 w-full"
+                      >
+                        <div className="bg-brand-500/10 border border-brand-500/20 px-5 py-2.5 rounded-full">
+                          <p className="text-brand-600 text-[11px] sm:text-sm font-semibold text-center">
+                            You rank in the <span className="font-extrabold text-brand-500 text-sm sm:text-base">{userPercentile}{userPercentile % 10 === 1 && userPercentile !== 11 ? 'st' : userPercentile % 10 === 2 && userPercentile !== 12 ? 'nd' : userPercentile % 10 === 3 && userPercentile !== 13 ? 'rd' : 'th'} percentile</span> of the class.
+                          </p>
+                        </div>
+
+                        <button 
+                          onClick={handleDownloadWrapped}
+                          disabled={isDownloadingWrapped}
+                          className="flex items-center justify-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl sm:rounded-2xl font-bold shadow-[0_10px_30px_rgba(15,23,42,0.3)] transition-all hover:-translate-y-1 active:scale-95 disabled:opacity-50 w-full sm:w-auto text-sm sm:text-base"
+                        >
+                          {isDownloadingWrapped ? <Activity className="animate-spin" size={18} /> : <Share2 size={18} />}
+                          {isDownloadingWrapped ? "Generating..." : "Get Your Wrapped Snapshot"}
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               </div>
             </section>
@@ -1113,6 +1236,66 @@ function App() {
         </main>
 
         <Footer />
+
+        {/* HIDDEN WRAPPED COMPONENT FOR EXPORT */}
+        <div className="fixed top-0 left-0 -z-50 opacity-0 pointer-events-none">
+          <div 
+            ref={wrappedRef}
+            className="w-[1080px] h-[1920px] bg-[#0f172a] flex flex-col justify-between overflow-hidden relative"
+            style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
+          >
+            <div className="absolute top-[-10%] right-[-20%] w-[800px] h-[800px] rounded-full bg-emerald-500/30 blur-[120px] z-0" />
+            <div className="absolute bottom-[-10%] left-[-20%] w-[800px] h-[800px] rounded-full bg-teal-500/30 blur-[120px] z-0" />
+            
+            <div className="relative z-10 p-20 w-full flex items-center justify-between">
+               <div className="flex items-center gap-6">
+                 <div className="bg-emerald-500/20 p-6 rounded-3xl border border-emerald-500/30">
+                   <GraduationCap size={80} className="text-emerald-400" />
+                 </div>
+                 <span className="text-5xl font-black text-white tracking-widest">DCS <span className="text-emerald-400">UBIT</span></span>
+               </div>
+               <span className="text-4xl font-black text-emerald-400 tracking-widest bg-emerald-500/10 px-8 py-4 rounded-3xl border border-emerald-500/30">BATCH '28</span>
+            </div>
+
+            <div className="relative z-10 px-20 flex-1 flex flex-col justify-center">
+               <p className="text-6xl font-semibold text-slate-400 mb-6 uppercase tracking-widest">Academic Year 2024</p>
+               <h1 className="text-[7rem] font-black text-white mb-20 tracking-tighter leading-[1.1] uppercase line-clamp-2">
+                  {submitName || "Student"}<br/><span className="text-emerald-400">Wrapped.</span>
+               </h1>
+
+               <div className="bg-white/5 border border-white/10 rounded-[4rem] p-16 backdrop-blur-md mb-12 shadow-2xl">
+                  <p className="text-4xl font-semibold text-slate-400 uppercase tracking-widest mb-6">Final Cumulative GPA</p>
+                  <div className="text-[14rem] leading-none font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-8 tracking-tighter">
+                    {cgpa}
+                  </div>
+                  {userPercentile && (
+                    <div className="inline-block px-10 py-5 bg-emerald-500/20 border border-emerald-500/40 rounded-full">
+                      <p className="text-4xl font-bold text-emerald-400">Top {100 - userPercentile}% of the Batch 🏆</p>
+                    </div>
+                  )}
+               </div>
+
+               {bestCourse && bestCourse.name !== 'N/A' && (
+                 <div className="bg-white/5 border border-white/10 rounded-[4rem] p-16 backdrop-blur-md shadow-2xl">
+                   <p className="text-4xl font-semibold text-slate-400 uppercase tracking-widest mb-6">Hard Carry Subject</p>
+                   <p className="text-6xl font-bold text-white leading-tight mb-6">{bestCourse.name}</p>
+                   <div className="inline-block px-8 py-4 bg-teal-500/20 border border-teal-500/40 rounded-full">
+                      <p className="text-3xl font-bold text-teal-400">Scored {bestCourse.gp.toFixed(1)} Grade Points 🔥</p>
+                   </div>
+                 </div>
+               )}
+            </div>
+
+            <div className="relative z-10 p-20 w-full flex items-center justify-between border-t border-white/10 bg-black/20">
+               <p className="text-4xl font-bold text-slate-500 tracking-wide">ubit-gpa-calculator.vercel.app</p>
+               <div className="flex items-center gap-8 opacity-50">
+                 <Zap size={48} className="text-white" />
+                 <Database size={48} className="text-white" />
+                 <Code size={48} className="text-white" />
+               </div>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
