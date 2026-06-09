@@ -123,38 +123,38 @@ const containerVariants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+    transition: { staggerChildren: 0.05, delayChildren: 0.1 }
   }
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring" as any, stiffness: 100 } }
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
 };
 
 const Header = () => (
   <motion.header 
-    initial={{ y: -100 }}
-    animate={{ y: 0 }}
-    transition={{ type: "spring" as any, stiffness: 100, damping: 20 }}
-    className="sticky top-0 z-50 w-full glass border-b border-white/5 py-3"
+    initial={{ y: -50, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+    className="sticky top-0 z-50 w-full glass border-b border-white/5 py-1.5 sm:py-3"
   >
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-      <div className="flex items-center gap-3">
-        <div className="bg-brand-500/20 p-2 rounded-xl border border-brand-500/30">
-          <GraduationCap className="text-brand-400" size={20} />
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="bg-brand-500/20 p-1 sm:p-2 rounded-lg sm:rounded-xl border border-brand-500/30">
+          <GraduationCap className="text-brand-400 w-4 h-4 sm:w-[18px] sm:h-[18px]" />
         </div>
-        <div className="font-bold text-lg tracking-tight text-white/90">
+        <div className="font-bold text-base sm:text-lg tracking-tight text-white/90">
           DCS <span className="text-brand-400">UBIT</span>
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-white/60">
           <a href="#calculator" className="hover:text-white transition-colors">Calculator</a>
           <a href="#analytics" className="hover:text-white transition-colors">Analytics</a>
           <a href="#leaderboard" className="hover:text-white transition-colors">Leaderboard</a>
         </nav>
-        <div className="px-3 py-1 rounded-full bg-white/10 text-white border border-white/20 text-xs font-bold tracking-wider">
+        <div className="px-2 sm:px-3 py-1 rounded-full bg-white/10 text-white border border-white/20 text-[10px] sm:text-xs font-bold tracking-wider">
           BATCH '28
         </div>
       </div>
@@ -210,7 +210,7 @@ const Footer = () => (
 const MetricCard = ({ title, value, icon: Icon, highlight = false, subtitle = "" }: any) => (
   <motion.div
     variants={itemVariants}
-    className={`relative overflow-hidden p-6 rounded-[2rem] transition-all hover:-translate-y-1 ${highlight ? 'bg-gradient-to-br from-brand-600/90 to-brand-400/90 border border-brand-400/50 shadow-[0_0_40px_rgba(20,184,166,0.2)] text-white' : 'glass-card border border-white/5 hover:border-white/10'}`}
+    className={`relative overflow-hidden p-3 sm:p-6 rounded-2xl sm:rounded-[2rem] transition-all hover:-translate-y-1 ${highlight ? 'bg-gradient-to-br from-brand-600/90 to-brand-400/90 border border-brand-400/50 shadow-[0_0_30px_rgba(20,184,166,0.2)] text-white' : 'glass-card border border-white/5 hover:border-white/10'}`}
   >
     {highlight && (
       <>
@@ -218,30 +218,31 @@ const MetricCard = ({ title, value, icon: Icon, highlight = false, subtitle = ""
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full blur-xl -ml-8 -mb-8" />
       </>
     )}
-    <div className="relative z-10 flex items-center justify-between mb-4">
-      <h3 className={`text-xs font-semibold uppercase tracking-widest ${highlight ? 'text-white/90' : 'text-white/50'}`}>
+    <div className="relative z-10 flex items-center justify-between mb-2 sm:mb-4">
+      <h3 className={`text-[9px] sm:text-xs font-semibold uppercase tracking-widest ${highlight ? 'text-white/90' : 'text-white/50'}`}>
         {title}
       </h3>
-      <div className={`p-2.5 rounded-2xl ${highlight ? 'bg-white/20 text-white backdrop-blur-md' : 'bg-white/5 text-brand-400'}`}>
-        <Icon size={18} strokeWidth={2.5} />
+      <div className={`p-1.5 sm:p-2.5 rounded-lg sm:rounded-2xl ${highlight ? 'bg-white/20 text-white backdrop-blur-md' : 'bg-white/5 text-brand-400'}`}>
+        <Icon size={16} className="w-[14px] h-[14px] sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
       </div>
     </div>
     <div className="relative z-10">
-      <div className="flex items-baseline gap-2">
+      <div className="flex items-baseline gap-1.5 sm:gap-2">
         <AnimatePresence mode="wait">
           <motion.div
             key={value}
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-4xl sm:text-5xl font-extrabold tracking-tight"
+            transition={{ duration: 0.3 }}
+            className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight"
           >
             {value}
           </motion.div>
         </AnimatePresence>
-        {!subtitle && <span className={`text-lg font-medium ${highlight ? 'text-white/70' : 'text-white/30'}`}>/ 4.0</span>}
+        {!subtitle && <span className={`text-sm sm:text-lg font-medium ${highlight ? 'text-white/70' : 'text-white/30'}`}>/ 4.0</span>}
       </div>
       {subtitle && (
-        <div className={`mt-1 text-sm font-medium ${highlight ? 'text-white/80' : 'text-white/50'} truncate`}>
+        <div className={`mt-0.5 sm:mt-1 text-xs sm:text-sm font-medium ${highlight ? 'text-white/80' : 'text-white/50'} truncate`}>
           {subtitle}
         </div>
       )}
@@ -255,24 +256,24 @@ const CourseSelect = ({ course, value, onChange }: any) => {
   return (
     <motion.div 
       variants={itemVariants}
-      className="group flex flex-col p-4 rounded-2xl hover:bg-white/[0.03] border border-transparent hover:border-white/[0.05] transition-all gap-4"
+      className="group flex flex-col p-2 sm:p-4 rounded-xl hover:bg-white/[0.03] border border-transparent hover:border-white/[0.05] transition-all gap-2 sm:gap-4"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-white/5 border border-white/10 text-brand-400 group-hover:scale-105 group-hover:bg-brand-500/10 transition-transform shrink-0">
-            <span className="text-[10px] uppercase font-bold text-white/40 mb-[-2px]">{course.code.split('-')[0]}</span>
-            <span className="font-extrabold">{course.code.split('-')[1]}</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 flex-1">
+          <div className="flex flex-col items-center justify-center w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-white/5 border border-white/10 text-brand-400 group-hover:scale-105 group-hover:bg-brand-500/10 transition-transform shrink-0">
+            <span className="text-[7px] sm:text-[10px] uppercase font-bold text-white/40 mb-[-4px] sm:mb-[-2px]">{course.code.split('-')[0]}</span>
+            <span className="text-xs sm:text-base font-extrabold">{course.code.split('-')[1]}</span>
           </div>
           <div>
-            <div className="font-semibold text-white/90 group-hover:text-white transition-colors text-[15px] leading-tight">
+            <div className="font-semibold text-white/90 group-hover:text-white transition-colors text-[13px] sm:text-[15px] leading-tight">
               {course.name}
             </div>
-            <div className="text-[11px] font-medium text-white/40 mt-1">
+            <div className="text-[9px] sm:text-[11px] font-medium text-white/40 mt-0.5 sm:mt-1 truncate max-w-[200px] sm:max-w-none">
               {course.instructor}
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-24">
             <input
               type="number"
@@ -291,12 +292,12 @@ const CourseSelect = ({ course, value, onChange }: any) => {
               }}
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="Marks"
-              className="w-full glass-input text-white/90 py-2 px-3 rounded-xl font-bold text-sm hover:bg-white/[0.08] transition-colors focus:ring-2 focus:ring-brand-500/50 focus:outline-none placeholder:text-white/20 text-center"
+              className="w-full glass-input text-white/90 py-1.5 px-2 sm:py-2 sm:px-3 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm hover:bg-white/[0.08] transition-colors focus:ring-2 focus:ring-brand-500/50 focus:outline-none placeholder:text-white/20 text-center"
             />
           </div>
-          <div className="w-16 text-center py-2 px-2 rounded-xl bg-white/5 border border-white/10 font-mono font-bold text-brand-400 flex flex-col justify-center">
-            <span className="text-[9px] text-white/30 leading-none mb-1">GP</span>
-            <span className="leading-none">{value === '' ? '-' : gp.toFixed(1)}</span>
+          <div className="w-14 sm:w-16 text-center py-1.5 px-1.5 sm:py-2 sm:px-2 rounded-lg sm:rounded-xl bg-white/5 border border-white/10 font-mono font-bold text-brand-400 flex flex-col justify-center">
+            <span className="text-[8px] sm:text-[9px] text-white/30 leading-none mb-0.5 sm:mb-1">GP</span>
+            <span className="text-sm sm:text-base leading-none">{value === '' ? '-' : gp.toFixed(1)}</span>
           </div>
         </div>
       </div>
@@ -308,7 +309,7 @@ const CourseSelect = ({ course, value, onChange }: any) => {
           max="100" 
           value={value === '' ? 0 : value}
           onChange={(e) => onChange(parseInt(e.target.value))}
-          className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-brand-500 hover:accent-brand-400 transition-all opacity-50 group-hover:opacity-100"
+          className="w-full h-1 sm:h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-brand-500 hover:accent-brand-400 transition-all opacity-50 group-hover:opacity-100"
         />
       </div>
     </motion.div>
@@ -391,13 +392,13 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
           return (
             <motion.div 
               key={student.name}
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: isCenter ? 0.1 : isLeft ? 0.3 : 0.5, type: "spring" as any, stiffness: 100 }}
+              transition={{ delay: isCenter ? 0.05 : isLeft ? 0.15 : 0.25, duration: 0.5, ease: "easeOut" }}
               viewport={{ once: true }}
               className={`flex flex-col justify-end w-1/3 max-w-[140px] relative ${isCenter ? 'z-10' : 'z-0'}`}
             >
-              <div className="mb-4 text-center px-2 w-full flex flex-col items-center justify-end relative h-[100px]">
+              <div className="mb-2 sm:mb-4 text-center px-1 sm:px-2 w-full flex flex-col items-center justify-end relative h-[80px] sm:h-[100px]">
                 {student.rank === 1 ? (
                   <motion.div 
                     animate={{ y: [-3, 3, -3] }} 
@@ -467,11 +468,11 @@ const BoycottModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => voi
           onClick={onClose}
         >
           <motion.div 
-            initial={{ scale: 0.9, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.9, y: 20 }}
-            transition={{ type: "spring" as any, damping: 25, stiffness: 300 }}
-            className="bg-[#0f172a] border border-white/10 rounded-3xl p-8 max-w-lg w-full relative overflow-hidden shadow-2xl"
+            initial={{ scale: 0.95, y: 10, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.95, y: 10, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="bg-[#0f172a] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-lg w-full relative overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             <div className="absolute inset-0 pointer-events-none opacity-90 overflow-hidden flex flex-col justify-center gap-8 -rotate-12 scale-150">
@@ -523,9 +524,9 @@ const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
       className="fixed inset-0 z-[200] bg-[#020617] flex flex-col items-center justify-center"
     >
       <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
+        initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.8, type: "spring", bounce: 0.5 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
         className="relative"
       >
         <div className="absolute inset-0 bg-brand-500/30 blur-3xl rounded-full" />
@@ -559,11 +560,11 @@ const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmitting, e
           onClick={onClose}
         >
           <motion.div 
-            initial={{ scale: 0.9, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.9, y: 20 }}
-            transition={{ type: "spring" as any, damping: 25, stiffness: 300 }}
-            className="bg-[#0f172a] border border-white/10 rounded-3xl p-8 max-w-md w-full relative overflow-hidden shadow-2xl"
+            initial={{ scale: 0.95, y: 10, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.95, y: 10, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="bg-[#0f172a] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full relative overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             <button 
@@ -836,10 +837,10 @@ function App() {
           <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-brand-900/20 via-[#020617] to-blue-900/20" />
         </div>
 
-        <main className="pb-16 space-y-16">
+        <main className="pb-6 sm:pb-16 space-y-6 sm:space-y-16">
           
-          {/* HERO SECTION - REDUCED PADDING */}
-          <section id="calculator" className="relative pt-12 pb-8 px-4">
+          {/* HERO SECTION - REDUCED PADDING FOR MOBILE */}
+          <section id="calculator" className="relative pt-4 sm:pt-12 pb-4 sm:pb-8 px-4">
             <div className="absolute inset-0 w-full h-full -z-10 overflow-hidden">
                <img 
                   src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" 
@@ -851,31 +852,31 @@ function App() {
             </div>
 
             <motion.div 
-              initial={{ opacity: 0, y: -30 }}
+              initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="text-center relative max-w-4xl mx-auto"
             >
               <div className="inline-block relative">
-                <div className="absolute inset-0 bg-brand-500/30 blur-2xl rounded-full" />
-                <div className="relative inline-flex items-center justify-center p-4 bg-white/5 border border-white/10 rounded-3xl mb-6 shadow-2xl backdrop-blur-xl">
-                  <GraduationCap size={40} className="text-brand-400" />
+                <div className="absolute inset-0 bg-brand-500/30 blur-xl rounded-full" />
+                <div className="relative inline-flex items-center justify-center p-3 sm:p-4 bg-white/5 border border-white/10 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-2xl backdrop-blur-xl">
+                  <GraduationCap className="text-brand-400 w-8 h-8 sm:w-10 sm:h-10" />
                 </div>
               </div>
               
-              <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white via-white/90 to-white/40 mb-4 tracking-tighter">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white via-white/90 to-white/40 mb-3 sm:mb-4 tracking-tighter">
                 GPA Calculator
               </h1>
-              <p className="text-lg md:text-xl text-white/60 font-medium max-w-2xl mx-auto flex items-center justify-center gap-3">
-                <Sparkles size={20} className="text-brand-400" />
+              <p className="text-sm sm:text-lg md:text-xl text-white/60 font-medium max-w-2xl mx-auto flex items-center justify-center gap-2 sm:gap-3">
+                <Sparkles className="text-brand-400 w-4 h-4 sm:w-5 sm:h-5" />
                 Department of Computer Science
               </p>
             </motion.div>
           </section>
 
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-16">
             
-            <section className="space-y-8">
+            <section className="space-y-4 sm:space-y-8">
               <motion.div 
                 variants={containerVariants}
                 initial="hidden"
@@ -897,16 +898,16 @@ function App() {
               >
                 <motion.div 
                   variants={itemVariants}
-                  className="glass rounded-[2.5rem] p-6 md:p-10 border-white/5 relative overflow-hidden"
+                  className="glass rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10 border-white/5 relative overflow-hidden"
                 >
-                  <div className="relative z-10 flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 flex items-center justify-center text-lg font-bold text-brand-400 shadow-[0_0_20px_rgba(20,184,166,0.15)]">
+                  <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
+                    <div className="flex items-center gap-2 sm:gap-4">
+                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-brand-400 shadow-[0_0_20px_rgba(20,184,166,0.15)]">
                         01
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold text-white/90 tracking-tight">Semester One</h2>
-                        <p className="text-sm font-medium text-white/40 uppercase tracking-widest mt-1">18 Credits</p>
+                        <h2 className="text-lg sm:text-2xl font-bold text-white/90 tracking-tight">Semester One</h2>
+                        <p className="text-[10px] sm:text-sm font-medium text-white/40 uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
                       </div>
                     </div>
                   </div>
@@ -922,16 +923,16 @@ function App() {
 
                 <motion.div 
                   variants={itemVariants}
-                  className="glass rounded-[2.5rem] p-6 md:p-10 border-white/5 relative overflow-hidden h-fit"
+                  className="glass rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10 border-white/5 relative overflow-hidden h-fit"
                 >
-                  <div className="relative z-10 flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 flex items-center justify-center text-lg font-bold text-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
+                  <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
+                    <div className="flex items-center gap-2 sm:gap-4">
+                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
                         02
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold text-white/90 tracking-tight">Semester Two</h2>
-                        <p className="text-sm font-medium text-white/40 uppercase tracking-widest mt-1">18 Credits</p>
+                        <h2 className="text-lg sm:text-2xl font-bold text-white/90 tracking-tight">Semester Two</h2>
+                        <p className="text-[10px] sm:text-sm font-medium text-white/40 uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
                       </div>
                     </div>
                   </div>
@@ -948,17 +949,17 @@ function App() {
                 <motion.div 
                   variants={itemVariants}
                   onClick={() => setIsModalOpen(true)}
-                  className="xl:col-span-2 glass rounded-[2.5rem] p-6 md:p-8 border-white/5 relative overflow-hidden cursor-pointer hover:border-yellow-400/30 transition-colors group"
+                  className="xl:col-span-2 glass rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 md:p-8 border-white/5 relative overflow-hidden cursor-pointer hover:border-yellow-400/30 transition-colors group"
                 >
                   <div className="relative z-10 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/20 flex items-center justify-center text-lg font-bold text-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.15)] group-hover:scale-110 transition-transform">
+                    <div className="flex items-center gap-2 sm:gap-4">
+                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.15)] group-hover:scale-110 transition-transform">
                         03
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold text-white/90 tracking-tight">Semester Three</h2>
-                        <p className="text-sm font-medium text-yellow-400/80 uppercase tracking-widest mt-1 flex items-center gap-2">
-                          <AlertTriangle size={14} /> Pending Exams
+                        <h2 className="text-lg sm:text-2xl font-bold text-white/90 tracking-tight">Semester Three</h2>
+                        <p className="text-[9px] sm:text-sm font-medium text-yellow-400/80 uppercase tracking-widest mt-0.5 sm:mt-1 flex items-center gap-1 sm:gap-2">
+                          <AlertTriangle size={12} className="w-[10px] h-[10px] sm:w-[14px] sm:h-[14px]" /> Pending Exams
                         </p>
                       </div>
                     </div>
@@ -970,18 +971,18 @@ function App() {
               </motion.div>
             </section>
 
-            <section id="analytics" className="space-y-8 pt-8">
+            <section id="analytics" className="space-y-4 sm:space-y-8 pt-4 sm:pt-8">
               <motion.div 
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="flex items-center justify-between mb-8"
+                className="flex items-center justify-between mb-4 sm:mb-8"
               >
-                <div className="flex items-center gap-4">
-                  <div className="bg-white/5 p-3 rounded-xl border border-white/10">
-                    <Activity className="text-brand-400" size={24} />
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="bg-white/5 p-2 sm:p-3 rounded-lg sm:rounded-xl border border-white/10">
+                    <Activity className="text-brand-400 w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <h2 className="text-3xl font-extrabold text-white">Advanced Analytics</h2>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Advanced Analytics</h2>
                 </div>
                 <button
                   onClick={() => exportToJson(sem1Grades, sem2Grades, { cgpa, gpa1, gpa2 })}
@@ -992,18 +993,19 @@ function App() {
                 </button>
               </motion.div>
               
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 mb-4 sm:mb-6">
                 <MetricCard title="Best Performing Course" value={bestCourse.gp.toFixed(1)} subtitle={bestCourse.name} icon={TrendingUp} />
                 <MetricCard title="Needs Improvement" value={worstCourse.gp.toFixed(1)} subtitle={worstCourse.name} icon={TrendingDown} />
                 <MetricCard title="Total Credits Taken" value="36" subtitle="Across 2 Semesters" icon={BookOpen} />
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 <motion.div 
-                   initial={{ opacity: 0, y: 20 }}
+                   initial={{ opacity: 0, y: 15 }}
                    whileInView={{ opacity: 1, y: 0 }}
+                   transition={{ duration: 0.5, ease: "easeOut" }}
                    viewport={{ once: true }}
-                   className="glass rounded-[2.5rem] p-6 border-white/5 lg:col-span-1 h-[400px] flex flex-col items-center justify-center"
+                   className="glass rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 border-white/5 lg:col-span-1 h-[250px] sm:h-[400px] flex flex-col items-center justify-center"
                 >
                   <h3 className="text-white/80 font-bold mb-4">Skill Distribution</h3>
                   <ResponsiveContainer width="100%" height="100%">
@@ -1018,10 +1020,11 @@ function App() {
                 </motion.div>
 
                 <motion.div 
-                   initial={{ opacity: 0, y: 20 }}
+                   initial={{ opacity: 0, y: 15 }}
                    whileInView={{ opacity: 1, y: 0 }}
+                   transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
                    viewport={{ once: true }}
-                   className="glass rounded-[2.5rem] p-6 md:p-10 border-white/5 lg:col-span-2 h-[400px]"
+                   className="glass rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10 border-white/5 lg:col-span-2 h-[250px] sm:h-[400px]"
                 >
                   <h3 className="text-white/80 font-bold mb-6">Course by Course Comparison</h3>
                   <ResponsiveContainer width="100%" height="90%">
@@ -1041,23 +1044,23 @@ function App() {
               </div>
             </section>
 
-            <section id="leaderboard" className="space-y-8 pt-8 pb-12">
+            <section id="leaderboard" className="space-y-4 sm:space-y-8 pt-4 sm:pt-8 pb-12">
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="flex items-center gap-4 mb-2 text-center justify-center flex-col"
+                className="flex items-center gap-2 sm:gap-4 mb-2 text-center justify-center flex-col"
               >
-                <div className="bg-gradient-to-br from-yellow-400 to-amber-600 p-4 rounded-2xl shadow-[0_0_30px_rgba(250,204,21,0.3)] mb-4 inline-flex">
-                  <Trophy className="text-white" size={32} />
+                <div className="bg-gradient-to-br from-yellow-400 to-amber-600 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(250,204,21,0.3)] mb-2 sm:mb-4 inline-flex">
+                  <Trophy className="text-white w-6 h-6 sm:w-8 sm:h-8" />
                 </div>
                 <div>
-                  <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-amber-500">The Leaderboard</h2>
-                  <p className="text-white/50 text-base mt-2 max-w-md mx-auto">The absolute best of Batch '28. Submit your CGPA to claim your spot on the podium.</p>
+                  <h2 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-amber-500">The Leaderboard</h2>
+                  <p className="text-white/50 text-sm sm:text-base mt-2 max-w-md mx-auto">The absolute best of Batch '28. Submit your CGPA to claim your spot on the podium.</p>
                 </div>
               </motion.div>
 
-              <div className="glass rounded-[3rem] p-4 sm:p-8 md:p-12 border-white/5 relative overflow-hidden min-h-[400px]">
+              <div className="glass rounded-[2rem] sm:rounded-[3rem] p-4 sm:p-8 md:p-12 border-white/5 relative overflow-hidden min-h-[250px] sm:min-h-[400px]">
                 <PodiumLeaderboard data={leaderboardData} isLoading={isLeaderboardLoading} />
 
                 <motion.div 
@@ -1067,17 +1070,17 @@ function App() {
                   className="mt-16 pt-10 border-t border-white/5 text-center relative z-10 flex flex-col items-center"
                 >
                   {hasSubmitted ? (
-                    <div className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white/50 font-bold tracking-wide flex items-center gap-3">
-                      <Trophy size={18} className="text-yellow-400" />
+                    <div className="px-6 py-3 sm:px-8 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white/50 font-bold tracking-wide flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
+                      <Trophy size={16} className="text-yellow-400 sm:w-[18px] sm:h-[18px]" />
                       Your Score is on the Leaderboard!
                     </div>
                   ) : (
                     <button 
                       onClick={() => setIsSubmitModalOpen(true)}
                       disabled={Number(cgpa) <= 0}
-                      className="px-8 py-4 bg-white/5 hover:bg-white/10 disabled:opacity-50 border border-white/10 rounded-2xl text-white font-bold tracking-wide transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center gap-3"
+                      className="px-6 py-3 sm:px-8 sm:py-4 bg-white/5 hover:bg-white/10 disabled:opacity-50 border border-white/10 rounded-xl sm:rounded-2xl text-white font-bold tracking-wide transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center gap-2 sm:gap-3 text-sm sm:text-base"
                     >
-                      <Database size={18} className="text-brand-400" />
+                      <Database size={16} className="text-brand-400 sm:w-[18px] sm:h-[18px]" />
                       Submit Your CGPA to Leaderboard
                     </button>
                   )}
