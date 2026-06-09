@@ -6,19 +6,19 @@
 
 @layer base {
   body {
-    @apply bg-background text-white antialiased overflow-x-hidden;
+    @apply bg-background text-slate-900 antialiased overflow-x-hidden;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
+    @apply bg-white/70 backdrop-blur-xl border border-slate-400 shadow-[0_8px_32px_0_rgba(0,0,0,0.1)];
   }
   .glass-card {
-    @apply bg-surface/50 backdrop-blur-lg border border-white/[0.08] shadow-2xl;
+    @apply bg-white/80 backdrop-blur-lg border border-slate-400 shadow-2xl;
   }
   .glass-input {
-    @apply bg-black/20 backdrop-blur-md border border-white/[0.1] focus:border-brand-500/50 outline-none transition-all;
+    @apply bg-white/80 backdrop-blur-md border border-slate-400 focus:border-brand-500/50 outline-none transition-all;
   }
   
   /* Custom scrollbar for webkit */
@@ -29,7 +29,7 @@
     @apply bg-transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+    @apply bg-slate-300 rounded-full hover:bg-white/20 transition-colors;
   }
 
   .pixel-hover {

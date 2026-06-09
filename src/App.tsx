@@ -137,24 +137,24 @@ const Header = () => (
     initial={{ y: -50, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-    className="sticky top-0 z-50 w-full glass border-b border-white/5 py-1.5 sm:py-3"
+    className="sticky top-0 z-50 w-full glass border-b border-slate-300 py-1.5 sm:py-3"
   >
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
       <div className="flex items-center gap-2 sm:gap-3">
         <div className="bg-brand-500/20 p-1 sm:p-2 rounded-lg sm:rounded-xl border border-brand-500/30">
           <GraduationCap className="text-brand-400 w-4 h-4 sm:w-[18px] sm:h-[18px]" />
         </div>
-        <div className="font-bold text-base sm:text-lg tracking-tight text-white/90">
+        <div className="font-bold text-base sm:text-lg tracking-tight text-slate-800">
           DCS <span className="text-brand-400">UBIT</span>
         </div>
       </div>
       <div className="flex items-center gap-2 sm:gap-4">
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-white/60">
-          <a href="#calculator" className="hover:text-white transition-colors">Calculator</a>
-          <a href="#analytics" className="hover:text-white transition-colors">Analytics</a>
-          <a href="#leaderboard" className="hover:text-white transition-colors">Leaderboard</a>
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+          <a href="#calculator" className="hover:text-slate-900 transition-colors">Calculator</a>
+          <a href="#analytics" className="hover:text-slate-900 transition-colors">Analytics</a>
+          <a href="#leaderboard" className="hover:text-slate-900 transition-colors">Leaderboard</a>
         </nav>
-        <div className="px-2 sm:px-3 py-1 rounded-full bg-white/10 text-white border border-white/20 text-[10px] sm:text-xs font-bold tracking-wider">
+        <div className="px-2 sm:px-3 py-1 rounded-full bg-white/90 text-slate-900 border border-slate-300 text-[10px] sm:text-xs font-bold tracking-wider">
           BATCH '28
         </div>
       </div>
@@ -163,14 +163,14 @@ const Header = () => (
 );
 
 const Footer = () => (
-  <footer className="w-full border-t border-white/10 mt-16 py-8 bg-black/40 backdrop-blur-md relative overflow-hidden">
+  <footer className="w-full border-t border-slate-300 mt-16 py-8 bg-white/90 backdrop-blur-md relative overflow-hidden">
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
       
       <div className="flex flex-col items-center md:items-start opacity-70 hover:opacity-100 transition-opacity">
-        <div className="text-sm text-white/60 font-medium">
+        <div className="text-sm text-slate-600 font-medium">
           <strong>Developed by AI</strong>
         </div>
-        <div className="text-xs text-white/40 mt-1">
+        <div className="text-xs text-slate-500 mt-1">
           <a 
             href="https://muhammadasad-portfolio.vercel.app/" 
             target="_blank" 
@@ -193,10 +193,10 @@ const Footer = () => (
             <motion.div 
               key={i}
               whileHover={{ scale: 1.15, y: -2 }}
-              className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 transition-all group relative cursor-pointer"
+              className="w-8 h-8 rounded-lg bg-white/70 border border-slate-300 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:border-white/30 transition-all group relative cursor-pointer"
             >
               <Tech.icon size={14} />
-              <span className="absolute -top-7 bg-black/80 px-2 py-1 rounded text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              <span className="absolute -top-7 bg-slate-800 px-2 py-1 rounded text-[10px] font-bold text-slate-900 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                 {Tech.name}
               </span>
             </motion.div>
@@ -210,19 +210,19 @@ const Footer = () => (
 const MetricCard = ({ title, value, icon: Icon, highlight = false, subtitle = "" }: any) => (
   <motion.div
     variants={itemVariants}
-    className={`relative overflow-hidden p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] transition-all hover:-translate-y-1 ${highlight ? 'bg-gradient-to-br from-brand-600/90 to-brand-400/90 border border-brand-400/50 shadow-[0_0_30px_rgba(20,184,166,0.2)] text-white' : 'glass-card border border-white/5 hover:border-white/10'}`}
+    className={`relative overflow-hidden p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] transition-all hover:-translate-y-1 ${highlight ? 'bg-gradient-to-br from-brand-600/90 to-brand-400/90 border border-brand-400/50 shadow-[0_0_30px_rgba(20,184,166,0.2)] text-slate-900' : 'glass-card border border-slate-300 hover:border-slate-300'}`}
   >
     {highlight && (
       <>
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full blur-xl -ml-8 -mb-8" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/90 rounded-full blur-2xl -mr-10 -mt-10" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-slate-100/50 rounded-full blur-xl -ml-8 -mb-8" />
       </>
     )}
     <div className="relative z-10 flex items-center justify-between mb-2 sm:mb-4">
-      <h3 className={`text-[9px] sm:text-xs font-semibold uppercase tracking-widest ${highlight ? 'text-white/90' : 'text-white/50'}`}>
+      <h3 className={`text-[9px] sm:text-xs font-semibold uppercase tracking-widest ${highlight ? 'text-slate-800' : 'text-slate-600'}`}>
         {title}
       </h3>
-      <div className={`p-1.5 sm:p-2.5 rounded-lg sm:rounded-2xl ${highlight ? 'bg-white/20 text-white backdrop-blur-md' : 'bg-white/5 text-brand-400'}`}>
+      <div className={`p-1.5 sm:p-2.5 rounded-lg sm:rounded-2xl ${highlight ? 'bg-white/80 text-slate-900 backdrop-blur-md' : 'bg-white/70 text-brand-400'}`}>
         <Icon size={16} className="w-[14px] h-[14px] sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
       </div>
     </div>
@@ -239,10 +239,10 @@ const MetricCard = ({ title, value, icon: Icon, highlight = false, subtitle = ""
             {value}
           </motion.div>
         </AnimatePresence>
-        {!subtitle && <span className={`text-sm sm:text-lg font-medium ${highlight ? 'text-white/70' : 'text-white/30'}`}>/ 4.0</span>}
+        {!subtitle && <span className={`text-sm sm:text-lg font-medium ${highlight ? 'text-slate-600' : 'text-slate-500'}`}>/ 4.0</span>}
       </div>
       {subtitle && (
-        <div className={`mt-0.5 sm:mt-1 text-xs sm:text-sm font-medium ${highlight ? 'text-white/80' : 'text-white/50'} truncate`}>
+        <div className={`mt-0.5 sm:mt-1 text-xs sm:text-sm font-medium ${highlight ? 'text-slate-700' : 'text-slate-600'} truncate`}>
           {subtitle}
         </div>
       )}
@@ -256,19 +256,19 @@ const CourseSelect = ({ course, value, onChange }: any) => {
   return (
     <motion.div 
       variants={itemVariants}
-      className="group flex flex-col p-3 sm:p-4 rounded-xl hover:bg-white/[0.03] border border-transparent hover:border-white/[0.05] transition-all gap-3 sm:gap-4"
+      className="group flex flex-col p-3 sm:p-4 rounded-xl hover:bg-white/60 border border-transparent hover:border-slate-300/50 transition-all gap-3 sm:gap-4"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
         <div className="flex items-center gap-2 sm:gap-4 flex-1">
-          <div className="flex flex-col items-center justify-center w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-white/5 border border-white/10 text-brand-400 group-hover:scale-105 group-hover:bg-brand-500/10 transition-transform shrink-0">
-            <span className="text-[7px] sm:text-[10px] uppercase font-bold text-white/40 mb-[-4px] sm:mb-[-2px]">{course.code.split('-')[0]}</span>
+          <div className="flex flex-col items-center justify-center w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-white/70 border border-slate-300 text-brand-400 group-hover:scale-105 group-hover:bg-brand-500/10 transition-transform shrink-0">
+            <span className="text-[7px] sm:text-[10px] uppercase font-bold text-slate-500 mb-[-4px] sm:mb-[-2px]">{course.code.split('-')[0]}</span>
             <span className="text-xs sm:text-base font-extrabold">{course.code.split('-')[1]}</span>
           </div>
           <div>
-            <div className="font-semibold text-white/90 group-hover:text-white transition-colors text-[13px] sm:text-[15px] leading-tight min-h-[32px] sm:min-h-[44px] flex items-end sm:items-center">
+            <div className="font-semibold text-slate-800 group-hover:text-slate-900 transition-colors text-[13px] sm:text-[15px] leading-tight min-h-[32px] sm:min-h-[44px] flex items-end sm:items-center">
               <span className="line-clamp-2">{course.name}</span>
             </div>
-            <div className="text-[9px] sm:text-[11px] font-medium text-white/40 mt-0.5 sm:mt-1 truncate max-w-[200px] sm:max-w-none">
+            <div className="text-[9px] sm:text-[11px] font-medium text-slate-500 mt-0.5 sm:mt-1 truncate max-w-[200px] sm:max-w-none">
               {course.instructor}
             </div>
           </div>
@@ -292,11 +292,11 @@ const CourseSelect = ({ course, value, onChange }: any) => {
               }}
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="Marks"
-              className="w-full glass-input text-white/90 py-2.5 px-2 sm:py-2 sm:px-3 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm hover:bg-white/[0.08] transition-colors focus:ring-2 focus:ring-brand-500/50 focus:outline-none placeholder:text-white/20 text-center min-h-[40px] sm:min-h-[0px]"
+              className="w-full glass-input text-slate-800 py-2.5 px-2 sm:py-2 sm:px-3 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm hover:bg-white/80 transition-colors focus:ring-2 focus:ring-brand-500/50 focus:outline-none placeholder:text-slate-400 text-center min-h-[40px] sm:min-h-[0px]"
             />
           </div>
-          <div className="w-14 sm:w-16 text-center py-1.5 px-1.5 sm:py-2 sm:px-2 rounded-lg sm:rounded-xl bg-white/5 border border-white/10 font-mono font-bold text-brand-400 flex flex-col justify-center">
-            <span className="text-[8px] sm:text-[9px] text-white/30 leading-none mb-0.5 sm:mb-1">GP</span>
+          <div className="w-14 sm:w-16 text-center py-1.5 px-1.5 sm:py-2 sm:px-2 rounded-lg sm:rounded-xl bg-white/70 border border-slate-300 font-mono font-bold text-brand-400 flex flex-col justify-center">
+            <span className="text-[8px] sm:text-[9px] text-slate-500 leading-none mb-0.5 sm:mb-1">GP</span>
             <span className="text-sm sm:text-base leading-none">{value === '' ? '-' : gp.toFixed(1)}</span>
           </div>
         </div>
@@ -309,7 +309,7 @@ const CourseSelect = ({ course, value, onChange }: any) => {
           max="100" 
           value={value === '' ? 0 : value}
           onChange={(e) => onChange(parseInt(e.target.value))}
-          className="w-full h-2 sm:h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-brand-500 hover:accent-brand-400 transition-all opacity-50 group-hover:opacity-100"
+          className="w-full h-2 sm:h-1.5 bg-white/90 rounded-lg appearance-none cursor-pointer accent-brand-500 hover:accent-brand-400 transition-all opacity-50 group-hover:opacity-100"
         />
       </div>
     </motion.div>
@@ -332,7 +332,7 @@ const rankData = (rawList: any[]) => {
 const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolean }) => {
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-48 text-white/40 font-bold animate-pulse">
+      <div className="flex justify-center items-center h-48 text-slate-500 font-bold animate-pulse">
         Fetching latest rankings...
       </div>
     );
@@ -341,9 +341,9 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
   if (!data || data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-48 text-center px-4">
-        <Trophy className="text-white/10 mb-4" size={48} />
-        <p className="text-white/40 font-bold">The podium is currently empty.</p>
-        <p className="text-white/30 text-sm mt-1">Be the first to claim a spot!</p>
+        <Trophy className="text-slate-900/10 mb-4" size={48} />
+        <p className="text-slate-500 font-bold">The podium is currently empty.</p>
+        <p className="text-slate-500 text-sm mt-1">Be the first to claim a spot!</p>
       </div>
     );
   }
@@ -379,7 +379,7 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
           const rankColorClass = student.rank === 1 
             ? "text-yellow-400" 
             : student.rank === 2 
-            ? "text-slate-300" 
+            ? "text-slate-400" 
             : "text-amber-600";
 
           const rankBgClass = student.rank === 1
@@ -410,7 +410,7 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
                   <Medal className={`${rankColorClass} mx-auto mb-2 opacity-80`} size={24} />
                 )}
                 
-                <span className={`font-bold block text-[11px] sm:text-base w-full truncate overflow-hidden whitespace-nowrap px-0.5 sm:px-1 ${student.rank === 1 ? 'text-white' : 'text-white/80'}`} title={student.name}>
+                <span className={`font-bold block text-[11px] sm:text-base w-full truncate overflow-hidden whitespace-nowrap px-0.5 sm:px-1 ${student.rank === 1 ? 'text-slate-900' : 'text-slate-700'}`} title={student.name}>
                   {student.name.length > 15 ? `${student.name.substring(0, 13)}...` : student.name} 
                 </span>
                 <span className={`text-xl sm:text-3xl font-extrabold block mt-1 ${rankColorClass} ${student.rank === 1 ? 'drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]' : ''}`}>
@@ -435,13 +435,13 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.05 }}
               viewport={{ once: true }}
-              className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"
+              className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-slate-300 hover:bg-white/[0.04] transition-colors"
             >
               <div className="flex items-center gap-5 w-[70%]">
                 <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center font-bold text-sm text-brand-400 bg-brand-400/10 border border-brand-400/20">
                   {student.rank}
                 </div>
-                <span className="font-bold text-white/80 truncate w-full">{student.name}</span>
+                <span className="font-bold text-slate-700 truncate w-full">{student.name}</span>
               </div>
               <div className="text-xl font-extrabold text-brand-400/80">
                 {student.cgpa.toFixed(2)}
@@ -471,7 +471,7 @@ const BoycottModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => voi
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.95, y: 10, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="bg-[#0f172a] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-lg w-full relative overflow-hidden shadow-2xl"
+            className="bg-[#0f172a] border border-slate-300 rounded-3xl p-6 sm:p-8 max-w-lg w-full relative overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             <div className="absolute inset-0 pointer-events-none opacity-90 overflow-hidden flex flex-col justify-center gap-8 -rotate-12 scale-150">
@@ -488,16 +488,16 @@ const BoycottModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => voi
 
             <button 
               onClick={onClose}
-              className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/80 rounded-full text-white/60 hover:text-white transition-colors"
+              className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-slate-800 rounded-full text-slate-600 hover:text-slate-900 transition-colors"
             >
               <X size={20} />
             </button>
 
-            <div className="relative z-10 flex flex-col items-center justify-center min-h-[250px] text-center bg-black/40 p-6 rounded-2xl backdrop-blur-md border border-white/5">
+            <div className="relative z-10 flex flex-col items-center justify-center min-h-[250px] text-center bg-white/90 p-6 rounded-2xl backdrop-blur-md border border-slate-300">
               <AlertTriangle size={48} className="text-yellow-400 mb-4" />
-              <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-tight">Access Denied</h2>
-              <p className="text-white/80 font-medium">Semester 03 data unavailable due to ongoing teachers association boycott.</p>
-              <p className="text-white/40 text-sm mt-4 font-mono">ERR_EXAMS_NOT_CONDUCTED</p>
+              <h2 className="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tight">Access Denied</h2>
+              <p className="text-slate-700 font-medium">Semester 03 data unavailable due to ongoing teachers association boycott.</p>
+              <p className="text-slate-500 text-sm mt-4 font-mono">ERR_EXAMS_NOT_CONDUCTED</p>
             </div>
           </motion.div>
         </motion.div>
@@ -520,7 +520,7 @@ const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="fixed inset-0 z-[200] bg-[#1c120c] flex flex-col items-center justify-center"
+      className="fixed inset-0 z-[200] bg-slate-50 flex flex-col items-center justify-center"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
@@ -529,9 +529,9 @@ const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
         className="relative"
       >
         <div className="absolute inset-0 bg-brand-500/30 blur-3xl rounded-full" />
-        <div className="relative flex flex-col items-center p-8 bg-white/5 border border-white/10 rounded-3xl shadow-2xl backdrop-blur-xl">
+        <div className="relative flex flex-col items-center p-8 bg-white/70 border border-slate-300 rounded-3xl shadow-2xl backdrop-blur-xl">
           <GraduationCap size={64} className="text-brand-400 mb-4" />
-          <h1 className="text-2xl font-bold text-white tracking-widest uppercase">UBIT GPA</h1>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-widest uppercase">UBIT GPA</h1>
           <div className="w-12 h-1 bg-brand-500/50 rounded-full mt-4 overflow-hidden relative">
             <motion.div 
               initial={{ x: "-100%" }}
@@ -563,12 +563,12 @@ const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmitting, e
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.95, y: 10, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full relative overflow-hidden shadow-2xl"
+            className="bg-[#0a0a0a] border border-slate-300 rounded-3xl p-6 sm:p-8 max-w-md w-full relative overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             <button 
               onClick={onClose}
-              className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/80 rounded-full text-white/60 hover:text-white transition-colors"
+              className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-slate-800 rounded-full text-slate-600 hover:text-slate-900 transition-colors"
             >
               <X size={20} />
             </button>
@@ -577,8 +577,8 @@ const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmitting, e
               <div className="bg-brand-500/20 p-4 rounded-full mb-4">
                 <Trophy size={32} className="text-brand-400" />
               </div>
-              <h2 className="text-2xl font-black text-white mb-2 tracking-tight">Join the Leaderboard</h2>
-              <p className="text-white/60 font-medium mb-6 text-sm">Submit your current CGPA of <span className="text-white font-bold">{currentCgpa}</span> to the Batch '28 rankings.</p>
+              <h2 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">Join the Leaderboard</h2>
+              <p className="text-slate-600 font-medium mb-6 text-sm">Submit your current CGPA of <span className="text-slate-900 font-bold">{currentCgpa}</span> to the Batch '28 rankings.</p>
               
               <form onSubmit={onSubmit} className="w-full space-y-4">
                 {error && (
@@ -587,7 +587,7 @@ const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmitting, e
                   </div>
                 )}
                 <div className="text-left">
-                  <label className="block text-white/60 text-xs font-bold mb-2 uppercase tracking-wider">Your Full Name</label>
+                  <label className="block text-slate-600 text-xs font-bold mb-2 uppercase tracking-wider">Your Full Name</label>
                   <input
                     type="text"
                     required
@@ -595,7 +595,7 @@ const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmitting, e
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="e.g. Muhammad Asad"
-                    className="w-full glass-input text-white/90 py-3 px-4 rounded-xl font-bold text-sm hover:bg-white/[0.08] transition-colors focus:ring-2 focus:ring-brand-500/50 focus:outline-none placeholder:text-white/20"
+                    className="w-full glass-input text-slate-800 py-3 px-4 rounded-xl font-bold text-sm hover:bg-white/80 transition-colors focus:ring-2 focus:ring-brand-500/50 focus:outline-none placeholder:text-slate-400"
                   />
                 </div>
                 <button
@@ -606,7 +606,7 @@ const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmitting, e
                   {isSubmitting ? 'Submitting...' : 'Submit to Leaderboard'}
                 </button>
               </form>
-              <p className="text-white/30 text-[10px] mt-4 max-w-xs uppercase tracking-wider font-semibold">
+              <p className="text-slate-500 text-[10px] mt-4 max-w-xs uppercase tracking-wider font-semibold">
                 Only 1 submission allowed per IP address. Ensures fairness.
               </p>
             </div>
@@ -796,9 +796,9 @@ function App() {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="glass p-3 rounded-xl border border-white/10 text-sm shadow-xl">
-          <p className="font-bold text-white mb-1">{payload[0].payload.fullname || payload[0].payload.subject}</p>
-          {payload[0].payload.semester && <p className="text-white/60 text-xs mb-2">{payload[0].payload.semester}</p>}
+        <div className="glass p-3 rounded-xl border border-slate-300 text-sm shadow-xl">
+          <p className="font-bold text-slate-900 mb-1">{payload[0].payload.fullname || payload[0].payload.subject}</p>
+          {payload[0].payload.semester && <p className="text-slate-600 text-xs mb-2">{payload[0].payload.semester}</p>}
           <p className="text-brand-400 font-extrabold text-xl">GPA: {Number(payload[0].value).toFixed(2)}</p>
         </div>
       );
@@ -826,14 +826,19 @@ function App() {
           currentCgpa={cgpa}
         />
 
-        <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10 bg-[#1c120c]">
+        <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10 bg-slate-50">
+          {/* Premium Wood Texture Overlay */}
+          <div 
+            className="absolute inset-0 opacity-[0.25] mix-blend-luminosity"
+            
+          />
           {/* Heavy animated blobs are hidden on mobile to prevent Android UI thread lag and save battery */}
-          <div className="hidden sm:block absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-brand-600/10 blur-[150px] mix-blend-screen animate-blob" />
-          <div className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-amber-700/10 blur-[150px] mix-blend-screen animate-blob animation-delay-2000" />
-          <div className="hidden sm:block absolute top-[30%] left-[30%] w-[50vw] h-[50vw] rounded-full bg-orange-600/10 blur-[150px] mix-blend-screen animate-blob animation-delay-4000" />
+          <div className="hidden sm:block absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-emerald-400/20 blur-[150px] mix-blend-screen animate-blob" />
+          <div className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-teal-400/20 blur-[150px] mix-blend-screen animate-blob animation-delay-2000" />
+          <div className="hidden sm:block absolute top-[30%] left-[30%] w-[50vw] h-[50vw] rounded-full bg-emerald-300/20 blur-[150px] mix-blend-screen animate-blob animation-delay-4000" />
           
           {/* Lightweight static fallback for mobile devices */}
-          <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-brand-900/20 via-[#1c120c] to-amber-900/20" />
+          <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-emerald-50 via-slate-50 to-teal-50" />
         </div>
 
         <main className="pb-6 sm:pb-16 space-y-6 sm:space-y-16">
@@ -841,13 +846,8 @@ function App() {
           {/* HERO SECTION - REDUCED PADDING FOR MOBILE */}
           <section id="calculator" className="relative pt-4 sm:pt-12 pb-4 sm:pb-8 px-4">
             <div className="absolute inset-0 w-full h-full -z-10 overflow-hidden">
-               <img 
-                  src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" 
-                  alt="University Building" 
-                  className="w-full h-full object-cover opacity-20"
-                  style={{ WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)' }}
-               />
-               <div className="absolute inset-0 bg-gradient-to-b from-[#1c120c]/60 via-[#1c120c]/90 to-[#1c120c]" />
+               
+               <div className="absolute inset-0 bg-gradient-to-b from-slate-50/60 via-slate-50/90 to-slate-50" />
             </div>
 
             <motion.div 
@@ -858,7 +858,7 @@ function App() {
             >
               <div className="inline-block relative">
                 <div className="absolute inset-0 bg-brand-500/30 blur-xl rounded-full" />
-                <div className="relative inline-flex items-center justify-center p-3 sm:p-4 bg-white/5 border border-white/10 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-2xl backdrop-blur-xl">
+                <div className="relative inline-flex items-center justify-center p-3 sm:p-4 bg-white/70 border border-slate-300 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-2xl backdrop-blur-xl">
                   <GraduationCap className="text-brand-400 w-8 h-8 sm:w-10 sm:h-10" />
                 </div>
               </div>
@@ -866,7 +866,7 @@ function App() {
               <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white via-white/90 to-white/40 mb-3 sm:mb-4 tracking-tighter">
                 GPA Calculator
               </h1>
-              <p className="text-sm sm:text-lg md:text-xl text-white/60 font-medium max-w-2xl mx-auto flex items-center justify-center gap-2 sm:gap-3">
+              <p className="text-sm sm:text-lg md:text-xl text-slate-600 font-medium max-w-2xl mx-auto flex items-center justify-center gap-2 sm:gap-3">
                 <Sparkles className="text-brand-400 w-4 h-4 sm:w-5 sm:h-5" />
                 Department of Computer Science
               </p>
@@ -897,7 +897,7 @@ function App() {
               >
                 <motion.div 
                   variants={itemVariants}
-                  className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 border-white/5 relative overflow-hidden"
+                  className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 border-slate-300 relative overflow-hidden"
                 >
                   <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
                     <div className="flex items-center gap-2 sm:gap-4">
@@ -905,8 +905,8 @@ function App() {
                         01
                       </div>
                       <div>
-                        <h2 className="text-lg sm:text-2xl font-bold text-white/90 tracking-tight">Semester One</h2>
-                        <p className="text-[10px] sm:text-sm font-medium text-white/40 uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
+                        <h2 className="text-lg sm:text-2xl font-bold text-slate-800 tracking-tight">Semester One</h2>
+                        <p className="text-[10px] sm:text-sm font-medium text-slate-500 uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
                       </div>
                     </div>
                   </div>
@@ -922,7 +922,7 @@ function App() {
 
                 <motion.div 
                   variants={itemVariants}
-                  className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 border-white/5 relative overflow-hidden h-fit"
+                  className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 border-slate-300 relative overflow-hidden h-fit"
                 >
                   <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
                     <div className="flex items-center gap-2 sm:gap-4">
@@ -930,8 +930,8 @@ function App() {
                         02
                       </div>
                       <div>
-                        <h2 className="text-lg sm:text-2xl font-bold text-white/90 tracking-tight">Semester Two</h2>
-                        <p className="text-[10px] sm:text-sm font-medium text-white/40 uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
+                        <h2 className="text-lg sm:text-2xl font-bold text-slate-800 tracking-tight">Semester Two</h2>
+                        <p className="text-[10px] sm:text-sm font-medium text-slate-500 uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
                       </div>
                     </div>
                   </div>
@@ -948,7 +948,7 @@ function App() {
                 <motion.div 
                   variants={itemVariants}
                   onClick={() => setIsModalOpen(true)}
-                  className="xl:col-span-2 glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 border-white/5 relative overflow-hidden cursor-pointer hover:border-yellow-400/30 transition-colors group"
+                  className="xl:col-span-2 glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 border-slate-300 relative overflow-hidden cursor-pointer hover:border-yellow-400/30 transition-colors group"
                 >
                   <div className="relative z-10 flex items-center justify-between">
                     <div className="flex items-center gap-2 sm:gap-4">
@@ -956,7 +956,7 @@ function App() {
                         03
                       </div>
                       <div>
-                        <h2 className="text-lg sm:text-2xl font-bold text-white/90 tracking-tight">Semester Three</h2>
+                        <h2 className="text-lg sm:text-2xl font-bold text-slate-800 tracking-tight">Semester Three</h2>
                         <p className="text-[9px] sm:text-sm font-medium text-yellow-400/80 uppercase tracking-widest mt-0.5 sm:mt-1 flex items-center gap-1 sm:gap-2">
                           <AlertTriangle size={12} className="w-[10px] h-[10px] sm:w-[14px] sm:h-[14px]" /> Pending Exams
                         </p>
@@ -978,14 +978,14 @@ function App() {
                 className="flex items-center justify-between mb-4 sm:mb-8"
               >
                 <div className="flex items-center gap-3 sm:gap-4">
-                  <div className="bg-white/5 p-2 sm:p-3 rounded-lg sm:rounded-xl border border-white/10">
+                  <div className="bg-white/70 p-2 sm:p-3 rounded-lg sm:rounded-xl border border-slate-300">
                     <Activity className="text-brand-400 w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Advanced Analytics</h2>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Advanced Analytics</h2>
                 </div>
                 <button
                   onClick={() => exportToJson(sem1Grades, sem2Grades, { cgpa, gpa1, gpa2 })}
-                  className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white/80 hover:text-white text-sm font-bold transition-colors"
+                  className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white/70 hover:bg-white/90 border border-slate-300 rounded-xl text-slate-700 hover:text-slate-900 text-sm font-bold transition-colors"
                 >
                   <Code size={16} />
                   Export JSON
@@ -1004,9 +1004,9 @@ function App() {
                    whileInView={{ opacity: 1, y: 0 }}
                    transition={{ duration: 0.5, ease: "easeOut" }}
                    viewport={{ once: true }}
-                   className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 border-white/5 lg:col-span-1 h-[250px] sm:h-[400px] flex flex-col items-center justify-center"
+                   className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 border-slate-300 lg:col-span-1 h-[250px] sm:h-[400px] flex flex-col items-center justify-center"
                 >
-                  <h3 className="text-white/80 font-bold mb-4">Skill Distribution</h3>
+                  <h3 className="text-slate-700 font-bold mb-4">Skill Distribution</h3>
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                       <PolarGrid stroke="rgba(255,255,255,0.1)" />
@@ -1023,9 +1023,9 @@ function App() {
                    whileInView={{ opacity: 1, y: 0 }}
                    transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
                    viewport={{ once: true }}
-                   className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 border-white/5 lg:col-span-2 h-[250px] sm:h-[400px]"
+                   className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 border-slate-300 lg:col-span-2 h-[250px] sm:h-[400px]"
                 >
-                  <h3 className="text-white/80 font-bold mb-6">Course by Course Comparison</h3>
+                  <h3 className="text-slate-700 font-bold mb-6">Course by Course Comparison</h3>
                   <ResponsiveContainer width="100%" height="90%">
                     <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                       <XAxis dataKey="name" stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.4)', fontSize: 11}} />
@@ -1051,25 +1051,25 @@ function App() {
                 className="flex items-center gap-2 sm:gap-4 mb-2 text-center justify-center flex-col"
               >
                 <div className="bg-gradient-to-br from-yellow-400 to-amber-600 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(250,204,21,0.3)] mb-2 sm:mb-4 inline-flex">
-                  <Trophy className="text-white w-6 h-6 sm:w-8 sm:h-8" />
+                  <Trophy className="text-slate-900 w-6 h-6 sm:w-8 sm:h-8" />
                 </div>
                 <div>
                   <h2 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-amber-500">The Leaderboard</h2>
-                  <p className="text-white/50 text-sm sm:text-base mt-2 max-w-md mx-auto">The absolute best of Batch '28. Submit your CGPA to claim your spot on the podium.</p>
+                  <p className="text-slate-600 text-sm sm:text-base mt-2 max-w-md mx-auto">The absolute best of Batch '28. Submit your CGPA to claim your spot on the podium.</p>
                 </div>
               </motion.div>
 
-              <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border-white/5 relative overflow-hidden min-h-[250px] sm:min-h-[400px]">
+              <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border-slate-300 relative overflow-hidden min-h-[250px] sm:min-h-[400px]">
                 <PodiumLeaderboard data={leaderboardData} isLoading={isLeaderboardLoading} />
 
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  className="mt-16 pt-10 border-t border-white/5 text-center relative z-10 flex flex-col items-center"
+                  className="mt-16 pt-10 border-t border-slate-300 text-center relative z-10 flex flex-col items-center"
                 >
                   {hasSubmitted ? (
-                    <div className="px-6 py-3 sm:px-8 sm:py-4 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white/50 font-bold tracking-wide flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
+                    <div className="px-6 py-3 sm:px-8 sm:py-4 bg-white/70 border border-slate-300 rounded-xl sm:rounded-2xl text-slate-600 font-bold tracking-wide flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
                       <Trophy size={16} className="text-yellow-400 sm:w-[18px] sm:h-[18px]" />
                       Your Score is on the Leaderboard!
                     </div>
@@ -1077,13 +1077,13 @@ function App() {
                     <button 
                       onClick={() => setIsSubmitModalOpen(true)}
                       disabled={Number(cgpa) <= 0}
-                      className="px-6 py-3 sm:px-8 sm:py-4 bg-white/5 hover:bg-white/10 disabled:opacity-50 border border-white/10 rounded-xl sm:rounded-2xl text-white font-bold tracking-wide transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center gap-2 sm:gap-3 text-sm sm:text-base"
+                      className="px-6 py-3 sm:px-8 sm:py-4 bg-white/70 hover:bg-white/90 disabled:opacity-50 border border-slate-300 rounded-xl sm:rounded-2xl text-slate-900 font-bold tracking-wide transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center gap-2 sm:gap-3 text-sm sm:text-base"
                     >
                       <Database size={16} className="text-brand-400 sm:w-[18px] sm:h-[18px]" />
                       Submit Your CGPA to Leaderboard
                     </button>
                   )}
-                  <p className="text-white/30 text-xs mt-4">Powered by Supabase</p>
+                  <p className="text-slate-500 text-xs mt-4">Powered by Supabase</p>
                 </motion.div>
               </div>
             </section>
