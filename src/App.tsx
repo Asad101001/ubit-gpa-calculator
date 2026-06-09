@@ -309,7 +309,7 @@ const CourseSelect = ({ course, value, onChange }: any) => {
           max="100" 
           value={value === '' ? 0 : value}
           onChange={(e) => onChange(parseInt(e.target.value))}
-          className="w-full h-2 sm:h-1.5 bg-white/90 rounded-lg appearance-none cursor-pointer accent-brand-500 hover:accent-brand-400 transition-all opacity-50 group-hover:opacity-100"
+          className="w-full h-2 sm:h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-500 hover:accent-brand-400 transition-all opacity-70 group-hover:opacity-100"
         />
       </div>
     </motion.div>
@@ -1009,8 +1009,8 @@ function App() {
                   <h3 className="text-slate-700 font-bold mb-4">Skill Distribution</h3>
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                      <PolarGrid stroke="rgba(255,255,255,0.1)" />
-                      <PolarAngleAxis dataKey="subject" tick={{fill: 'rgba(255,255,255,0.6)', fontSize: 12}} />
+                      <PolarGrid stroke="rgba(15, 23, 42, 0.1)" />
+                      <PolarAngleAxis dataKey="subject" tick={{fill: '#475569', fontSize: 12, fontWeight: 600}} />
                       <PolarRadiusAxis angle={30} domain={[0, 4]} tick={false} axisLine={false} />
                       <Radar name="GPA" dataKey="A" stroke="#14b8a6" fill="#14b8a6" fillOpacity={0.4} />
                       <Tooltip content={<CustomTooltip />} />
@@ -1028,9 +1028,9 @@ function App() {
                   <h3 className="text-slate-700 font-bold mb-6">Course by Course Comparison</h3>
                   <ResponsiveContainer width="100%" height="90%">
                     <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                      <XAxis dataKey="name" stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.4)', fontSize: 11}} />
-                      <YAxis domain={[0, 4]} ticks={[0, 1, 2, 3, 4]} stroke="rgba(255,255,255,0.2)" tick={{fill: 'rgba(255,255,255,0.4)', fontSize: 11}} />
-                      <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.03)'}} />
+                      <XAxis dataKey="name" stroke="rgba(15, 23, 42, 0.1)" tick={{fill: '#475569', fontSize: 11, fontWeight: 600}} />
+                      <YAxis domain={[0, 4]} ticks={[0, 1, 2, 3, 4]} stroke="rgba(15, 23, 42, 0.1)" tick={{fill: '#475569', fontSize: 11, fontWeight: 600}} />
+                      <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(15, 23, 42, 0.05)'}} />
                       <ReferenceLine y={3.0} stroke="rgba(20,184,166,0.3)" strokeDasharray="3 3" />
                       <Bar dataKey="gpa" radius={[4, 4, 0, 0]}>
                         {chartData.map((entry, index) => (
