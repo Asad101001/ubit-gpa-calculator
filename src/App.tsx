@@ -139,7 +139,7 @@ const Header = () => (
     transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
     className="sticky top-0 z-50 w-full glass border-b border-white/5 py-1.5 sm:py-3"
   >
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+    <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 flex justify-between items-center">
       <div className="flex items-center gap-2 sm:gap-3">
         <div className="bg-brand-500/20 p-1 sm:p-2 rounded-lg sm:rounded-xl border border-brand-500/30">
           <GraduationCap className="text-brand-400 w-4 h-4 sm:w-[18px] sm:h-[18px]" />
@@ -210,7 +210,7 @@ const Footer = () => (
 const MetricCard = ({ title, value, icon: Icon, highlight = false, subtitle = "" }: any) => (
   <motion.div
     variants={itemVariants}
-    className={`relative overflow-hidden p-3 sm:p-6 rounded-2xl sm:rounded-[2rem] transition-all hover:-translate-y-1 ${highlight ? 'bg-gradient-to-br from-brand-600/90 to-brand-400/90 border border-brand-400/50 shadow-[0_0_30px_rgba(20,184,166,0.2)] text-white' : 'glass-card border border-white/5 hover:border-white/10'}`}
+    className={`relative overflow-hidden p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] transition-all hover:-translate-y-1 ${highlight ? 'bg-gradient-to-br from-brand-600/90 to-brand-400/90 border border-brand-400/50 shadow-[0_0_30px_rgba(20,184,166,0.2)] text-white' : 'glass-card border border-white/5 hover:border-white/10'}`}
   >
     {highlight && (
       <>
@@ -256,7 +256,7 @@ const CourseSelect = ({ course, value, onChange }: any) => {
   return (
     <motion.div 
       variants={itemVariants}
-      className="group flex flex-col p-2 sm:p-4 rounded-xl hover:bg-white/[0.03] border border-transparent hover:border-white/[0.05] transition-all gap-2 sm:gap-4"
+      className="group flex flex-col p-3 sm:p-4 rounded-xl hover:bg-white/[0.03] border border-transparent hover:border-white/[0.05] transition-all gap-3 sm:gap-4"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
         <div className="flex items-center gap-2 sm:gap-4 flex-1">
@@ -874,7 +874,7 @@ function App() {
             </motion.div>
           </section>
 
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-16">
+          <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 space-y-8 sm:space-y-16">
             
             <section className="space-y-4 sm:space-y-8">
               <motion.div 
@@ -898,7 +898,7 @@ function App() {
               >
                 <motion.div 
                   variants={itemVariants}
-                  className="glass rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10 border-white/5 relative overflow-hidden"
+                  className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 border-white/5 relative overflow-hidden"
                 >
                   <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
                     <div className="flex items-center gap-2 sm:gap-4">
@@ -923,7 +923,7 @@ function App() {
 
                 <motion.div 
                   variants={itemVariants}
-                  className="glass rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10 border-white/5 relative overflow-hidden h-fit"
+                  className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 border-white/5 relative overflow-hidden h-fit"
                 >
                   <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
                     <div className="flex items-center gap-2 sm:gap-4">
@@ -949,7 +949,7 @@ function App() {
                 <motion.div 
                   variants={itemVariants}
                   onClick={() => setIsModalOpen(true)}
-                  className="xl:col-span-2 glass rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 md:p-8 border-white/5 relative overflow-hidden cursor-pointer hover:border-yellow-400/30 transition-colors group"
+                  className="xl:col-span-2 glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 border-white/5 relative overflow-hidden cursor-pointer hover:border-yellow-400/30 transition-colors group"
                 >
                   <div className="relative z-10 flex items-center justify-between">
                     <div className="flex items-center gap-2 sm:gap-4">
@@ -1005,7 +1005,7 @@ function App() {
                    whileInView={{ opacity: 1, y: 0 }}
                    transition={{ duration: 0.5, ease: "easeOut" }}
                    viewport={{ once: true }}
-                   className="glass rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 border-white/5 lg:col-span-1 h-[250px] sm:h-[400px] flex flex-col items-center justify-center"
+                   className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 border-white/5 lg:col-span-1 h-[250px] sm:h-[400px] flex flex-col items-center justify-center"
                 >
                   <h3 className="text-white/80 font-bold mb-4">Skill Distribution</h3>
                   <ResponsiveContainer width="100%" height="100%">
@@ -1024,7 +1024,7 @@ function App() {
                    whileInView={{ opacity: 1, y: 0 }}
                    transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
                    viewport={{ once: true }}
-                   className="glass rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10 border-white/5 lg:col-span-2 h-[250px] sm:h-[400px]"
+                   className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 border-white/5 lg:col-span-2 h-[250px] sm:h-[400px]"
                 >
                   <h3 className="text-white/80 font-bold mb-6">Course by Course Comparison</h3>
                   <ResponsiveContainer width="100%" height="90%">
@@ -1060,7 +1060,7 @@ function App() {
                 </div>
               </motion.div>
 
-              <div className="glass rounded-[2rem] sm:rounded-[3rem] p-4 sm:p-8 md:p-12 border-white/5 relative overflow-hidden min-h-[250px] sm:min-h-[400px]">
+              <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border-white/5 relative overflow-hidden min-h-[250px] sm:min-h-[400px]">
                 <PodiumLeaderboard data={leaderboardData} isLoading={isLeaderboardLoading} />
 
                 <motion.div 
