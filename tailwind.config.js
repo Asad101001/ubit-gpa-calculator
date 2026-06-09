@@ -22,6 +22,7 @@ export default {
       animation: {
         'spin-slow': 'spin 15s linear infinite',
         'blob': 'blob 7s infinite',
+        'tape-scroll': 'tape-scroll 4s linear infinite',
       },
       keyframes: {
         blob: {
@@ -37,6 +38,10 @@ export default {
           '100%': {
             transform: 'translate(0px, 0px) scale(1)',
           },
+        },
+        'tape-scroll': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
         }
       }
     },
