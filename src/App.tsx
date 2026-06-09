@@ -149,7 +149,7 @@ const Header = () => (
         </div>
       </div>
       <div className="flex items-center gap-2 sm:gap-4">
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+        <nav className="flex items-center gap-3 sm:gap-6 text-[10px] sm:text-sm font-medium text-slate-600">
           <a href="#calculator" className="hover:text-slate-900 transition-colors">Calculator</a>
           <a href="#analytics" className="hover:text-slate-900 transition-colors">Analytics</a>
           <a href="#leaderboard" className="hover:text-slate-900 transition-colors">Leaderboard</a>
@@ -256,16 +256,16 @@ const CourseSelect = ({ course, value, onChange }: any) => {
   return (
     <motion.div 
       variants={itemVariants}
-      className="group flex flex-col p-3 sm:p-4 rounded-xl hover:bg-white/60 border border-transparent hover:border-slate-300/50 transition-all gap-3 sm:gap-4"
+      className="group flex flex-col p-2 sm:p-4 rounded-xl hover:bg-white/60 border border-transparent hover:border-slate-300/50 transition-all gap-2 sm:gap-4"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
         <div className="flex items-center gap-2 sm:gap-4 flex-1">
-          <div className="flex flex-col items-center justify-center w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-white/70 border border-slate-300 text-brand-400 group-hover:scale-105 group-hover:bg-brand-500/10 transition-transform shrink-0">
-            <span className="text-[7px] sm:text-[10px] uppercase font-bold text-slate-500 mb-[-4px] sm:mb-[-2px]">{course.code.split('-')[0]}</span>
-            <span className="text-xs sm:text-base font-extrabold">{course.code.split('-')[1]}</span>
+          <div className="flex flex-col items-center justify-center w-6 h-6 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-white/70 border border-slate-300 text-brand-400 group-hover:scale-105 group-hover:bg-brand-500/10 transition-transform shrink-0">
+            <span className="text-[6px] sm:text-[10px] uppercase font-bold text-slate-500 mb-[-2px]">{course.code.split('-')[0]}</span>
+            <span className="text-[10px] sm:text-base font-extrabold">{course.code.split('-')[1]}</span>
           </div>
           <div>
-            <div className="font-semibold text-slate-800 group-hover:text-slate-900 transition-colors text-[13px] sm:text-[15px] leading-tight min-h-[32px] sm:min-h-[44px] flex items-end sm:items-center">
+            <div className="font-semibold text-slate-800 group-hover:text-slate-900 transition-colors text-[11px] sm:text-[15px] leading-tight min-h-[24px] sm:min-h-[44px] flex items-end sm:items-center">
               <span className="line-clamp-2">{course.name}</span>
             </div>
             <div className="text-[9px] sm:text-[11px] font-medium text-slate-500 mt-0.5 sm:mt-1 truncate max-w-[200px] sm:max-w-none">
@@ -292,10 +292,10 @@ const CourseSelect = ({ course, value, onChange }: any) => {
               }}
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="Marks"
-              className="w-full glass-input text-slate-800 py-2.5 px-2 sm:py-2 sm:px-3 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm hover:bg-white/80 transition-colors focus:ring-2 focus:ring-brand-500/50 focus:outline-none placeholder:text-slate-400 text-center min-h-[40px] sm:min-h-[0px]"
+              className="w-full glass-input text-slate-800 py-1.5 px-1 sm:py-2 sm:px-3 rounded-lg sm:rounded-xl font-bold text-[10px] sm:text-sm hover:bg-white/80 transition-colors focus:ring-2 focus:ring-brand-500/50 focus:outline-none placeholder:text-slate-400 text-center min-h-[30px] sm:min-h-[0px]"
             />
           </div>
-          <div className="w-14 sm:w-16 text-center py-1.5 px-1.5 sm:py-2 sm:px-2 rounded-lg sm:rounded-xl bg-white/70 border border-slate-300 font-mono font-bold text-brand-400 flex flex-col justify-center">
+          <div className="w-12 sm:w-16 text-center py-1 px-1 sm:py-2 sm:px-2 rounded-lg sm:rounded-xl bg-white/70 border border-slate-300 font-mono font-bold text-brand-400 flex flex-col justify-center">
             <span className="text-[8px] sm:text-[9px] text-slate-500 leading-none mb-0.5 sm:mb-1">GP</span>
             <span className="text-sm sm:text-base leading-none">{value === '' ? '-' : gp.toFixed(1)}</span>
           </div>
@@ -511,7 +511,7 @@ const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onComplete();
-    }, 300);
+    }, 0);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
@@ -702,6 +702,7 @@ function App() {
       localStorage.setItem('hasSubmitted', 'true');
       setHasSubmitted(true);
       setIsSubmitModalOpen(false);
+      setLeaderboardData(prev => [{ name: submitName.trim(), cgpa: Number(cgpa), gpa1: Number(gpa1), gpa2: Number(gpa2) }, ...prev].sort((a, b) => b.cgpa - a.cgpa));
       fetchLeaderboard(); // Refresh the podium
 
     } catch (err: any) {
@@ -880,18 +881,6 @@ function App() {
                 variants={containerVariants}
                 initial="hidden"
                 whileInView="show"
-                viewport={{ once: true, margin: "-100px" }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10"
-              >
-                <MetricCard title="Semester One GPA" value={gpa1} icon={Calculator} />
-                <MetricCard title="Semester Two GPA" value={gpa2} icon={Calculator} />
-                <MetricCard title="Cumulative CGPA" value={cgpa} icon={Award} highlight />
-              </motion.div>
-
-              <motion.div 
-                variants={containerVariants}
-                initial="hidden"
-                whileInView="show"
                 viewport={{ once: true, margin: "-50px" }}
                 className="grid grid-cols-1 xl:grid-cols-2 gap-8 relative z-10"
               >
@@ -967,6 +956,18 @@ function App() {
                     </div>
                   </div>
                 </motion.div>
+              </motion.div>
+
+              <motion.div 
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: "-100px" }}
+                className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10"
+              >
+                <MetricCard title="Semester One GPA" value={gpa1} icon={Calculator} />
+                <MetricCard title="Semester Two GPA" value={gpa2} icon={Calculator} />
+                <MetricCard title="Cumulative CGPA" value={cgpa} icon={Award} highlight />
               </motion.div>
             </section>
 
