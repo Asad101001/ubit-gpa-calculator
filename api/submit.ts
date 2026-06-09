@@ -1,16 +1,6 @@
-import { Redis } from '@upstash/redis';
-
 export const config = {
   runtime: 'edge',
 };
-
-// Initialize Redis only if the environment variables are present
-const redis = (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) 
-  ? new Redis({
-      url: process.env.KV_REST_API_URL,
-      token: process.env.KV_REST_API_TOKEN,
-    }) 
-  : null;
 
 export default async function handler(req: Request) {
   if (req.method !== 'POST') {
@@ -20,22 +10,7 @@ export default async function handler(req: Request) {
   try {
     const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
     
-    // 1. Rate Limiting Check (If Redis is configured)
-    if (redis) {
-      const rateLimitKey = `rate_limit:${ip}`;
-      const lastSubmission = await redis.get(rateLimitKey);
-      
-      if (lastSubmission) {
-        return new Response(JSON.stringify({ 
-          error: 'Rate limit exceeded. Please wait 10 minutes before submitting again.' 
-        }), { status: 429, headers: { 'Content-Type': 'application/json' } });
-      }
-
-      // Set a 10-minute (600s) expiry block
-      await redis.set(rateLimitKey, 'blocked', { ex: 600 });
-    }
-
-    // 2. Parse Data
+    // 1. Parse Data
     const body = await req.json();
     const { name, cgpa, gpa1, gpa2 } = body;
 
@@ -43,7 +18,7 @@ export default async function handler(req: Request) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // 3. Upsert to Supabase
+    // 2. Upsert to Supabase
     const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
     const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || '';
 
