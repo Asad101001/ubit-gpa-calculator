@@ -7,16 +7,16 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'San Francisco', 'Helvetica Neue', 'sans-serif'],
       },
       colors: {
         background: '#0a0a0a',
         surface: '#171717',
         surfaceHighlight: '#262626',
         brand: {
-          400: '#2dd4bf',
-          500: '#14b8a6',
-          600: '#0d9488',
+          400: '#ff4b68',
+          500: '#fa243c',
+          600: '#e01e34',
         }
       },
       animation: {

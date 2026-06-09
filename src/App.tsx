@@ -365,7 +365,7 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
   return (
     <div className="space-y-12">
       {/* PODIUM VISUAL */}
-      <div className="flex items-end justify-center gap-2 sm:gap-6 pt-10 h-72 sm:h-80 w-full max-w-2xl mx-auto overflow-hidden">
+      <div className="flex items-end justify-center gap-2 sm:gap-6 pt-16 h-[320px] sm:h-[360px] w-full max-w-2xl mx-auto">
         {podiumData.map((student, idx) => {
           if (!student) return <div key={`empty-${idx}`} className="w-1/3 max-w-[120px] sm:max-w-[180px]" />;
           
@@ -397,7 +397,7 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
               viewport={{ once: true }}
               className={`flex flex-col justify-end w-1/3 max-w-[140px] relative ${isCenter ? 'z-10' : 'z-0'}`}
             >
-              <div className="mb-2 sm:mb-4 text-center px-0.5 sm:px-2 w-full flex flex-col items-center justify-end relative h-[80px] sm:h-[100px]">
+              <div className="mb-2 sm:mb-4 text-center px-0.5 sm:px-2 w-full flex flex-col items-center justify-end relative h-[100px] sm:h-[120px]">
                 {student.rank === 1 ? (
                   <motion.div 
                     animate={{ y: [-3, 3, -3] }} 
@@ -520,7 +520,7 @@ const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="fixed inset-0 z-[200] bg-[#020617] flex flex-col items-center justify-center"
+      className="fixed inset-0 z-[200] bg-[#000000] flex flex-col items-center justify-center"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
@@ -563,7 +563,7 @@ const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmitting, e
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.95, y: 10, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="bg-[#0f172a] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full relative overflow-hidden shadow-2xl"
+            className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full relative overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             <button 
@@ -826,14 +826,14 @@ function App() {
           currentCgpa={cgpa}
         />
 
-        <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10 bg-[#020617]">
+        <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10 bg-[#000000]">
           {/* Heavy animated blobs are hidden on mobile to prevent Android UI thread lag and save battery */}
           <div className="hidden sm:block absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-brand-600/10 blur-[150px] mix-blend-screen animate-blob" />
-          <div className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-blue-600/10 blur-[150px] mix-blend-screen animate-blob animation-delay-2000" />
-          <div className="hidden sm:block absolute top-[30%] left-[30%] w-[50vw] h-[50vw] rounded-full bg-indigo-500/10 blur-[150px] mix-blend-screen animate-blob animation-delay-4000" />
+          <div className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-brand-500/10 blur-[150px] mix-blend-screen animate-blob animation-delay-2000" />
+          <div className="hidden sm:block absolute top-[30%] left-[30%] w-[50vw] h-[50vw] rounded-full bg-red-500/10 blur-[150px] mix-blend-screen animate-blob animation-delay-4000" />
           
           {/* Lightweight static fallback for mobile devices */}
-          <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-brand-900/20 via-[#020617] to-blue-900/20" />
+          <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-brand-900/20 via-[#000000] to-red-900/20" />
         </div>
 
         <main className="pb-6 sm:pb-16 space-y-6 sm:space-y-16">
@@ -847,7 +847,7 @@ function App() {
                   className="w-full h-full object-cover opacity-20"
                   style={{ WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)' }}
                />
-               <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/50 via-[#020617]/90 to-[#020617]" />
+               <div className="absolute inset-0 bg-gradient-to-b from-[#000000]/50 via-[#000000]/90 to-[#000000]" />
             </div>
 
             <motion.div 
