@@ -274,7 +274,14 @@ const CourseSelect = ({ course, value, onChange }: any) => {
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-24">
+          <div className="relative flex-1 sm:w-24 flex items-center justify-center">
+            <button
+              onClick={() => {
+                const val = typeof value === 'number' ? value : 0;
+                if (val > 0) onChange(val - 1);
+              }}
+              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-l-lg sm:rounded-l-xl bg-white/70 hover:bg-slate-200 border border-slate-300 border-r-0 text-slate-600 font-bold"
+            >-</button>
             <input
               type="number"
               min="0"
@@ -291,9 +298,16 @@ const CourseSelect = ({ course, value, onChange }: any) => {
                 }
               }}
               onWheel={(e) => e.currentTarget.blur()}
-              placeholder="Marks"
-              className="w-full glass-input text-slate-800 py-1.5 px-1 sm:py-2 sm:px-3 rounded-lg sm:rounded-xl font-bold text-[10px] sm:text-sm hover:bg-white/80 transition-colors focus:ring-2 focus:ring-brand-500/50 focus:outline-none placeholder:text-slate-400 text-center min-h-[30px] sm:min-h-[0px]"
+              placeholder="0"
+              className="w-12 sm:w-16 h-6 sm:h-8 glass-input text-slate-800 py-0 px-1 rounded-none border-y border-slate-300 font-bold text-[10px] sm:text-sm focus:ring-0 focus:outline-none placeholder:text-slate-400 text-center"
             />
+            <button
+              onClick={() => {
+                const val = typeof value === 'number' ? value : 0;
+                if (val < 100) onChange(val + 1);
+              }}
+              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-r-lg sm:rounded-r-xl bg-white/70 hover:bg-slate-200 border border-slate-300 border-l-0 text-slate-600 font-bold"
+            >+</button>
           </div>
           <div className="w-12 sm:w-16 text-center py-1 px-1 sm:py-2 sm:px-2 rounded-lg sm:rounded-xl bg-white/70 border border-slate-300 font-mono font-bold text-brand-400 flex flex-col justify-center">
             <span className="text-[8px] sm:text-[9px] text-slate-500 leading-none mb-0.5 sm:mb-1">GP</span>
@@ -308,8 +322,8 @@ const CourseSelect = ({ course, value, onChange }: any) => {
           min="0" 
           max="100" 
           value={value === '' ? 0 : value}
-          onChange={(e) => onChange(parseInt(e.target.value))}
-          className="w-full h-2 sm:h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-500 hover:accent-brand-400 transition-all opacity-70 group-hover:opacity-100"
+          readOnly
+          className="w-full h-2 sm:h-1.5 bg-slate-200 rounded-lg appearance-none pointer-events-none accent-brand-500 transition-all opacity-70 group-hover:opacity-100"
         />
       </div>
     </motion.div>
@@ -677,25 +691,38 @@ function App() {
     setSubmitError('');
 
     try {
-      if (hasSubmitted) {
-        throw new Error("You have already submitted a score from this device.");
-      }
-
       // Fetch IP using ipify
       const ipRes = await fetch('https://api.ipify.org?format=json');
       const ipData = await ipRes.json();
       const ipAddress = ipData.ip;
 
-      // Insert to Supabase
-      const { error } = await supabase.from('leaderboard').insert([
-        { name: submitName.trim(), cgpa: Number(cgpa), ip_address: ipAddress }
-      ]);
+      // Upsert to Supabase
+      const payload = { 
+        name: submitName.trim(), 
+        cgpa: Number(cgpa), 
+        gpa1: Number(gpa1), 
+        gpa2: Number(gpa2),
+        ip_address: ipAddress 
+      };
+      
+      const { error } = await supabase.from('leaderboard').upsert([payload], { onConflict: 'ip_address' });
 
       if (error) {
-        if (error.code === '23505') { // Postgres Unique Constraint Violation Code
+        if (error.code === '23505') { // Postgres Unique Constraint Violation Code (fallback)
           throw new Error("Looks like you've already submitted a score from this IP address.");
         }
-        throw new Error(error.message);
+        if (error.code === '42703') { // Undefined column
+           // Fallback to basic payload if new columns don't exist yet
+           const fallbackPayload = {
+             name: submitName.trim(),
+             cgpa: Number(cgpa),
+             ip_address: ipAddress
+           };
+           const fb = await supabase.from('leaderboard').upsert([fallbackPayload], { onConflict: 'ip_address' });
+           if (fb.error) throw new Error(fb.error.message);
+        } else {
+           throw new Error(error.message);
+        }
       }
 
       // Success
@@ -1069,21 +1096,14 @@ function App() {
                   viewport={{ once: true }}
                   className="mt-16 pt-10 border-t border-slate-300 text-center relative z-10 flex flex-col items-center"
                 >
-                  {hasSubmitted ? (
-                    <div className="px-6 py-3 sm:px-8 sm:py-4 bg-white/70 border border-slate-300 rounded-xl sm:rounded-2xl text-slate-600 font-bold tracking-wide flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
-                      <Trophy size={16} className="text-yellow-400 sm:w-[18px] sm:h-[18px]" />
-                      Your Score is on the Leaderboard!
-                    </div>
-                  ) : (
-                    <button 
-                      onClick={() => setIsSubmitModalOpen(true)}
-                      disabled={Number(cgpa) <= 0}
-                      className="px-6 py-3 sm:px-8 sm:py-4 bg-white/70 hover:bg-white/90 disabled:opacity-50 border border-slate-300 rounded-xl sm:rounded-2xl text-slate-900 font-bold tracking-wide transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center gap-2 sm:gap-3 text-sm sm:text-base"
-                    >
-                      <Database size={16} className="text-brand-400 sm:w-[18px] sm:h-[18px]" />
-                      Submit Your CGPA to Leaderboard
-                    </button>
-                  )}
+                  <button 
+                    onClick={() => setIsSubmitModalOpen(true)}
+                    disabled={Number(cgpa) <= 0}
+                    className="px-6 py-3 sm:px-8 sm:py-4 bg-white/70 hover:bg-white/90 disabled:opacity-50 border border-slate-300 rounded-xl sm:rounded-2xl text-slate-900 font-bold tracking-wide transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center gap-2 sm:gap-3 text-sm sm:text-base"
+                  >
+                    <Database size={16} className="text-brand-400 sm:w-[18px] sm:h-[18px]" />
+                    {hasSubmitted ? "Update Score on Leaderboard" : "Submit Your CGPA to Leaderboard"}
+                  </button>
                   <p className="text-slate-500 text-xs mt-4">Powered by Supabase</p>
                 </motion.div>
               </div>
