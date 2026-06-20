@@ -2,17 +2,20 @@ import { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronDown, ChevronUp, FileText, Filter, AlertTriangle } from 'lucide-react';
 
 const SUBJECTS_DATA = [
+  // 1st Semester
   { id: "cs351", code: "CS-351", name: "Programming Fundamentals", teacher: "Mr. Badr Sami", semester: 1 },
-  { id: "cs352", code: "CS-352", name: "Object Oriented Concepts", teacher: "Dr. Humera Tariq", semester: 2 },
   { id: "cs353", code: "CS-353", name: "Intro to ICT", teacher: "Mr. Zaeem Tariq", semester: 1 },
-  { id: "cs354", code: "CS-354", name: "Digital Logic Design", teacher: "Mr. Bari Ahmed", semester: 2 },
   { id: "cs355", code: "CS-355", name: "Calculus & Analytical Geo", teacher: "Mr. M. Aslam", semester: 1 },
-  { id: "cs356", code: "CS-356", name: "Linear Algebra", teacher: "Mr. Muhammad Huzaifa", semester: 2 },
   { id: "cs357", code: "CS-357", name: "Applied Physics", teacher: "Ms. Farheen Shafiq", semester: 1 },
-  { id: "cs358", code: "CS-358", name: "Discrete Structures", teacher: "Ms. Maryam Feroze", semester: 2 },
   { id: "cs359", code: "CS-359", name: "Functional English", teacher: "Ms. Ayesha Khwaja", semester: 1 },
-  { id: "cs360", code: "CS-360", name: "Communication Skills", teacher: "Mr. Sami-ul-Huda", semester: 2 },
   { id: "cs361", code: "CS-361", name: "Islamic Studies", teacher: "Dr. Waqar Hussain", semester: 1 },
+  
+  // 2nd Semester
+  { id: "cs352", code: "CS-352", name: "Object Oriented Concepts", teacher: "Dr. Humera Tariq", semester: 2 },
+  { id: "cs354", code: "CS-354", name: "Digital Logic Design", teacher: "Mr. Bari Ahmed", semester: 2 },
+  { id: "cs356", code: "CS-356", name: "Linear Algebra", teacher: "Mr. Muhammad Huzaifa", semester: 2 },
+  { id: "cs358", code: "CS-358", name: "Discrete Structures", teacher: "Ms. Maryam Feroze", semester: 2 },
+  { id: "cs360", code: "CS-360", name: "Communication Skills", teacher: "Mr. Sami-ul-Huda", semester: 2 },
   { id: "cs362", code: "CS-362", name: "Ideology of Pakistan", teacher: "Dr. Mehrunnissa", semester: 2 }
 ];
 
@@ -178,7 +181,7 @@ export const ResultsPortal = () => {
               value={selectedSubject}
               onChange={(e) => {
                 setSelectedSubject(e.target.value);
-                setSortConfig({ key: e.target.value === ALL_SUBJECTS ? 'Seat No' : e.target.value, direction: 'asc' });
+                setSortConfig({ key: e.target.value === ALL_SUBJECTS ? 'Seat No' : 'Name', direction: 'asc' });
               }}
               className="w-full pl-12 pr-10 py-3.5 rounded-2xl border border-slate-300 bg-white/60 focus:bg-white text-slate-800 outline-none focus:ring-4 focus:ring-emerald-400/20 focus:border-emerald-400 transition-all font-medium appearance-none shadow-sm cursor-pointer relative"
               disabled={searchQuery.trim() !== ''}
@@ -209,6 +212,17 @@ export const ResultsPortal = () => {
         <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white/40 shadow-inner">
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
+              {effectiveSubject === ALL_SUBJECTS && (
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th colSpan={3} className="p-2 border-r border-slate-200 bg-white sticky left-0 z-20 shadow-[1px_0_0_rgba(203,213,225,1)]"></th>
+                  <th colSpan={6} className="p-2 text-center text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-100/50 border-r border-slate-200 border-t-[3px] border-t-emerald-400">
+                    1st Semester
+                  </th>
+                  <th colSpan={6} className="p-2 text-center text-xs font-bold uppercase tracking-widest text-blue-700 bg-blue-100/50 border-t-[3px] border-t-blue-400">
+                    2nd Semester
+                  </th>
+                </tr>
+              )}
               <tr className="bg-slate-100/80 border-b border-slate-200">
                 <th className="p-4 font-bold text-slate-600 text-sm w-16 text-center sticky left-0 bg-slate-100/90 z-20 shadow-[1px_0_0_rgba(203,213,225,1)]">#</th>
                 <th 
@@ -232,7 +246,7 @@ export const ResultsPortal = () => {
                   SUBJECTS_DATA.map(sub => (
                     <th 
                       key={sub.id}
-                      className="p-4 font-bold text-slate-600 text-sm cursor-pointer hover:bg-slate-200/80 transition-colors border-l border-slate-200/50"
+                      className={`p-4 font-bold text-slate-600 text-sm cursor-pointer hover:bg-slate-200/80 transition-colors border-l border-slate-200/50 ${sub.semester === 1 ? 'border-t border-t-emerald-200 bg-emerald-50/20' : 'border-t border-t-blue-200 bg-blue-50/20'}`}
                       onClick={() => handleSort(sub.id)}
                     >
                       <div className="flex flex-col items-end gap-1">
