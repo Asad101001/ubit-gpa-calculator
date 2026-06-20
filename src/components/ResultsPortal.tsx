@@ -1,22 +1,19 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronDown, ChevronUp, FileText, Filter, AlertTriangle } from 'lucide-react';
 
-// Fallback data just in case Supabase fetch fails or hasn't been set up yet.
-import fallbackData from '../../extracted_results_final.json';
-
-const SUBJECTS = [
-  "CS-351 Programming Fundamentals [Mr. Badr Sami]",
-  "CS-352 Object Oriented Concepts and Programming [Dr. Humera Tariq]",
-  "CS-353 Introduction to Information and Communication Technology [Mr. Zaeem Tariq]",
-  "CS-354 Digital Logic Design [Mr. Bari Ahmed]",
-  "CS-355 Calculus and Analytical Geometry [Mr. M. Aslam]",
-  "CS-356 Linear Algebra [Mr. Muhammad Huzaifa]",
-  "CS-357 Applied Physics [Ms. Farheen Shafiq]",
-  "CS-358 Discrete Structures [Ms. Maryam Feroze]",
-  "CS-359 Functional English [Ms. Ayesha Khwaja & Muhammad Qasim]",
-  "CS-360 Communication and Presentation Skills [Mr. Sami-ul-Huda]",
-  "CS-361 Islamic Studies [Dr. Waqar Hussain]",
-  "CS-362 Ideology and Constitution of Pakistan [Dr. Mehrunnissa]"
+const SUBJECTS_DATA = [
+  { id: "cs351", code: "CS-351", name: "Programming Fundamentals", teacher: "Mr. Badr Sami", semester: 1 },
+  { id: "cs352", code: "CS-352", name: "Object Oriented Concepts", teacher: "Dr. Humera Tariq", semester: 2 },
+  { id: "cs353", code: "CS-353", name: "Intro to ICT", teacher: "Mr. Zaeem Tariq", semester: 1 },
+  { id: "cs354", code: "CS-354", name: "Digital Logic Design", teacher: "Mr. Bari Ahmed", semester: 2 },
+  { id: "cs355", code: "CS-355", name: "Calculus & Analytical Geo", teacher: "Mr. M. Aslam", semester: 1 },
+  { id: "cs356", code: "CS-356", name: "Linear Algebra", teacher: "Mr. Muhammad Huzaifa", semester: 2 },
+  { id: "cs357", code: "CS-357", name: "Applied Physics", teacher: "Ms. Farheen Shafiq", semester: 1 },
+  { id: "cs358", code: "CS-358", name: "Discrete Structures", teacher: "Ms. Maryam Feroze", semester: 2 },
+  { id: "cs359", code: "CS-359", name: "Functional English", teacher: "Ms. Ayesha Khwaja", semester: 1 },
+  { id: "cs360", code: "CS-360", name: "Communication Skills", teacher: "Mr. Sami-ul-Huda", semester: 2 },
+  { id: "cs361", code: "CS-361", name: "Islamic Studies", teacher: "Dr. Waqar Hussain", semester: 1 },
+  { id: "cs362", code: "CS-362", name: "Ideology of Pakistan", teacher: "Dr. Mehrunnissa", semester: 2 }
 ];
 
 const ALL_SUBJECTS = "All Subjects Overview";
@@ -43,14 +40,9 @@ export const ResultsPortal = () => {
                 'Name': row.name,
               };
               
-              // Map short database columns (cs351) back to verbose subject names for the UI
-              SUBJECTS.forEach(sub => {
-                const match = sub.match(/(CS-\d+)/);
-                if (match) {
-                  const shortCode = match[1].toLowerCase().replace('-', '');
-                  if (row[shortCode] !== undefined) {
-                    mappedRow[sub] = row[shortCode];
-                  }
+              SUBJECTS_DATA.forEach(sub => {
+                if (row[sub.id] !== undefined) {
+                  mappedRow[sub.id] = row[sub.id];
                 }
               });
               
@@ -61,12 +53,12 @@ export const ResultsPortal = () => {
             return;
           }
         }
-        // Fallback
-        setData(fallbackData);
+        setData([]);
+        setError("No data found or database connection issue.");
       } catch (e) {
-        console.error("Failed to fetch from API, using fallback data.", e);
-        setError("Could not connect to the live database. Showing local offline data.");
-        setData(fallbackData);
+        console.error("Failed to fetch from API.", e);
+        setError("Could not connect to the live database.");
+        setData([]);
       }
       setIsLoading(false);
     };
@@ -78,12 +70,11 @@ export const ResultsPortal = () => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
+    } else if (sortConfig && sortConfig.key === key && sortConfig.direction === 'desc') {
+      // Toggle back to asc or clear sort if needed, here we just toggle between asc/desc
+      direction = 'asc';
     }
     setSortConfig({ key, direction });
-  };
-
-  const getShortName = (fullName: string) => {
-    return fullName.split(' ')[0];
   };
 
   const sortedAndFilteredData = useMemo(() => {
@@ -108,8 +99,8 @@ export const ResultsPortal = () => {
         const isAString = typeof aVal === 'string' && isNaN(Number(aVal));
         const isBString = typeof bVal === 'string' && isNaN(Number(bVal));
 
-        if (isAString && !isBString) return 1; // push strings to bottom
-        if (!isAString && isBString) return -1;
+        if (isAString && !isBString) return sortConfig.direction === 'asc' ? 1 : -1; 
+        if (!isAString && isBString) return sortConfig.direction === 'asc' ? -1 : 1;
         if (isAString && isBString) return 0;
 
         const aNum = Number(aVal);
@@ -120,8 +111,8 @@ export const ResultsPortal = () => {
             if (aNum > bNum) return sortConfig.direction === 'asc' ? 1 : -1;
         } else {
             // String comparison (for names/seats)
-            const aStr = String(aVal || '');
-            const bStr = String(bVal || '');
+            const aStr = String(aVal || '').toLowerCase();
+            const bStr = String(bVal || '').toLowerCase();
             if (aStr < bStr) return sortConfig.direction === 'asc' ? -1 : 1;
             if (aStr > bStr) return sortConfig.direction === 'asc' ? 1 : -1;
         }
@@ -132,6 +123,9 @@ export const ResultsPortal = () => {
 
     return filtered;
   }, [data, searchQuery, sortConfig]);
+
+  // When searching, force effective selected subject to ALL_SUBJECTS to show all marks
+  const effectiveSubject = searchQuery.trim() !== '' ? ALL_SUBJECTS : selectedSubject;
 
   return (
     <section id="results" className="pt-8 sm:pt-16 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -184,20 +178,32 @@ export const ResultsPortal = () => {
               value={selectedSubject}
               onChange={(e) => {
                 setSelectedSubject(e.target.value);
-                setSortConfig({ key: e.target.value === ALL_SUBJECTS ? 'Seat No' : e.target.value, direction: e.target.value === ALL_SUBJECTS ? 'asc' : 'desc' });
+                setSortConfig({ key: e.target.value === ALL_SUBJECTS ? 'Seat No' : e.target.value, direction: 'asc' });
               }}
               className="w-full pl-12 pr-10 py-3.5 rounded-2xl border border-slate-300 bg-white/60 focus:bg-white text-slate-800 outline-none focus:ring-4 focus:ring-emerald-400/20 focus:border-emerald-400 transition-all font-medium appearance-none shadow-sm cursor-pointer relative"
+              disabled={searchQuery.trim() !== ''}
             >
               <option value={ALL_SUBJECTS} className="font-bold text-emerald-700">{ALL_SUBJECTS}</option>
-              <optgroup label="Specific Subjects">
-                {SUBJECTS.map(sub => (
-                  <option key={sub} value={sub}>{sub}</option>
+              <optgroup label="1st Semester">
+                {SUBJECTS_DATA.filter(s => s.semester === 1).map(sub => (
+                  <option key={sub.id} value={sub.id}>{sub.code} - {sub.name}</option>
+                ))}
+              </optgroup>
+              <optgroup label="2nd Semester">
+                {SUBJECTS_DATA.filter(s => s.semester === 2).map(sub => (
+                  <option key={sub.id} value={sub.id}>{sub.code} - {sub.name}</option>
                 ))}
               </optgroup>
             </select>
             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none group-focus-within:text-emerald-500 transition-colors" />
           </div>
         </div>
+        
+        {searchQuery.trim() !== '' && (
+          <div className="mb-4 text-xs font-semibold text-emerald-600 bg-emerald-50 inline-flex items-center px-3 py-1.5 rounded-lg border border-emerald-200">
+            Viewing all subjects for searched student
+          </div>
+        )}
 
         {/* Table */}
         <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white/40 shadow-inner">
@@ -222,25 +228,30 @@ export const ResultsPortal = () => {
                   </div>
                 </th>
                 
-                {selectedSubject === ALL_SUBJECTS ? (
-                  SUBJECTS.map(sub => (
+                {effectiveSubject === ALL_SUBJECTS ? (
+                  SUBJECTS_DATA.map(sub => (
                     <th 
-                      key={sub}
+                      key={sub.id}
                       className="p-4 font-bold text-slate-600 text-sm cursor-pointer hover:bg-slate-200/80 transition-colors border-l border-slate-200/50"
-                      onClick={() => handleSort(sub)}
+                      onClick={() => handleSort(sub.id)}
                     >
-                      <div className="flex items-center justify-end gap-2">
-                        {getShortName(sub)} {sortConfig?.key === sub && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-emerald-500" /> : <ChevronDown size={14} className="text-emerald-500" />)}
+                      <div className="flex flex-col items-end gap-1">
+                        <div className="flex items-center gap-1 text-xs text-slate-400 font-semibold uppercase tracking-wider">
+                          {sub.code}
+                          {sortConfig?.key === sub.id && (sortConfig.direction === 'asc' ? <ChevronUp size={12} className="text-emerald-500" /> : <ChevronDown size={12} className="text-emerald-500" />)}
+                        </div>
+                        <div className="text-xs">{sub.name}</div>
                       </div>
                     </th>
                   ))
                 ) : (
                   <th 
                     className="p-4 font-bold text-emerald-700 text-sm cursor-pointer hover:bg-emerald-100/50 transition-colors bg-emerald-50/50"
-                    onClick={() => handleSort(selectedSubject)}
+                    onClick={() => handleSort(effectiveSubject)}
                   >
                     <div className="flex items-center justify-end gap-2">
-                      {selectedSubject.split(' [')[0]} Marks {sortConfig?.key === selectedSubject && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-emerald-600" /> : <ChevronDown size={14} className="text-emerald-600" />)}
+                      {SUBJECTS_DATA.find(s => s.id === effectiveSubject)?.name} Marks 
+                      {sortConfig?.key === effectiveSubject && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-emerald-600" /> : <ChevronDown size={14} className="text-emerald-600" />)}
                     </div>
                   </th>
                 )}
@@ -249,14 +260,14 @@ export const ResultsPortal = () => {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={selectedSubject === ALL_SUBJECTS ? SUBJECTS.length + 3 : 4} className="p-12 text-center text-slate-500 font-medium">
+                  <td colSpan={effectiveSubject === ALL_SUBJECTS ? SUBJECTS_DATA.length + 3 : 4} className="p-12 text-center text-slate-500 font-medium">
                     <div className="animate-spin w-10 h-10 border-4 border-emerald-400 border-t-transparent rounded-full mx-auto mb-4"></div>
                     Loading official results...
                   </td>
                 </tr>
               ) : sortedAndFilteredData.length === 0 ? (
                 <tr>
-                  <td colSpan={selectedSubject === ALL_SUBJECTS ? SUBJECTS.length + 3 : 4} className="p-12 text-center text-slate-500 font-medium">
+                  <td colSpan={effectiveSubject === ALL_SUBJECTS ? SUBJECTS_DATA.length + 3 : 4} className="p-12 text-center text-slate-500 font-medium">
                     <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 inline-block">
                       No matching results found for "{searchQuery}".
                     </div>
@@ -276,12 +287,12 @@ export const ResultsPortal = () => {
                         {student['Name']}
                       </td>
                       
-                      {selectedSubject === ALL_SUBJECTS ? (
-                        SUBJECTS.map(sub => {
-                          const mark = student[sub];
+                      {effectiveSubject === ALL_SUBJECTS ? (
+                        SUBJECTS_DATA.map(sub => {
+                          const mark = student[sub.id];
                           const isMissing = typeof mark === 'string' && isNaN(Number(mark));
                           return (
-                            <td key={sub} className="p-4 text-right border-l border-slate-100/50">
+                            <td key={sub.id} className="p-4 text-right border-l border-slate-100/50">
                               {isMissing ? (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">
                                   {mark === "Marks Missing" ? "Missing" : "Unannounced"}
@@ -297,7 +308,7 @@ export const ResultsPortal = () => {
                       ) : (
                         <td className="p-4 text-right bg-emerald-50/20 group-hover:bg-emerald-50/40 transition-colors">
                           {(() => {
-                            const mark = student[selectedSubject];
+                            const mark = student[effectiveSubject];
                             const isMissing = typeof mark === 'string' && isNaN(Number(mark));
                             return isMissing ? (
                               <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-amber-100/80 text-amber-800 border border-amber-200/50">

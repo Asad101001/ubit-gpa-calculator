@@ -9,7 +9,7 @@ export const Footer = () => (
         <div className="text-sm text-slate-600 font-medium">
           <strong>Developed by AI</strong>
         </div>
-        <div className="text-xs text-slate-500 mt-1">
+        <div className="text-xs text-slate-500 mt-1 flex flex-col gap-2">
           <a 
             href="https://muhammadasad-portfolio.vercel.app/" 
             target="_blank" 
@@ -17,6 +17,15 @@ export const Footer = () => (
             className="hover:text-brand-400 transition-colors font-semibold"
           >
             + Asad (Batch '28)
+          </a>
+          
+          <a 
+            href="https://github.com/Asad101001/ubit-gpa-calculator" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-800 rounded-md transition-all font-medium"
+          >
+            <Code size={12} /> Contribute / View Code
           </a>
         </div>
       </div>
