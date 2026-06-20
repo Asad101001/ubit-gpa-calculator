@@ -219,21 +219,21 @@ export const ResultsPortal = () => {
         )}
 
         {/* Table */}
-        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white/40 shadow-inner">
+        <div className="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-2xl border border-slate-200 bg-white/40 shadow-inner relative">
           <table className="w-full text-left border-collapse whitespace-nowrap">
-            <thead>
+            <thead className="sticky top-0 z-20 shadow-sm">
               {effectiveSubject === ALL_SUBJECTS && (
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th colSpan={3} className="p-2 border-r border-slate-200 bg-white"></th>
-                  <th colSpan={6} className="p-2 text-center text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-100/50 border-r border-slate-200 border-t-[3px] border-t-emerald-400">
+                <tr className="bg-slate-50/95 backdrop-blur-md border-b border-slate-200">
+                  <th colSpan={3} className="p-2 border-r border-slate-200 bg-white/95 backdrop-blur-md"></th>
+                  <th colSpan={6} className="p-2 text-center text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-100/90 backdrop-blur-md border-r border-slate-200 border-t-[3px] border-t-emerald-400">
                     1st Semester
                   </th>
-                  <th colSpan={6} className="p-2 text-center text-xs font-bold uppercase tracking-widest text-blue-700 bg-blue-100/50 border-t-[3px] border-t-blue-400">
+                  <th colSpan={6} className="p-2 text-center text-xs font-bold uppercase tracking-widest text-blue-700 bg-blue-100/90 backdrop-blur-md border-t-[3px] border-t-blue-400">
                     2nd Semester
                   </th>
                 </tr>
               )}
-              <tr className="bg-slate-100/80 border-b border-slate-200">
+              <tr className="bg-slate-100/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
                 <th className="p-4 font-bold text-slate-600 text-sm min-w-[60px] text-center">#</th>
                 <th 
                   className="p-4 font-bold text-slate-600 text-sm min-w-[140px] cursor-pointer hover:bg-slate-200/80 transition-colors"

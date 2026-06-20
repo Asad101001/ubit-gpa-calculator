@@ -28,24 +28,6 @@ export const Footer = () => (
             <Code size={12} /> Source
           </a>
         </div>
-        
-        {/* Theme Switcher */}
-        <div className="mt-4 flex items-center gap-2 bg-slate-100/50 p-1.5 rounded-xl border border-slate-200">
-          {[
-            { id: 'emerald', color: 'bg-emerald-500' },
-            { id: 'cyberpunk', color: 'bg-violet-500' },
-            { id: 'sunset', color: 'bg-amber-500' },
-            { id: 'ocean', color: 'bg-blue-500' },
-            { id: 'rose', color: 'bg-rose-500' }
-          ].map(theme => (
-            <button
-              key={theme.id}
-              onClick={() => document.documentElement.setAttribute('data-theme', theme.id === 'emerald' ? '' : theme.id)}
-              className={`w-6 h-6 rounded-md ${theme.color} hover:scale-110 hover:shadow-md transition-all border border-black/10`}
-              title={`Switch to ${theme.id} theme`}
-            />
-          ))}
-        </div>
       </div>
 
       <div className="flex flex-col items-center md:items-end">

@@ -10,9 +10,9 @@ export default {
         sans: ['-apple-system', 'BlinkMacSystemFont', 'San Francisco', 'Helvetica Neue', 'sans-serif'],
       },
       colors: {
-        background: '#f8fafc',
-        surface: '#ffffff',
-        surfaceHighlight: '#f1f5f9',
+        background: 'rgb(var(--color-background) / <alpha-value>)',
+        surface: 'rgb(var(--color-surface) / <alpha-value>)',
+        surfaceHighlight: 'rgb(var(--color-surface-highlight) / <alpha-value>)',
         brand: {
           400: 'rgb(var(--color-brand-400) / <alpha-value>)', 
           500: 'rgb(var(--color-brand-500) / <alpha-value>)',

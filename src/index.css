@@ -6,33 +6,49 @@
 
 @layer base {
   :root {
-    --color-brand-400: 52 211 153; /* emerald-400 */
-    --color-brand-500: 16 185 129; /* emerald-500 */
-    --color-brand-600: 5 150 105;  /* emerald-600 */
+    /* Rose (Default) */
+    --color-brand-400: 251 113 133; 
+    --color-brand-500: 244 63 94;   
+    --color-brand-600: 225 29 72;   
+    --color-background: 255 241 242; /* rose-50 */
+    --color-surface: 255 255 255;
+    --color-surface-highlight: 255 228 230; /* rose-100 */
   }
 
   [data-theme="cyberpunk"] {
-    --color-brand-400: 167 139 250; /* violet-400 */
-    --color-brand-500: 139 92 246;  /* violet-500 */
-    --color-brand-600: 124 58 237;  /* violet-600 */
+    --color-brand-400: 167 139 250; 
+    --color-brand-500: 139 92 246;  
+    --color-brand-600: 124 58 237;  
+    --color-background: 245 243 255; /* violet-50 */
+    --color-surface: 255 255 255;
+    --color-surface-highlight: 237 233 254; /* violet-100 */
   }
 
   [data-theme="sunset"] {
-    --color-brand-400: 251 191 36; /* amber-400 */
-    --color-brand-500: 245 158 11; /* amber-500 */
-    --color-brand-600: 217 119 6;  /* amber-600 */
+    --color-brand-400: 251 191 36; 
+    --color-brand-500: 245 158 11; 
+    --color-brand-600: 217 119 6;  
+    --color-background: 255 251 235; /* amber-50 */
+    --color-surface: 255 255 255;
+    --color-surface-highlight: 254 243 199; /* amber-100 */
   }
 
   [data-theme="ocean"] {
-    --color-brand-400: 96 165 250; /* blue-400 */
-    --color-brand-500: 59 130 246; /* blue-500 */
-    --color-brand-600: 37 99 235;  /* blue-600 */
+    --color-brand-400: 96 165 250; 
+    --color-brand-500: 59 130 246; 
+    --color-brand-600: 37 99 235;  
+    --color-background: 239 246 255; /* blue-50 */
+    --color-surface: 255 255 255;
+    --color-surface-highlight: 219 234 254; /* blue-100 */
   }
 
-  [data-theme="rose"] {
-    --color-brand-400: 251 113 133; /* rose-400 */
-    --color-brand-500: 244 63 94;   /* rose-500 */
-    --color-brand-600: 225 29 72;   /* rose-600 */
+  [data-theme="emerald"] {
+    --color-brand-400: 52 211 153; 
+    --color-brand-500: 16 185 129; 
+    --color-brand-600: 5 150 105;  
+    --color-background: 236 253 245; /* emerald-50 */
+    --color-surface: 255 255 255;
+    --color-surface-highlight: 209 250 229; /* emerald-100 */
   }
 
   body {

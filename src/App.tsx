@@ -10,6 +10,7 @@ import { Leaderboard, SubmitModal } from './components/Leaderboard';
 import { BoycottModal } from './components/BoycottModal';
 import { SplashScreen } from './components/SplashScreen';
 import { ResultsPortal } from './components/ResultsPortal';
+import { ThemeConfigurator } from './components/ThemeConfigurator';
 
 function App() {
   const [appLoaded, setAppLoaded] = useState(false);
@@ -227,6 +228,7 @@ function App() {
 
       <div className={`min-h-screen relative selection:bg-brand-500/30 font-sans ${!appLoaded ? 'hidden' : ''}`}>
         <Header currentView={currentView} setCurrentView={setCurrentView} />
+        <ThemeConfigurator />
         <BoycottModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         <SubmitModal 
           isOpen={isSubmitModalOpen} 
