@@ -4,24 +4,32 @@ import { Activity, Code, TrendingUp, TrendingDown, BookOpen, Users, ChevronUp, C
 import { exportToJson } from '../lib/utils';
 
 export const MetricCard = ({ title, value, subtitle, icon: Icon, highlight = false }: any) => (
-  <div className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl border transition-all hover:-translate-y-1 ${
+  <motion.div 
+    whileHover={{ y: -5, scale: 1.02 }}
+    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    className={`p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border relative overflow-hidden group ${
     highlight 
-      ? 'bg-gradient-to-br from-brand-500/10 to-brand-400/5 border-brand-500/30 shadow-[0_0_20px_rgba(20,184,166,0.15)]' 
+      ? 'bg-gradient-to-br from-brand-500/15 via-brand-400/10 to-transparent border-brand-500/40 shadow-[0_0_30px_rgba(20,184,166,0.2)]' 
       : 'glass border-slate-300'
   }`}>
-    <div className="flex items-center gap-3 mb-2 sm:mb-3">
-      <div className={`p-2 rounded-lg sm:rounded-xl ${highlight ? 'bg-brand-500 text-white' : 'bg-slate-200 text-slate-600'}`}>
-        <Icon size={16} className="sm:w-[20px] sm:h-[20px]" />
+    {highlight && (
+      <div className="absolute inset-0 bg-brand-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
+    )}
+    <div className="relative z-10 flex flex-col h-full justify-between">
+      <div className="flex items-center gap-3 mb-4 sm:mb-6">
+        <div className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl ${highlight ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30' : 'bg-slate-200 text-slate-600'}`}>
+          <Icon size={24} className="sm:w-[28px] sm:h-[28px]" />
+        </div>
+        <h3 className="text-sm sm:text-base font-extrabold text-slate-600 uppercase tracking-widest">{title}</h3>
       </div>
-      <h3 className="text-xs sm:text-sm font-bold text-slate-600 uppercase tracking-wider">{title}</h3>
+      <div className="flex items-baseline gap-3">
+        <span className={`text-5xl sm:text-7xl font-black tracking-tight ${highlight ? 'text-transparent bg-clip-text bg-gradient-to-br from-brand-600 to-brand-400 drop-shadow-sm' : 'text-slate-800'}`}>
+          {value}
+        </span>
+        {subtitle && <span className="text-sm sm:text-base font-bold text-slate-500 truncate max-w-[150px] sm:max-w-none">{subtitle}</span>}
+      </div>
     </div>
-    <div className="flex items-baseline gap-2">
-      <span className={`text-3xl sm:text-4xl font-black ${highlight ? 'text-brand-500 drop-shadow-sm' : 'text-slate-800'}`}>
-        {value}
-      </span>
-      {subtitle && <span className="text-xs sm:text-sm font-semibold text-slate-500 truncate max-w-[120px] sm:max-w-none">{subtitle}</span>}
-    </div>
-  </div>
+  </motion.div>
 );
 
 export const Analytics = ({

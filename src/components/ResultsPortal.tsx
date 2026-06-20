@@ -99,7 +99,16 @@ export const ResultsPortal = () => {
         const aVal = a[sortConfig.key];
         const bVal = b[sortConfig.key];
 
-        // Handle missing/unannounced strings
+        // If we are sorting by a text column, don't treat text as "Missing Marks"
+        if (sortConfig.key === 'Name' || sortConfig.key === 'Seat No') {
+            const aStr = String(aVal || '').toLowerCase();
+            const bStr = String(bVal || '').toLowerCase();
+            if (aStr < bStr) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aStr > bStr) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        }
+
+        // Handle missing/unannounced strings for Mark columns
         const isAString = typeof aVal === 'string' && isNaN(Number(aVal));
         const isBString = typeof bVal === 'string' && isNaN(Number(bVal));
 
@@ -225,9 +234,9 @@ export const ResultsPortal = () => {
                 </tr>
               )}
               <tr className="bg-slate-100/80 border-b border-slate-200">
-                <th className="p-4 font-bold text-slate-600 text-sm w-16 text-center">#</th>
+                <th className="p-4 font-bold text-slate-600 text-sm min-w-[60px] text-center">#</th>
                 <th 
-                  className="p-4 font-bold text-slate-600 text-sm w-32 cursor-pointer hover:bg-slate-200/80 transition-colors"
+                  className="p-4 font-bold text-slate-600 text-sm min-w-[140px] cursor-pointer hover:bg-slate-200/80 transition-colors"
                   onClick={() => handleSort('Seat No')}
                 >
                   <div className="flex items-center gap-2">
@@ -298,13 +307,13 @@ export const ResultsPortal = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: Math.min(index * 0.03, 0.5), ease: "easeOut" }}
                     >
-                      <td className="p-4 text-center text-slate-400 font-medium text-sm bg-white/90 group-hover:bg-slate-50/90">
+                      <td className="p-4 text-center text-slate-400 font-medium text-sm min-w-[60px] bg-white/90 group-hover:bg-slate-50/90">
                         {index + 1}
                       </td>
-                      <td className="p-4 font-mono text-sm text-slate-600 font-bold bg-white/90 group-hover:bg-slate-50/90">
+                      <td className="p-4 font-mono text-sm text-slate-600 font-bold min-w-[140px] bg-white/90 group-hover:bg-slate-50/90">
                         {student['Seat No']}
                       </td>
-                      <td className="p-4 text-sm text-slate-800 font-semibold truncate max-w-[250px]" title={student['Name']}>
+                      <td className="p-4 text-sm text-slate-800 font-semibold min-w-[200px] whitespace-nowrap" title={student['Name']}>
                         {student['Name']}
                       </td>
                       
