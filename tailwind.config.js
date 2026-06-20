@@ -14,9 +14,9 @@ export default {
         surface: '#ffffff',
         surfaceHighlight: '#f1f5f9',
         brand: {
-          400: '#34d399', // emerald-400
-          500: '#10b981', // emerald-500
-          600: '#059669', // emerald-600
+          400: 'rgb(var(--color-brand-400) / <alpha-value>)', 
+          500: 'rgb(var(--color-brand-500) / <alpha-value>)',
+          600: 'rgb(var(--color-brand-600) / <alpha-value>)',
         }
       },
       animation: {

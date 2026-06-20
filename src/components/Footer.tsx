@@ -9,7 +9,7 @@ export const Footer = () => (
         <div className="text-sm text-slate-600 font-medium">
           <strong>Developed by AI</strong>
         </div>
-        <div className="text-xs text-slate-500 mt-1 flex flex-col gap-2">
+        <div className="text-xs text-slate-500 mt-1 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
           <a 
             href="https://muhammadasad-portfolio.vercel.app/" 
             target="_blank" 
@@ -18,15 +18,33 @@ export const Footer = () => (
           >
             + Asad (Batch '28)
           </a>
-          
+          <span className="hidden sm:inline text-slate-300">|</span>
           <a 
             href="https://github.com/Asad101001/ubit-gpa-calculator" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-800 rounded-md transition-all font-medium"
+            className="hover:text-slate-800 transition-colors flex items-center gap-1 opacity-70 hover:opacity-100"
           >
-            <Code size={12} /> Contribute / View Code
+            <Code size={12} /> Source
           </a>
+        </div>
+        
+        {/* Theme Switcher */}
+        <div className="mt-4 flex items-center gap-2 bg-slate-100/50 p-1.5 rounded-xl border border-slate-200">
+          {[
+            { id: 'emerald', color: 'bg-emerald-500' },
+            { id: 'cyberpunk', color: 'bg-violet-500' },
+            { id: 'sunset', color: 'bg-amber-500' },
+            { id: 'ocean', color: 'bg-blue-500' },
+            { id: 'rose', color: 'bg-rose-500' }
+          ].map(theme => (
+            <button
+              key={theme.id}
+              onClick={() => document.documentElement.setAttribute('data-theme', theme.id === 'emerald' ? '' : theme.id)}
+              className={`w-6 h-6 rounded-md ${theme.color} hover:scale-110 hover:shadow-md transition-all border border-black/10`}
+              title={`Switch to ${theme.id} theme`}
+            />
+          ))}
         </div>
       </div>
 
