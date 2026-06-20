@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronDown, ChevronUp, FileText, Filter, AlertTriangle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const SUBJECTS_DATA = [
   // 1st Semester
@@ -214,7 +215,7 @@ export const ResultsPortal = () => {
             <thead>
               {effectiveSubject === ALL_SUBJECTS && (
                 <tr className="bg-slate-50 border-b border-slate-200">
-                  <th colSpan={3} className="p-2 border-r border-slate-200 bg-white sticky left-0 z-20 shadow-[1px_0_0_rgba(203,213,225,1)]"></th>
+                  <th colSpan={3} className="p-2 border-r border-slate-200 bg-white"></th>
                   <th colSpan={6} className="p-2 text-center text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-100/50 border-r border-slate-200 border-t-[3px] border-t-emerald-400">
                     1st Semester
                   </th>
@@ -224,9 +225,9 @@ export const ResultsPortal = () => {
                 </tr>
               )}
               <tr className="bg-slate-100/80 border-b border-slate-200">
-                <th className="p-4 font-bold text-slate-600 text-sm w-16 text-center sticky left-0 bg-slate-100/90 z-20 shadow-[1px_0_0_rgba(203,213,225,1)]">#</th>
+                <th className="p-4 font-bold text-slate-600 text-sm w-16 text-center">#</th>
                 <th 
-                  className="p-4 font-bold text-slate-600 text-sm w-32 cursor-pointer hover:bg-slate-200/80 transition-colors sticky left-[64px] bg-slate-100/90 z-20 shadow-[1px_0_0_rgba(203,213,225,1)]"
+                  className="p-4 font-bold text-slate-600 text-sm w-32 cursor-pointer hover:bg-slate-200/80 transition-colors"
                   onClick={() => handleSort('Seat No')}
                 >
                   <div className="flex items-center gap-2">
@@ -290,11 +291,17 @@ export const ResultsPortal = () => {
               ) : (
                 sortedAndFilteredData.map((student, index) => {
                   return (
-                    <tr key={student['Seat No']} className="border-b border-slate-100/80 last:border-0 hover:bg-white/80 transition-colors group">
-                      <td className="p-4 text-center text-slate-400 font-medium text-sm sticky left-0 bg-white/90 group-hover:bg-slate-50/90 z-10 shadow-[1px_0_0_rgba(203,213,225,0.4)]">
+                    <motion.tr 
+                      key={student['Seat No']} 
+                      className="border-b border-slate-100/80 last:border-0 hover:bg-white/80 transition-colors group"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: Math.min(index * 0.03, 0.5), ease: "easeOut" }}
+                    >
+                      <td className="p-4 text-center text-slate-400 font-medium text-sm bg-white/90 group-hover:bg-slate-50/90">
                         {index + 1}
                       </td>
-                      <td className="p-4 font-mono text-sm text-slate-600 font-bold sticky left-[64px] bg-white/90 group-hover:bg-slate-50/90 z-10 shadow-[1px_0_0_rgba(203,213,225,0.4)]">
+                      <td className="p-4 font-mono text-sm text-slate-600 font-bold bg-white/90 group-hover:bg-slate-50/90">
                         {student['Seat No']}
                       </td>
                       <td className="p-4 text-sm text-slate-800 font-semibold truncate max-w-[250px]" title={student['Name']}>
@@ -312,7 +319,7 @@ export const ResultsPortal = () => {
                                   {mark === "Marks Missing" ? "Missing" : "Unannounced"}
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center text-sm font-bold text-slate-700">
+                                <span className={`inline-flex items-center text-sm font-bold ${Number(mark) >= 90 ? 'text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)] scale-110 transition-transform' : 'text-slate-700'}`}>
                                   {mark}
                                 </span>
                               )}
@@ -325,18 +332,18 @@ export const ResultsPortal = () => {
                             const mark = student[effectiveSubject];
                             const isMissing = typeof mark === 'string' && isNaN(Number(mark));
                             return isMissing ? (
-                              <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-amber-100/80 text-amber-800 border border-amber-200/50">
+                              <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-slate-100/80 text-slate-500 border border-slate-200/50">
                                 {mark}
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-3.5 py-1.5 rounded-lg text-sm font-black bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm">
+                              <span className={`inline-flex items-center px-3.5 py-1.5 rounded-lg text-sm font-black border shadow-sm ${Number(mark) >= 90 ? 'bg-amber-100 text-amber-800 border-amber-300 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] scale-105' : 'bg-emerald-100 text-emerald-800 border-emerald-200'}`}>
                                 {mark}
                               </span>
                             );
                           })()}
                         </td>
                       )}
-                    </tr>
+                    </motion.tr>
                   )
                 })
               )}
