@@ -1,0 +1,324 @@
+import { useState, useMemo, useEffect } from 'react';
+import { Search, ChevronDown, ChevronUp, FileText, Filter, AlertTriangle } from 'lucide-react';
+
+// Fallback data just in case Supabase fetch fails or hasn't been set up yet.
+import fallbackData from '../../extracted_results_final.json';
+
+const SUBJECTS = [
+  "CS-351 Programming Fundamentals [Mr. Badr Sami]",
+  "CS-352 Object Oriented Concepts and Programming [Dr. Humera Tariq]",
+  "CS-353 Introduction to Information and Communication Technology [Mr. Zaeem Tariq]",
+  "CS-354 Digital Logic Design [Mr. Bari Ahmed]",
+  "CS-355 Calculus and Analytical Geometry [Mr. M. Aslam]",
+  "CS-356 Linear Algebra [Mr. Muhammad Huzaifa]",
+  "CS-357 Applied Physics [Ms. Farheen Shafiq]",
+  "CS-358 Discrete Structures [Ms. Maryam Feroze]",
+  "CS-359 Functional English [Ms. Ayesha Khwaja & Muhammad Qasim]",
+  "CS-360 Communication and Presentation Skills [Mr. Sami-ul-Huda]",
+  "CS-361 Islamic Studies [Dr. Waqar Hussain]",
+  "CS-362 Ideology and Constitution of Pakistan [Dr. Mehrunnissa]"
+];
+
+const ALL_SUBJECTS = "All Subjects Overview";
+
+export const ResultsPortal = () => {
+  const [data, setData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState(ALL_SUBJECTS);
+  const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>({ key: 'Seat No', direction: 'asc' });
+
+  useEffect(() => {
+    const fetchResults = async () => {
+      try {
+        const res = await fetch('/api/results');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.length > 0) {
+            const formatted = json.map((row: any) => {
+              const mappedRow: any = {
+                'Seat No': row.seat_no,
+                'Name': row.name,
+              };
+              
+              // Map short database columns (cs351) back to verbose subject names for the UI
+              SUBJECTS.forEach(sub => {
+                const match = sub.match(/(CS-\d+)/);
+                if (match) {
+                  const shortCode = match[1].toLowerCase().replace('-', '');
+                  if (row[shortCode] !== undefined) {
+                    mappedRow[sub] = row[shortCode];
+                  }
+                }
+              });
+              
+              return mappedRow;
+            });
+            setData(formatted);
+            setIsLoading(false);
+            return;
+          }
+        }
+        // Fallback
+        setData(fallbackData);
+      } catch (e) {
+        console.error("Failed to fetch from API, using fallback data.", e);
+        setError("Could not connect to the live database. Showing local offline data.");
+        setData(fallbackData);
+      }
+      setIsLoading(false);
+    };
+
+    fetchResults();
+  }, []);
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getShortName = (fullName: string) => {
+    return fullName.split(' ')[0];
+  };
+
+  const sortedAndFilteredData = useMemo(() => {
+    let filtered = [...data];
+
+    // Filter by Search Query
+    if (searchQuery.trim() !== '') {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(item => 
+        (item['Seat No'] && item['Seat No'].toLowerCase().includes(q)) || 
+        (item['Name'] && item['Name'].toLowerCase().includes(q))
+      );
+    }
+
+    // Sort Data
+    if (sortConfig !== null) {
+      filtered.sort((a, b) => {
+        const aVal = a[sortConfig.key];
+        const bVal = b[sortConfig.key];
+
+        // Handle missing/unannounced strings
+        const isAString = typeof aVal === 'string' && isNaN(Number(aVal));
+        const isBString = typeof bVal === 'string' && isNaN(Number(bVal));
+
+        if (isAString && !isBString) return 1; // push strings to bottom
+        if (!isAString && isBString) return -1;
+        if (isAString && isBString) return 0;
+
+        const aNum = Number(aVal);
+        const bNum = Number(bVal);
+
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+            if (aNum < bNum) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aNum > bNum) return sortConfig.direction === 'asc' ? 1 : -1;
+        } else {
+            // String comparison (for names/seats)
+            const aStr = String(aVal || '');
+            const bStr = String(bVal || '');
+            if (aStr < bStr) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aStr > bStr) return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [data, searchQuery, sortConfig]);
+
+  return (
+    <section id="results" className="pt-8 sm:pt-16 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      
+      {/* Data Inaccuracy Disclaimer */}
+      <div className="max-w-4xl mx-auto mb-8">
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-5 flex items-start gap-3 text-left shadow-sm">
+          <AlertTriangle className="text-amber-500 w-6 h-6 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <h3 className="text-amber-800 font-bold text-sm sm:text-base">Disclaimer regarding Results Data</h3>
+            <p className="text-amber-700/90 text-xs sm:text-sm font-medium leading-relaxed">
+              The academic results and marks displayed or utilized in this portal have been extracted via automated processes and manual data entry. 
+              <strong> This data may be incomplete, unannounced, or contain inaccuracies. </strong>
+              Always refer to your official transcript from the university administration for the final, authoritative results.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+        <div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight flex items-center gap-3 mb-2">
+            <FileText className="text-emerald-500 w-8 h-8" />
+            Official Results Portal
+          </h2>
+          <p className="text-slate-500 font-medium max-w-xl text-sm sm:text-base">
+            Browse and filter academic results for Semester 1.
+          </p>
+          {error && <p className="text-red-500 text-sm mt-2 font-medium">{error}</p>}
+        </div>
+      </div>
+
+      <div className="glass rounded-[2rem] p-4 sm:p-6 md:p-8 border-slate-300 relative overflow-hidden shadow-xl">
+        {/* Controls */}
+        <div className="flex flex-col lg:flex-row gap-4 mb-6">
+          <div className="flex-1 relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-emerald-500 transition-colors" />
+            <input 
+              type="text" 
+              placeholder="Search by Name or Seat Number..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-slate-300 bg-white/60 focus:bg-white text-slate-800 outline-none focus:ring-4 focus:ring-emerald-400/20 focus:border-emerald-400 transition-all font-medium shadow-sm"
+            />
+          </div>
+          
+          <div className="lg:w-[40%] relative group">
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-emerald-500 transition-colors z-10" />
+            <select 
+              value={selectedSubject}
+              onChange={(e) => {
+                setSelectedSubject(e.target.value);
+                setSortConfig({ key: e.target.value === ALL_SUBJECTS ? 'Seat No' : e.target.value, direction: e.target.value === ALL_SUBJECTS ? 'asc' : 'desc' });
+              }}
+              className="w-full pl-12 pr-10 py-3.5 rounded-2xl border border-slate-300 bg-white/60 focus:bg-white text-slate-800 outline-none focus:ring-4 focus:ring-emerald-400/20 focus:border-emerald-400 transition-all font-medium appearance-none shadow-sm cursor-pointer relative"
+            >
+              <option value={ALL_SUBJECTS} className="font-bold text-emerald-700">{ALL_SUBJECTS}</option>
+              <optgroup label="Specific Subjects">
+                {SUBJECTS.map(sub => (
+                  <option key={sub} value={sub}>{sub}</option>
+                ))}
+              </optgroup>
+            </select>
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none group-focus-within:text-emerald-500 transition-colors" />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white/40 shadow-inner">
+          <table className="w-full text-left border-collapse whitespace-nowrap">
+            <thead>
+              <tr className="bg-slate-100/80 border-b border-slate-200">
+                <th className="p-4 font-bold text-slate-600 text-sm w-16 text-center sticky left-0 bg-slate-100/90 z-20 shadow-[1px_0_0_rgba(203,213,225,1)]">#</th>
+                <th 
+                  className="p-4 font-bold text-slate-600 text-sm w-32 cursor-pointer hover:bg-slate-200/80 transition-colors sticky left-[64px] bg-slate-100/90 z-20 shadow-[1px_0_0_rgba(203,213,225,1)]"
+                  onClick={() => handleSort('Seat No')}
+                >
+                  <div className="flex items-center gap-2">
+                    Seat No {sortConfig?.key === 'Seat No' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-emerald-500" /> : <ChevronDown size={14} className="text-emerald-500" />)}
+                  </div>
+                </th>
+                <th 
+                  className="p-4 font-bold text-slate-600 text-sm cursor-pointer hover:bg-slate-200/80 transition-colors min-w-[200px]"
+                  onClick={() => handleSort('Name')}
+                >
+                  <div className="flex items-center gap-2">
+                    Name {sortConfig?.key === 'Name' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-emerald-500" /> : <ChevronDown size={14} className="text-emerald-500" />)}
+                  </div>
+                </th>
+                
+                {selectedSubject === ALL_SUBJECTS ? (
+                  SUBJECTS.map(sub => (
+                    <th 
+                      key={sub}
+                      className="p-4 font-bold text-slate-600 text-sm cursor-pointer hover:bg-slate-200/80 transition-colors border-l border-slate-200/50"
+                      onClick={() => handleSort(sub)}
+                    >
+                      <div className="flex items-center justify-end gap-2">
+                        {getShortName(sub)} {sortConfig?.key === sub && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-emerald-500" /> : <ChevronDown size={14} className="text-emerald-500" />)}
+                      </div>
+                    </th>
+                  ))
+                ) : (
+                  <th 
+                    className="p-4 font-bold text-emerald-700 text-sm cursor-pointer hover:bg-emerald-100/50 transition-colors bg-emerald-50/50"
+                    onClick={() => handleSort(selectedSubject)}
+                  >
+                    <div className="flex items-center justify-end gap-2">
+                      {selectedSubject.split(' [')[0]} Marks {sortConfig?.key === selectedSubject && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-emerald-600" /> : <ChevronDown size={14} className="text-emerald-600" />)}
+                    </div>
+                  </th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={selectedSubject === ALL_SUBJECTS ? SUBJECTS.length + 3 : 4} className="p-12 text-center text-slate-500 font-medium">
+                    <div className="animate-spin w-10 h-10 border-4 border-emerald-400 border-t-transparent rounded-full mx-auto mb-4"></div>
+                    Loading official results...
+                  </td>
+                </tr>
+              ) : sortedAndFilteredData.length === 0 ? (
+                <tr>
+                  <td colSpan={selectedSubject === ALL_SUBJECTS ? SUBJECTS.length + 3 : 4} className="p-12 text-center text-slate-500 font-medium">
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 inline-block">
+                      No matching results found for "{searchQuery}".
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                sortedAndFilteredData.map((student, index) => {
+                  return (
+                    <tr key={student['Seat No']} className="border-b border-slate-100/80 last:border-0 hover:bg-white/80 transition-colors group">
+                      <td className="p-4 text-center text-slate-400 font-medium text-sm sticky left-0 bg-white/90 group-hover:bg-slate-50/90 z-10 shadow-[1px_0_0_rgba(203,213,225,0.4)]">
+                        {index + 1}
+                      </td>
+                      <td className="p-4 font-mono text-sm text-slate-600 font-bold sticky left-[64px] bg-white/90 group-hover:bg-slate-50/90 z-10 shadow-[1px_0_0_rgba(203,213,225,0.4)]">
+                        {student['Seat No']}
+                      </td>
+                      <td className="p-4 text-sm text-slate-800 font-semibold truncate max-w-[250px]" title={student['Name']}>
+                        {student['Name']}
+                      </td>
+                      
+                      {selectedSubject === ALL_SUBJECTS ? (
+                        SUBJECTS.map(sub => {
+                          const mark = student[sub];
+                          const isMissing = typeof mark === 'string' && isNaN(Number(mark));
+                          return (
+                            <td key={sub} className="p-4 text-right border-l border-slate-100/50">
+                              {isMissing ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">
+                                  {mark === "Marks Missing" ? "Missing" : "Unannounced"}
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center text-sm font-bold text-slate-700">
+                                  {mark}
+                                </span>
+                              )}
+                            </td>
+                          );
+                        })
+                      ) : (
+                        <td className="p-4 text-right bg-emerald-50/20 group-hover:bg-emerald-50/40 transition-colors">
+                          {(() => {
+                            const mark = student[selectedSubject];
+                            const isMissing = typeof mark === 'string' && isNaN(Number(mark));
+                            return isMissing ? (
+                              <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-amber-100/80 text-amber-800 border border-amber-200/50">
+                                {mark}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-3.5 py-1.5 rounded-lg text-sm font-black bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm">
+                                {mark}
+                              </span>
+                            );
+                          })()}
+                        </td>
+                      )}
+                    </tr>
+                  )
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+};

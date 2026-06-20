@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Results Data
+Results/
+extracted_results_final.json
+students.txt
+.env
+
+marks_editor/
+supabase_setup.sql
+sync_to_supabase.js

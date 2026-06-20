@@ -9,9 +9,11 @@ import { Analytics } from './components/Analytics';
 import { Leaderboard, SubmitModal } from './components/Leaderboard';
 import { BoycottModal } from './components/BoycottModal';
 import { SplashScreen } from './components/SplashScreen';
+import { ResultsPortal } from './components/ResultsPortal';
 
 function App() {
   const [appLoaded, setAppLoaded] = useState(false);
+  const [currentView, setCurrentView] = useState<'main' | 'results'>('main');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
   const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(true);
@@ -224,7 +226,7 @@ function App() {
       </AnimatePresence>
 
       <div className={`min-h-screen relative selection:bg-brand-500/30 font-sans ${!appLoaded ? 'hidden' : ''}`}>
-        <Header />
+        <Header currentView={currentView} setCurrentView={setCurrentView} />
         <BoycottModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         <SubmitModal 
           isOpen={isSubmitModalOpen} 
@@ -267,60 +269,67 @@ function App() {
               <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-slate-900 via-slate-800 to-slate-500 mb-3 sm:mb-4 tracking-tighter">
                 GPA Calculator
               </h1>
-              <p className="text-sm sm:text-lg md:text-xl text-slate-600 font-medium max-w-2xl mx-auto flex items-center justify-center gap-2 sm:gap-3">
+              <p className="text-sm sm:text-lg md:text-xl text-slate-600 font-medium max-w-2xl mx-auto flex items-center justify-center gap-2 sm:gap-3 mb-6">
                 <Sparkles className="text-brand-400 w-4 h-4 sm:w-5 sm:h-5" />
                 Department of Computer Science
               </p>
+
             </motion.div>
           </section>
 
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-16">
-            <section className="space-y-4 sm:space-y-8">
-              <Calculator 
-                sem1Grades={sem1Grades} setSem1Grades={setSem1Grades}
-                sem2Grades={sem2Grades} setSem2Grades={setSem2Grades}
-              />
-              
-              <motion.div 
-                onClick={() => setIsModalOpen(true)}
-                className="w-full glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 border-slate-300 relative overflow-hidden cursor-pointer hover:border-yellow-400/30 transition-colors group mt-8"
-              >
-                <div className="relative z-10 flex items-center justify-between">
-                  <div className="flex items-center gap-2 sm:gap-4">
-                    <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.15)] group-hover:scale-110 transition-transform">
-                      03
+            {currentView === 'main' ? (
+              <>
+                <section className="space-y-4 sm:space-y-8">
+                  <Calculator 
+                    sem1Grades={sem1Grades} setSem1Grades={setSem1Grades}
+                    sem2Grades={sem2Grades} setSem2Grades={setSem2Grades}
+                  />
+                  
+                  <motion.div 
+                    onClick={() => setIsModalOpen(true)}
+                    className="w-full glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 border-slate-300 relative overflow-hidden cursor-pointer hover:border-yellow-400/30 transition-colors group mt-8"
+                  >
+                    <div className="relative z-10 flex items-center justify-between">
+                      <div className="flex items-center gap-2 sm:gap-4">
+                        <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.15)] group-hover:scale-110 transition-transform">
+                          03
+                        </div>
+                        <div>
+                          <h2 className="text-lg sm:text-2xl font-bold text-slate-800 tracking-tight">Semester Three</h2>
+                          <p className="text-[9px] sm:text-sm font-medium text-yellow-400/80 uppercase tracking-widest mt-0.5 sm:mt-1 flex items-center gap-1 sm:gap-2">
+                            <AlertTriangle size={12} className="w-[10px] h-[10px] sm:w-[14px] sm:h-[14px]" /> Pending Exams
+                          </p>
+                        </div>
+                      </div>
+                      <div className="px-4 py-2 bg-yellow-400/10 text-yellow-400 font-bold rounded-xl text-sm hidden sm:block border border-yellow-400/20">
+                        Click to Uncover
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-lg sm:text-2xl font-bold text-slate-800 tracking-tight">Semester Three</h2>
-                      <p className="text-[9px] sm:text-sm font-medium text-yellow-400/80 uppercase tracking-widest mt-0.5 sm:mt-1 flex items-center gap-1 sm:gap-2">
-                        <AlertTriangle size={12} className="w-[10px] h-[10px] sm:w-[14px] sm:h-[14px]" /> Pending Exams
-                      </p>
-                    </div>
-                  </div>
-                  <div className="px-4 py-2 bg-yellow-400/10 text-yellow-400 font-bold rounded-xl text-sm hidden sm:block border border-yellow-400/20">
-                    Click to Uncover
-                  </div>
-                </div>
-              </motion.div>
-            </section>
+                  </motion.div>
+                </section>
 
-            <Analytics 
-              gpa1={gpa1} gpa2={gpa2} cgpa={cgpa}
-              bestCourse={bestCourse} worstCourse={worstCourse}
-              radarData={radarData} chartData={chartData}
-              sem1Grades={sem1Grades} sem2Grades={sem2Grades}
-              isStatsOpen={isStatsOpen} setIsStatsOpen={setIsStatsOpen}
-              globalStats={globalStats}
-            />
+                <Analytics 
+                  gpa1={gpa1} gpa2={gpa2} cgpa={cgpa}
+                  bestCourse={bestCourse} worstCourse={worstCourse}
+                  radarData={radarData} chartData={chartData}
+                  sem1Grades={sem1Grades} sem2Grades={sem2Grades}
+                  isStatsOpen={isStatsOpen} setIsStatsOpen={setIsStatsOpen}
+                  globalStats={globalStats}
+                />
 
-            <Leaderboard 
-              leaderboardData={leaderboardData}
-              isLeaderboardLoading={isLeaderboardLoading}
-              setIsSubmitModalOpen={setIsSubmitModalOpen}
-              cgpa={cgpa}
-              hasSubmitted={hasSubmitted}
-              userPercentile={userPercentile}
-            />
+                <Leaderboard 
+                  leaderboardData={leaderboardData}
+                  isLeaderboardLoading={isLeaderboardLoading}
+                  setIsSubmitModalOpen={setIsSubmitModalOpen}
+                  cgpa={cgpa}
+                  hasSubmitted={hasSubmitted}
+                  userPercentile={userPercentile}
+                />
+              </>
+            ) : (
+              <ResultsPortal />
+            )}
           </div>
         </main>
 
