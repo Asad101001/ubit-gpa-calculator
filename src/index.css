@@ -6,51 +6,57 @@
 
 @layer base {
   :root {
-    /* Theme 1: Light (Clean, Emerald default) */
-    --color-brand-400: 52 211 153; 
-    --color-brand-500: 16 185 129; 
-    --color-brand-600: 5 150 105;  
-    --color-background: 236 253 245; /* emerald-50 */
+    /* Theme 1: Light (Clean, Professional Indigo) */
+    --color-brand-400: 129 140 248; /* indigo 400 */
+    --color-brand-500: 79 70 229;  /* indigo 500 */
+    --color-brand-600: 67 56 202;  /* indigo 600 */
+    --color-background: 248 250 252; /* slate 50 */
     --color-surface: 255 255 255;
-    --color-surface-highlight: 209 250 229; /* emerald-100 */
+    --color-surface-highlight: 241 245 249; /* slate 100 */
     --color-text-main: 15 23 42;
-    --color-text-muted: 71 85 105;
-    --color-border: 167 243 208; /* emerald-200 */
-    --color-accent-400: 45 212 191; /* teal 400 */
-    --color-accent-500: 20 184 166; /* teal 500 */
-    --color-accent-600: 13 148 136; /* teal 600 */
+    --color-text-muted: 100 116 139;
+    --color-border: 226 232 240; /* slate 200 */
+    --color-accent-400: 244 114 182; /* pink 400 */
+    --color-accent-500: 219 39 119;  /* pink 500 */
+    --color-accent-600: 190 24 93;   /* pink 600 */
+    --glass-reflection: 255 255 255;
+    --glass-reflection-opacity: 0.8;
   }
 
   [data-theme="midnight"] {
-    /* Theme 2: Midnight (Deep dark blue/violet) */
+    /* Theme 2: Midnight (Deep Space Indigo/Orchid) */
     --color-brand-400: 167 139 250; /* violet 400 */
     --color-brand-500: 139 92 246;  /* violet 500 */
     --color-brand-600: 124 58 237;  /* violet 600 */
-    --color-background: 15 23 42; /* slate 900 */
-    --color-surface: 30 41 59; /* slate 800 */
-    --color-surface-highlight: 51 65 85; /* slate 700 */
+    --color-background: 7 9 19; /* premium deepest obsidian navy */
+    --color-surface: 15 22 38; /* dark navy slate */
+    --color-surface-highlight: 29 39 61; /* slate highlight */
     --color-text-main: 248 250 252; /* slate 50 */
     --color-text-muted: 148 163 184; /* slate 400 */
-    --color-border: 51 65 85; /* slate 700 */
+    --color-border: 32 44 70; /* subtle navy border */
     --color-accent-400: 56 189 248; /* sky 400 */
     --color-accent-500: 14 165 233; /* sky 500 */
     --color-accent-600: 2 132 199;  /* sky 600 */
+    --glass-reflection: 255 255 255;
+    --glass-reflection-opacity: 0.05;
   }
 
   [data-theme="neon"] {
-    /* Theme 3: Shocking Neon Pink (Extremely dynamic, heavily branded) */
-    --color-brand-400: 255 113 206; 
-    --color-brand-500: 255 22 148;  
-    --color-brand-600: 219 0 110;   
-    --color-background: 20 0 10; /* deeply tinted pink-black background */
-    --color-surface: 40 5 25; /* highly tinted pink dark surface */
-    --color-surface-highlight: 255 22 148; /* Shocking pink highlights! */
-    --color-text-main: 255 220 240; /* pinkish white */
-    --color-text-muted: 255 113 206; /* light neon pink */
-    --color-border: 255 22 148; /* shocking pink borders everywhere */
-    --color-accent-400: 34 211 238; /* cyan 400 */
-    --color-accent-500: 6 182 212;  /* cyan 500 */
-    --color-accent-600: 8 145 178;  /* cyan 600 */
+    /* Theme 3: Cyberpunk Shocking Pink (Obsidian Magenta) */
+    --color-brand-400: 255 133 227; /* neon pink light */
+    --color-brand-500: 255 0 127;   /* shocking neon pink */
+    --color-brand-600: 195 0 98;    /* neon pink dark */
+    --color-background: 6 2 12;    /* cyber ultraviolet obsidian */
+    --color-surface: 18 9 32;      /* deep neon slate */
+    --color-surface-highlight: 35 21 60; /* neon slate highlight */
+    --color-text-main: 255 235 245; /* cyber white */
+    --color-text-muted: 255 168 223; /* neon lilac */
+    --color-border: 77 21 68;      /* glowing magenta border */
+    --color-accent-400: 92 225 230; /* neon cyan light */
+    --color-accent-500: 0 240 255;  /* electric neon cyan */
+    --color-accent-600: 0 184 196;  /* neon cyan dark */
+    --glass-reflection: 255 255 255;
+    --glass-reflection-opacity: 0.03;
   }
 
   body {
@@ -60,16 +66,16 @@
 
 @layer utilities {
   .glass {
-    @apply bg-surface/80 backdrop-blur-xl border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.1)];
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), inset 1px 0 1px rgba(255, 255, 255, 0.5), 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    @apply bg-surface/75 backdrop-blur-xl border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.1)];
+    box-shadow: inset 0 1px 1px rgba(var(--glass-reflection) / var(--glass-reflection-opacity)), inset 1px 0 1px rgba(var(--glass-reflection) / calc(var(--glass-reflection-opacity) * 0.6)), 0 8px 32px 0 rgba(0, 0, 0, 0.15);
   }
   .glass-card {
     @apply bg-surface/80 backdrop-blur-lg border border-border shadow-2xl;
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), inset 1px 0 1px rgba(255, 255, 255, 0.6), 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 1px 1px rgba(var(--glass-reflection) / var(--glass-reflection-opacity)), inset 1px 0 1px rgba(var(--glass-reflection) / calc(var(--glass-reflection-opacity) * 0.65)), 0 4px 20px 0 rgba(0, 0, 0, 0.05);
   }
   .glass-input {
     @apply bg-surface/80 backdrop-blur-md border border-border focus:border-brand-500/50 outline-none transition-all;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(var(--glass-reflection) / calc(var(--glass-reflection-opacity) * 0.6));
   }
   
   /* Custom scrollbar for webkit */
