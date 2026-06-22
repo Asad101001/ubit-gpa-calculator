@@ -122,18 +122,20 @@ export const Analytics = ({
              whileInView={{ opacity: 1, y: 0 }}
              transition={{ duration: 0.5, ease: "easeOut" }}
              viewport={{ once: true }}
-             className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 border-border lg:col-span-1 h-[250px] sm:h-[400px] flex flex-col items-center justify-center"
+             className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 border-border lg:col-span-1 h-[250px] sm:h-[400px] flex flex-col"
           >
-            <h3 className="text-textMain font-bold mb-4">Skill Distribution</h3>
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                <PolarGrid stroke="var(--color-border)" />
-                <PolarAngleAxis dataKey="subject" tick={{fill: 'var(--color-text-muted)', fontSize: 12, fontWeight: 600}} />
-                <PolarRadiusAxis angle={30} domain={[0, 4]} tick={false} axisLine={false} />
-                <Radar name="GPA" dataKey="A" stroke="var(--color-brand-500)" fill="var(--color-brand-500)" fillOpacity={0.4} />
-                <Tooltip content={<CustomTooltip />} />
-              </RadarChart>
-            </ResponsiveContainer>
+            <h3 className="text-textMain font-bold mb-4 text-center">Skill Distribution</h3>
+            <div className="w-full flex-1 min-h-0">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                  <PolarGrid stroke="var(--color-border)" />
+                  <PolarAngleAxis dataKey="subject" tick={{fill: 'var(--color-text-muted)', fontSize: 12, fontWeight: 600}} />
+                  <PolarRadiusAxis angle={30} domain={[0, 4]} tick={false} axisLine={false} />
+                  <Radar name="GPA" dataKey="A" stroke="var(--color-brand-500)" fill="var(--color-brand-500)" fillOpacity={0.4} />
+                  <Tooltip content={<CustomTooltip />} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
           </motion.div>
 
           <motion.div 
@@ -141,22 +143,24 @@ export const Analytics = ({
              whileInView={{ opacity: 1, y: 0 }}
              transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
              viewport={{ once: true }}
-             className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 border-border lg:col-span-2 h-[250px] sm:h-[400px]"
+             className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 border-border lg:col-span-2 h-[250px] sm:h-[400px] flex flex-col"
           >
             <h3 className="text-textMain font-bold mb-6">Course by Course Comparison</h3>
-            <ResponsiveContainer width="100%" height="90%">
-              <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <XAxis dataKey="name" stroke="var(--color-border)" tick={{fill: 'var(--color-text-muted)', fontSize: 11, fontWeight: 600}} />
-                <YAxis domain={[0, 4]} ticks={[0, 1, 2, 3, 4]} stroke="var(--color-border)" tick={{fill: 'var(--color-text-muted)', fontSize: 11, fontWeight: 600}} />
-                <Tooltip content={<CustomTooltip />} cursor={{fill: 'var(--color-border)', opacity: 0.5}} />
-                <ReferenceLine y={3.0} stroke="var(--color-brand-500)" opacity={0.3} strokeDasharray="3 3" />
-                <Bar dataKey="gpa" radius={[4, 4, 0, 0]}>
-                  {chartData.map((entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={entry.semester === 'Sem 1' ? 'var(--color-brand-500)' : 'var(--color-brand-600)'} fillOpacity={0.9} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="w-full flex-1 min-h-0">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="name" stroke="var(--color-border)" tick={{fill: 'var(--color-text-muted)', fontSize: 11, fontWeight: 600}} />
+                  <YAxis domain={[0, 4]} ticks={[0, 1, 2, 3, 4]} stroke="var(--color-border)" tick={{fill: 'var(--color-text-muted)', fontSize: 11, fontWeight: 600}} />
+                  <Tooltip content={<CustomTooltip />} cursor={{fill: 'var(--color-border)', opacity: 0.5}} />
+                  <ReferenceLine y={3.0} stroke="var(--color-brand-500)" opacity={0.3} strokeDasharray="3 3" />
+                  <Bar dataKey="gpa" radius={[4, 4, 0, 0]}>
+                    {chartData.map((entry: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={entry.semester === 'Sem 1' ? 'var(--color-brand-500)' : 'var(--color-brand-600)'} fillOpacity={0.9} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </motion.div>
         </div>
       </section>
