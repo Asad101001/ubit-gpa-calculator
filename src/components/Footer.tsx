@@ -16,7 +16,7 @@ export const Footer = () => (
             rel="noopener noreferrer"
             className="hover:text-brand-400 transition-colors font-semibold"
           >
-            + Asad (Batch '28)
+            + Asad
           </a>
           <span className="hidden sm:inline text-border">|</span>
           <a 

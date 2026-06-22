@@ -365,7 +365,10 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                 ) : (
                   sortedAndFilteredData.map((student, index) => {
                     return (
-                      <tr 
+                      <motion.tr 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3 }}
                         key={student['Seat No']} 
                         className="border-b border-border/50 last:border-0 hover:bg-brand-500/5 transition-colors group"
                       >
@@ -414,7 +417,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                             })()}
                           </td>
                         )}
-                      </tr>
+                      </motion.tr>
                     )
                   })
                 )}

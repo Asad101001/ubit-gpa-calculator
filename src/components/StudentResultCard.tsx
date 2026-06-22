@@ -99,11 +99,11 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
         <span className="flex-1 text-xs sm:text-sm text-textMain font-medium leading-tight">{sub.name}</span>
         <span className="text-[10px] text-textMuted shrink-0 w-6 text-center">{sub.credits}cr</span>
         {isMissing ? (
-          <span className="shrink-0 w-20 text-right text-[10px] text-textMuted/50 italic">—</span>
+          <span className="shrink-0 w-32 text-right text-[10px] text-textMuted/50 italic pr-2">—</span>
         ) : (
-          <div className="shrink-0 flex items-center gap-2 w-28 justify-end">
-            <span className={`text-sm ${getMarkColor(marks!)}`}>{marks}</span>
-            <span className="text-[10px] bg-surfaceHighlight border border-border px-1.5 py-0.5 rounded font-bold text-textMuted">{getLetterGrade(marks!)}</span>
+          <div className="shrink-0 flex items-center gap-1.5 w-32 justify-end">
+            <span className={`text-sm ${getMarkColor(marks!)} w-6 text-right`}>{marks}</span>
+            <span className="text-[10px] bg-surfaceHighlight border border-border px-1.5 py-0.5 rounded font-bold text-textMuted w-6 text-center">{getLetterGrade(marks!)}</span>
             <span className="text-[10px] text-textMuted w-8 text-right">{gp?.toFixed(1)}</span>
           </div>
         )}
@@ -184,7 +184,7 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
             <span className="text-[9px] font-bold text-textMuted/60 uppercase w-14 shrink-0">Code</span>
             <span className="flex-1 text-[9px] font-bold text-textMuted/60 uppercase">Course</span>
             <span className="text-[9px] font-bold text-textMuted/60 uppercase w-6 text-center shrink-0">Cr</span>
-            <span className="text-[9px] font-bold text-textMuted/60 uppercase w-28 text-right shrink-0">Marks / Grade / GP</span>
+            <span className="text-[9px] font-bold text-textMuted/60 uppercase w-32 text-right shrink-0">Marks / Grade / GP</span>
           </div>
 
           <div className="px-5">

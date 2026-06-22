@@ -2,9 +2,14 @@ import { motion } from 'framer-motion';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip, BarChart, Bar, XAxis, YAxis, ReferenceLine, Cell } from 'recharts';
 import { Activity, Code, TrendingUp, TrendingDown, BookOpen, Calculator, Award } from 'lucide-react';
 import { exportToJson } from '../lib/utils';
+import { generateTranscriptImage } from '../lib/transcriptGenerator';
+import { Download } from 'lucide-react';
 
 export const MetricCard = ({ title, value, subtitle, icon: Icon, highlight = false }: any) => (
   <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
     whileHover={{ y: -5, scale: 1.02 }}
     transition={{ type: "spring", stiffness: 300, damping: 20 }}
     className={`p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border relative overflow-hidden group ${
@@ -57,6 +62,29 @@ export const Analytics = ({
         <MetricCard title="Semester One GPA" value={gpa1} icon={Calculator} />
         <MetricCard title="Semester Two GPA" value={gpa2} icon={Calculator} />
         <MetricCard title="CGPA" value={cgpa} icon={Award} highlight />
+      </div>
+
+      <div className="flex justify-center -mt-8 mb-12 relative z-10">
+        <button
+          onClick={() => {
+            const studentObj: Record<string, any> = {
+              'Name': localStorage.getItem('submitName') || 'Guest Student',
+              'Seat No': 'Calculator Preview'
+            };
+            const mapCodeToId = (code: string) => code.toLowerCase().replace('-', '');
+            Object.entries(sem1Grades).forEach(([code, mark]) => {
+              if (mark !== '') studentObj[mapCodeToId(code)] = mark;
+            });
+            Object.entries(sem2Grades).forEach(([code, mark]) => {
+              if (mark !== '') studentObj[mapCodeToId(code)] = mark;
+            });
+            generateTranscriptImage(studentObj);
+          }}
+          className="flex items-center gap-2 px-6 py-4 bg-surfaceHighlight hover:bg-brand-500/10 border border-border hover:border-brand-500/40 text-textMain hover:text-brand-500 font-bold text-sm rounded-2xl transition-all shadow-lg active:scale-95 group"
+        >
+          <Download size={20} className="text-textMuted group-hover:text-brand-500 transition-colors" />
+          Download Unofficial Transcript
+        </button>
       </div>
 
       <section id="analytics" className="space-y-4 sm:space-y-8 pt-4 sm:pt-8">

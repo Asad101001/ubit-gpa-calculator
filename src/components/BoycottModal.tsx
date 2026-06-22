@@ -20,12 +20,12 @@ export const BoycottModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: ()
             className="bg-surface border border-border rounded-3xl p-6 sm:p-8 max-w-lg w-full relative overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            <div className="absolute inset-0 pointer-events-none opacity-90 overflow-hidden flex flex-col justify-center gap-8 -rotate-12 scale-150">
+             <div className="absolute inset-0 pointer-events-none opacity-90 overflow-hidden flex flex-col justify-center gap-8 -rotate-12 scale-150">
                {[...Array(6)].map((_, i) => (
                  <div key={i} className="w-full h-12 bg-yellow-400 text-black font-black text-2xl tracking-widest uppercase flex items-center overflow-hidden shadow-xl" style={{ transform: i % 2 === 0 ? 'translateX(-10%)' : 'translateX(-5%)' }}>
                    <div className="flex whitespace-nowrap animate-tape-scroll" style={{ animationDirection: i % 2 === 0 ? 'normal' : 'reverse', animationDuration: '4s' }}>
                      {[...Array(10)].map((_, j) => (
-                       <span key={j} className="px-4">⚠️ BOYCOTT BOYCOTT ⚠️</span>
+                       <span key={j} className="px-4">⚠️ EXAMS PENDING ⚠️</span>
                      ))}
                    </div>
                  </div>
@@ -42,8 +42,8 @@ export const BoycottModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: ()
             <div className="relative z-10 flex flex-col items-center justify-center min-h-[250px] text-center bg-surface/90 p-6 rounded-2xl backdrop-blur-md border border-border">
               <AlertTriangle size={48} className="text-yellow-400 mb-4" />
               <h2 className="text-3xl font-black text-textMain mb-2 uppercase tracking-tight">Access Denied</h2>
-              <p className="text-textMuted font-medium">Semester 03 data unavailable due to ongoing teachers association boycott.</p>
-              <p className="text-brand-500 text-sm mt-4 font-mono">ERR_EXAMS_NOT_CONDUCTED</p>
+              <p className="text-textMuted font-medium">Semester 03 data unavailable as examinations are about to commence.</p>
+              <p className="text-brand-500 text-sm mt-4 font-mono">ERR_EXAMS_PENDING</p>
             </div>
           </motion.div>
         </motion.div>
