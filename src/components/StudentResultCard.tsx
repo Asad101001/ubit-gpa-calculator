@@ -1,5 +1,6 @@
-import { motion } from 'framer-motion';
-import { Download, Calculator, CheckCircle, XCircle } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Download, Calculator, CheckCircle, XCircle, AlertTriangle, Send, Loader2 } from 'lucide-react';
 import { getGradePoint } from '../lib/utils';
 import { generateTranscriptImage } from '../lib/transcriptGenerator';
 import { SEM1_COURSES, SEM2_COURSES } from '../lib/utils';
@@ -47,8 +48,51 @@ interface Props {
 }
 
 export const StudentResultCard = ({ student, onPrefill }: Props) => {
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportMessage, setReportMessage] = useState('');
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  const [reportSuccess, setReportSuccess] = useState(false);
+
   const sem1Subs = SUBJECTS_META.filter(s => s.sem === 1);
   const sem2Subs = SUBJECTS_META.filter(s => s.sem === 2);
+
+  const handleReportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reportMessage.trim()) return;
+    setIsSubmittingReport(true);
+    
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/muhammadasadk42@gmail.com", {
+        method: "POST",
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            name: student['Name'],
+            seat_no: student['Seat No'],
+            message: reportMessage,
+            _subject: `Correction Request for Seat No: ${student['Seat No']}`,
+            _template: "table"
+        })
+      });
+
+      if (response.ok) {
+        setReportSuccess(true);
+        setTimeout(() => {
+          setIsReportModalOpen(false);
+          setReportSuccess(false);
+          setReportMessage('');
+        }, 2500);
+      } else {
+        alert("Failed to submit report. Please try again.");
+      }
+    } catch (error) {
+      alert("Network error. Please try again later.");
+    } finally {
+      setIsSubmittingReport(false);
+    }
+  };
 
   const calcSemStats = (subs: typeof SUBJECTS_META) => {
     let qp = 0, cr = 0;
@@ -181,13 +225,14 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
           </button>
           
           {/* Report Issue Button */}
-          <a
-            href={`mailto:asad.tariq101001@gmail.com?subject=Correction Request for Seat No: ${student['Seat No']}&body=Name: ${student['Name']}%0ASeat No: ${student['Seat No']}%0A%0AHello, I am writing to report an error or submit missing marks for my result.%0A%0A[Please detail the correction here...]`}
+          <button
+            onClick={() => setIsReportModalOpen(true)}
             className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-600 font-bold text-sm rounded-xl transition-all active:scale-95 sm:w-auto w-full"
             title="Submit a correction for missing or erroneous marks"
           >
+            <AlertTriangle size={16} />
             Report Issue
-          </a>
+          </button>
         </div>
       </div>
 
@@ -240,6 +285,99 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
           </div>
         </motion.div>
       ))}
+
+      {/* Report Issue Modal */}
+      <AnimatePresence>
+        {isReportModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md"
+            onClick={() => !isSubmittingReport && setIsReportModalOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg glass rounded-3xl overflow-hidden border border-border shadow-2xl"
+            >
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-red-500/10 text-red-500 rounded-xl border border-red-500/20">
+                      <AlertTriangle size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-textMain tracking-tight">Report Issue</h3>
+                      <p className="text-sm text-textMuted">Submit corrections for missing or incorrect marks.</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIsReportModalOpen(false)}
+                    disabled={isSubmittingReport}
+                    className="p-2 text-textMuted hover:text-textMain hover:bg-surfaceHighlight rounded-full transition-colors disabled:opacity-50"
+                  >
+                    <XCircle size={20} />
+                  </button>
+                </div>
+
+                {reportSuccess ? (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex flex-col items-center justify-center py-8 text-center"
+                  >
+                    <div className="w-16 h-16 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center border-2 border-green-500 mb-4">
+                      <CheckCircle size={32} />
+                    </div>
+                    <h4 className="text-xl font-bold text-textMain mb-2">Report Submitted!</h4>
+                    <p className="text-textMuted text-sm">We've received your request and will review it shortly.</p>
+                  </motion.div>
+                ) : (
+                  <form onSubmit={handleReportSubmit} className="space-y-4">
+                    <div className="flex gap-4 p-4 bg-surfaceHighlight/50 rounded-xl border border-border/50">
+                      <div className="flex-1">
+                        <span className="text-[10px] font-bold text-textMuted uppercase tracking-wider block mb-1">Name</span>
+                        <span className="text-sm font-semibold text-textMain">{student['Name']}</span>
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-[10px] font-bold text-textMuted uppercase tracking-wider block mb-1">Seat No</span>
+                        <span className="text-sm font-bold text-textMain">{student['Seat No']}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-textMain uppercase tracking-wider pl-1">Describe the Issue</label>
+                      <textarea
+                        value={reportMessage}
+                        onChange={(e) => setReportMessage(e.target.value)}
+                        placeholder="e.g. My marks for Applied Physics are missing. I got 78."
+                        className="w-full h-32 px-4 py-3 bg-surface border border-border rounded-xl focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all text-sm text-textMain resize-none placeholder:text-textMuted/50"
+                        required
+                        disabled={isSubmittingReport}
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isSubmittingReport || !reportMessage.trim()}
+                      className="w-full mt-4 flex items-center justify-center gap-2 py-4 bg-brand-500 hover:bg-brand-600 disabled:bg-surfaceHighlight disabled:text-textMuted disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all active:scale-95 shadow-lg shadow-brand-500/20"
+                    >
+                      {isSubmittingReport ? (
+                        <><Loader2 size={18} className="animate-spin" /> Submitting...</>
+                      ) : (
+                        <><Send size={18} /> Submit Report</>
+                      )}
+                    </button>
+                  </form>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
