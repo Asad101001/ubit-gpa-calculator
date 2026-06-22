@@ -156,9 +156,10 @@ function App() {
   const userPercentile = useMemo(() => {
     if (!hasSubmitted || Number(cgpa) <= 0 || leaderboardData.length === 0) return null;
     const userScore = Number(cgpa);
-    const lowerScores = leaderboardData.filter(student => student.cgpa < userScore).length;
-    const percentile = Math.floor((lowerScores / leaderboardData.length) * 100);
-    return Math.max(1, percentile); 
+    const higherScores = leaderboardData.filter(student => student.cgpa > userScore).length;
+    const rank = higherScores + 1;
+    const topPercent = Math.ceil((rank / leaderboardData.length) * 100);
+    return Math.max(1, topPercent); 
   }, [hasSubmitted, cgpa, leaderboardData]);
 
 

@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronDown, ChevronUp, FileText, Filter, AlertTriangle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-import { StudentResultCard } from './StudentResultCard';
+import { StudentResultCard, getMarkColor } from './StudentResultCard';
 
 const SUBJECTS_DATA = [
   // 1st Semester
@@ -393,7 +393,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                                     {mark === "Marks Missing" ? "Missing" : "Unannounced"}
                                   </span>
                                 ) : (
-                                  <span className={`inline-flex items-center text-sm font-bold ${Number(mark) >= 90 ? 'text-brand-500 drop-shadow-[0_0_8px_rgba(var(--color-brand-500),0.6)] scale-110 transition-transform' : 'text-textMain'}`}>
+                                  <span className={`inline-flex items-center text-sm ${getMarkColor(Number(mark))}`}>
                                     {mark}
                                   </span>
                                 )}
@@ -410,7 +410,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                                   {mark}
                                 </span>
                               ) : (
-                                <span className={`inline-flex items-center px-3.5 py-1.5 rounded-lg text-sm font-black border shadow-sm ${Number(mark) >= 90 ? 'bg-brand-500/20 text-brand-500 border-brand-500/50 drop-shadow-[0_0_10px_rgba(var(--color-brand-500),0.5)] scale-105' : 'bg-surfaceHighlight text-textMain border-border'}`}>
+                                <span className={`inline-flex items-center px-3.5 py-1.5 rounded-lg text-sm border shadow-sm ${getMarkColor(Number(mark))} ${Number(mark) >= 80 ? 'bg-green-500/10 border-green-500/30' : Number(mark) < 25 ? 'bg-red-500/10 border-red-500/30' : 'bg-surfaceHighlight border-border'}`}>
                                   {mark}
                                 </span>
                               );

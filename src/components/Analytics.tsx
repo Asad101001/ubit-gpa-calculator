@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip, BarChart, Bar, XAxis, YAxis, ReferenceLine, Cell } from 'recharts';
-import { Activity, Code, TrendingUp, TrendingDown, BookOpen, Calculator, Award } from 'lucide-react';
-import { exportToJson } from '../lib/utils';
+import { Activity, TrendingUp, TrendingDown, BookOpen, Calculator, Award } from 'lucide-react';
 import { generateTranscriptImage } from '../lib/transcriptGenerator';
 import { Download } from 'lucide-react';
 
@@ -67,6 +66,11 @@ export const Analytics = ({
       <div className="flex justify-center -mt-8 mb-12 relative z-10">
         <button
           onClick={() => {
+            const hasMissingMarks = Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === '');
+            if (hasMissingMarks) {
+              alert("Cannot generate transcript: Marks are missing for one or more subjects. A complete CGPA cannot be calculated.");
+              return;
+            }
             const studentObj: Record<string, any> = {
               'Name': localStorage.getItem('submitName') || 'Guest Student',
               'Seat No': 'Calculator Preview'
@@ -80,7 +84,11 @@ export const Analytics = ({
             });
             generateTranscriptImage(studentObj);
           }}
-          className="flex items-center gap-2 px-6 py-4 bg-surfaceHighlight hover:bg-brand-500/10 border border-border hover:border-brand-500/40 text-textMain hover:text-brand-500 font-bold text-sm rounded-2xl transition-all shadow-lg active:scale-95 group"
+          className={`flex items-center gap-2 px-6 py-4 font-bold text-sm rounded-2xl transition-all shadow-lg active:scale-95 group ${
+            (Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === ''))
+            ? 'bg-surfaceHighlight text-textMuted border border-border cursor-not-allowed opacity-50' 
+            : 'bg-surfaceHighlight hover:bg-brand-500/10 border border-border hover:border-brand-500/40 text-textMain hover:text-brand-500'
+          }`}
         >
           <Download size={20} className="text-textMuted group-hover:text-brand-500 transition-colors" />
           Download Unofficial Transcript
@@ -100,13 +108,6 @@ export const Analytics = ({
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-textMain">Advanced Analytics</h2>
           </div>
-          <button
-            onClick={() => exportToJson(sem1Grades, sem2Grades, { cgpa, gpa1, gpa2 })}
-            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-surface/70 hover:bg-surface/90 border border-border rounded-xl text-textMain hover:text-brand-500 text-sm font-bold transition-colors"
-          >
-            <Code size={16} />
-            Export JSON
-          </button>
         </motion.div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 mb-4 sm:mb-6">

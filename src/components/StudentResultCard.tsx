@@ -32,12 +32,13 @@ function getLetterGrade(m: number) {
   return 'F';
 }
 
-function getMarkColor(m: number) {
-  if (m >= 85) return 'text-yellow-600 font-black';
+export function getMarkColor(m: number) {
+  if (m >= 80) return 'text-green-600 font-black drop-shadow-[0_0_8px_rgba(22,163,74,0.4)]';
   if (m >= 75) return 'text-green-700 font-bold';
   if (m >= 60) return 'text-blue-700 font-semibold';
   if (m >= 50) return 'text-orange-600 font-semibold';
-  return 'text-red-600 font-bold';
+  if (m >= 25) return 'text-textMuted font-bold';
+  return 'text-red-700 font-black drop-shadow-[0_0_8px_rgba(185,28,28,0.4)]';
 }
 
 interface Props {
@@ -51,19 +52,22 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
 
   const calcSemStats = (subs: typeof SUBJECTS_META) => {
     let qp = 0, cr = 0;
+    let missing = false;
     subs.forEach(s => {
       const raw = student[s.id];
       const m = raw !== undefined && !isNaN(Number(raw)) ? Number(raw) : null;
       if (m !== null) { qp += getGradePoint(m) * s.credits; cr += s.credits; }
+      else { missing = true; }
     });
-    return { gpa: cr > 0 ? (qp / cr).toFixed(2) : '—', qp, cr };
+    return { gpa: cr > 0 && !missing ? (qp / cr).toFixed(2) : '—', qp, cr, missing };
   };
 
   const s1Stats = calcSemStats(sem1Subs);
   const s2Stats = calcSemStats(sem2Subs);
+  const hasMissing = s1Stats.missing || s2Stats.missing;
   const allQP = s1Stats.qp + s2Stats.qp;
   const allCr = s1Stats.cr + s2Stats.cr;
-  const cgpa = allCr > 0 ? (allQP / allCr).toFixed(3) : '—';
+  const cgpa = allCr > 0 && !hasMissing ? (allQP / allCr).toFixed(3) : '—';
 
   const handlePrefill = () => {
     if (!onPrefill) return;
@@ -128,9 +132,13 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
           </div>
           <div className="flex items-center gap-2">
             {/* CGPA Badge */}
-            <div className="flex flex-col items-center px-5 py-3 bg-brand-500/10 border-2 border-brand-500 rounded-xl">
+            <div className={`flex flex-col items-center px-5 py-3 border-2 rounded-xl ${hasMissing ? 'bg-surfaceHighlight border-border' : 'bg-brand-500/10 border-brand-500'}`}>
               <span className="text-[10px] font-bold text-textMuted uppercase tracking-wider">CGPA</span>
-              <span className="text-3xl font-black text-brand-500">{cgpa}</span>
+              {hasMissing ? (
+                <span className="text-xl font-bold text-textMuted mt-1">Incomplete</span>
+              ) : (
+                <span className="text-3xl font-black text-brand-500">{cgpa}</span>
+              )}
             </div>
           </div>
         </div>
@@ -147,8 +155,14 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
             </button>
           )}
           <button
-            onClick={() => generateTranscriptImage(student)}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-accent-500/10 hover:bg-accent-500/20 border border-accent-500/40 text-accent-600 font-bold text-sm rounded-xl transition-all active:scale-95"
+            onClick={() => {
+              if (hasMissing) {
+                alert("Cannot generate transcript: Marks are missing for one or more subjects. A complete CGPA cannot be calculated.");
+              } else {
+                generateTranscriptImage(student);
+              }
+            }}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 font-bold text-sm rounded-xl transition-all active:scale-95 ${hasMissing ? 'bg-surfaceHighlight text-textMuted border border-border cursor-not-allowed' : 'bg-accent-500/10 hover:bg-accent-500/20 border border-accent-500/40 text-accent-600'}`}
           >
             <Download size={16} />
             Download Transcript
