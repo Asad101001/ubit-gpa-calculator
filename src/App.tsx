@@ -10,7 +10,6 @@ import { Leaderboard, SubmitModal } from './components/Leaderboard';
 import { BoycottModal } from './components/BoycottModal';
 import { SplashScreen } from './components/SplashScreen';
 import { ResultsPortal } from './components/ResultsPortal';
-import { ThemeConfigurator } from './components/ThemeConfigurator';
 
 function App() {
   const [appLoaded, setAppLoaded] = useState(false);
@@ -30,7 +29,7 @@ function App() {
     localStorage.setItem('submitName', submitName);
   }, [submitName]);
 
-  const [isStatsOpen, setIsStatsOpen] = useState(false);
+
 
   // Initialize from LocalStorage
   const [sem1Grades, setSem1Grades] = useState<Record<string, number | ''>>(() => {
@@ -162,25 +161,6 @@ function App() {
     return Math.max(1, percentile); 
   }, [hasSubmitted, cgpa, leaderboardData]);
 
-  const globalStats = useMemo(() => {
-    if (leaderboardData.length === 0) return null;
-    
-    const sorted = [...leaderboardData].sort((a, b) => a.cgpa - b.cgpa);
-    const total = sorted.length;
-    const sum = sorted.reduce((acc, curr) => acc + curr.cgpa, 0);
-    const avg = sum / total;
-    const median = sorted[Math.floor(total / 2)].cgpa;
-    const top10Index = Math.floor(total * 0.9);
-    const top10Cutoff = sorted[top10Index]?.cgpa || sorted[total - 1].cgpa;
-
-    return {
-      total,
-      avg: avg.toFixed(2),
-      median: median.toFixed(2),
-      top10Cutoff: top10Cutoff.toFixed(2)
-    };
-  }, [leaderboardData]);
-
 
   const handleLeaderboardSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -228,7 +208,6 @@ function App() {
 
       <div className={`min-h-screen relative selection:bg-brand-500/30 font-sans ${!appLoaded ? 'hidden' : ''}`}>
         <Header currentView={currentView} setCurrentView={setCurrentView} />
-        <ThemeConfigurator />
         <BoycottModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         <SubmitModal 
           isOpen={isSubmitModalOpen} 
@@ -316,8 +295,6 @@ function App() {
                   bestCourse={bestCourse} worstCourse={worstCourse}
                   radarData={radarData} chartData={chartData}
                   sem1Grades={sem1Grades} sem2Grades={sem2Grades}
-                  isStatsOpen={isStatsOpen} setIsStatsOpen={setIsStatsOpen}
-                  globalStats={globalStats}
                 />
 
                 <Leaderboard 
@@ -330,7 +307,14 @@ function App() {
                 />
               </>
             ) : (
-              <ResultsPortal />
+              <ResultsPortal 
+                onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>) => {
+                  setSem1Grades(s1);
+                  setSem2Grades(s2);
+                  setCurrentView('main');
+                  setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                }}
+              />
             )}
           </div>
         </main>

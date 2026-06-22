@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-type Theme = 'light' | 'midnight' | 'neon';
+type Theme = 'light';
 
 interface AppState {
   theme: Theme;
@@ -24,11 +24,7 @@ export const useAppStore = create<AppState>()(
     {
       name: 'app-storage',
       onRehydrateStorage: () => (state) => {
-        if (state && state.theme) {
-          document.documentElement.setAttribute('data-theme', state.theme);
-        } else {
-          document.documentElement.setAttribute('data-theme', 'light');
-        }
+        document.documentElement.setAttribute('data-theme', 'light');
       },
     }
   )

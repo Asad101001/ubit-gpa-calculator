@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronDown, ChevronUp, FileText, Filter, AlertTriangle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
+import { StudentResultCard } from './StudentResultCard';
+
 const SUBJECTS_DATA = [
   // 1st Semester
   { id: "cs351", code: "CS-351", name: "Programming Fundamentals", teacher: "Mr. Badr Sami", semester: 1 },
@@ -22,7 +24,11 @@ const SUBJECTS_DATA = [
 
 const ALL_SUBJECTS = "All Subjects Overview";
 
-export const ResultsPortal = () => {
+interface ResultsPortalProps {
+  onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>) => void;
+}
+
+export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -100,8 +106,8 @@ export const ResultsPortal = () => {
     if (searchQuery.trim() !== '') {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(item => 
-        (item['Seat No'] && item['Seat No'].toLowerCase().includes(q)) || 
-        (item['Name'] && item['Name'].toLowerCase().includes(q))
+        (item['Seat No'] && String(item['Seat No']).toLowerCase().includes(q)) || 
+        (item['Name'] && String(item['Name']).toLowerCase().includes(q))
       );
     }
 
@@ -174,28 +180,25 @@ export const ResultsPortal = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ type: 'spring', duration: 0.5 }}
-              className="relative w-full max-w-lg overflow-hidden rounded-[2.5rem] border border-brand-500/30 bg-surface/95 backdrop-blur-xl p-8 sm:p-10 text-center shadow-[0_0_50px_-12px_rgba(var(--color-brand-500),0.25)] flex flex-col items-center"
+              className="relative w-full max-w-lg glass-card p-8 sm:p-10 text-center flex flex-col items-center"
             >
-              {/* Decorative top glow */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent blur-sm" />
               
               {/* Pulse Icon Container */}
               <div className="relative mb-6">
-                <div className="absolute inset-0 rounded-full bg-brand-500/20 blur-xl animate-pulse" />
-                <div className="relative bg-gradient-to-br from-brand-500/20 to-accent-500/20 p-5 rounded-full border border-brand-500/30 shadow-[0_0_20px_rgba(var(--color-brand-500),0.25)]">
-                  <AlertTriangle className="text-brand-500 w-10 h-10 animate-bounce" style={{ animationDuration: '3s' }} />
+                <div className="relative bg-surfaceHighlight p-5 rounded-sm border-2 border-border shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <AlertTriangle className="text-black w-10 h-10 animate-pulse" style={{ animationDuration: '3s' }} />
                 </div>
               </div>
 
               {/* Title */}
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-500 via-brand-400 to-accent-500 tracking-tight mb-4">
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-textMain uppercase tracking-tight mb-4">
                 Important Disclaimer
               </h3>
 
               {/* Content */}
-              <p className="text-textMuted text-sm sm:text-base font-medium leading-relaxed mb-8">
+              <p className="text-textMuted text-sm sm:text-base font-medium leading-relaxed mb-8 border-l-4 border-brand-500 pl-4 text-left">
                 The academic results and marks displayed in this portal have been compiled via automated extraction and manual entry. 
-                <span className="block mt-3 text-accent-500 font-semibold bg-accent-500/10 border border-accent-500/20 rounded-xl p-3">
+                <span className="block mt-3 font-bold text-black bg-accent-500/20 border-2 border-black p-3">
                   This data is unofficial and may be incomplete or contain errors.
                 </span>
                 Please always refer to your official physical transcript from the university administration for authoritative results.
@@ -204,7 +207,7 @@ export const ResultsPortal = () => {
               {/* Accept Button */}
               <button 
                 onClick={dismissDisclaimer}
-                className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-500 hover:to-accent-500 text-white font-bold text-base shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 active:scale-[0.98] transition-all duration-200 border border-brand-400/20 cursor-pointer"
+                className="w-full py-4 px-6 bg-gradient-to-r"
               >
                 I Understand & Accept
               </button>
@@ -229,7 +232,7 @@ export const ResultsPortal = () => {
             </button>
           </h2>
           <p className="text-textMuted font-medium max-w-xl text-sm sm:text-base">
-            Browse and filter academic results for Semester 1.
+            Browse and filter academic results
           </p>
           {error && <p className="text-red-500 text-sm mt-2 font-medium">{error}</p>}
         </div>
@@ -282,139 +285,143 @@ export const ResultsPortal = () => {
           </div>
         )}
 
-        {/* Table */}
-        <div className="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-2xl border border-border bg-surface/40 shadow-inner relative overscroll-contain scroll-smooth">
-          <table className="w-full text-left border-collapse whitespace-nowrap">
-            <thead className="sticky top-0 z-20 shadow-sm">
-              <tr className="bg-surfaceHighlight/95 backdrop-blur-md border-b border-border shadow-sm">
-                <th className="p-4 font-bold text-textMuted text-sm min-w-[60px] text-center bg-surfaceHighlight/95 sticky top-0 z-20">#</th>
-                <th 
-                  className="p-4 font-bold text-textMuted text-sm min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors bg-surfaceHighlight/95 sticky top-0 z-20"
-                  onClick={() => handleSort('Seat No')}
-                >
-                  <div className="flex items-center gap-2">
-                    Seat No {sortConfig?.key === 'Seat No' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-brand-500" /> : <ChevronDown size={14} className="text-brand-500" />)}
-                  </div>
-                </th>
-                <th 
-                  className="p-4 font-bold text-textMuted text-sm cursor-pointer hover:bg-border/30 transition-colors min-w-[200px] sticky top-0 left-0 z-30 bg-surfaceHighlight/95 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]"
-                  onClick={() => handleSort('Name')}
-                >
-                  <div className="flex items-center gap-2">
-                    Name {sortConfig?.key === 'Name' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-brand-500" /> : <ChevronDown size={14} className="text-brand-500" />)}
-                  </div>
-                </th>
-                
-                {effectiveSubject === ALL_SUBJECTS ? (
-                  SUBJECTS_DATA.map(sub => (
-                    <th 
-                      key={sub.id}
-                      className={`p-4 font-bold text-textMuted text-sm cursor-pointer hover:bg-border/30 transition-colors border-l border-border/50 bg-brand-500/5 sticky top-0 z-10`}
-                      onClick={() => handleSort(sub.id)}
-                    >
-                      <div className="flex flex-col items-end gap-1">
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-600 uppercase tracking-wider">
-                          Sem {sub.semester}
-                        </span>
-                        <div className="flex items-center gap-1 text-xs text-textMuted/70 font-semibold uppercase tracking-wider">
-                          {sub.code}
-                          {sortConfig?.key === sub.id && (sortConfig.direction === 'asc' ? <ChevronUp size={12} className="text-brand-500" /> : <ChevronDown size={12} className="text-brand-500" />)}
-                        </div>
-                        <div className="text-xs">{sub.name}</div>
-                      </div>
-                    </th>
-                  ))
-                ) : (
+        {/* Results View */}
+        {sortedAndFilteredData.length === 1 && searchQuery.trim() !== '' ? (
+          <StudentResultCard student={sortedAndFilteredData[0]} onPrefill={onPrefill} />
+        ) : (
+          <div className="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-2xl border border-border bg-surface/40 shadow-inner relative overscroll-contain scroll-smooth">
+            <table className="w-full text-left border-collapse whitespace-nowrap">
+              <thead className="sticky top-0 z-40 shadow-sm">
+                <tr className="bg-surfaceHighlight border-b border-border shadow-sm">
+                  <th className="p-4 font-bold text-textMuted text-sm min-w-[60px] text-center bg-surfaceHighlight sticky top-0 z-20">#</th>
                   <th 
-                    className="p-4 font-bold text-brand-600 text-sm cursor-pointer hover:bg-brand-500/20 transition-colors bg-brand-500/10 sticky top-0 z-10"
-                    onClick={() => handleSort(effectiveSubject)}
+                    className="p-4 font-bold text-textMuted text-sm min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors bg-surfaceHighlight sticky top-0 z-20"
+                    onClick={() => handleSort('Seat No')}
                   >
-                    <div className="flex items-center justify-end gap-2">
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-500/25 text-brand-600 uppercase tracking-wider mr-2">
-                        Sem {SUBJECTS_DATA.find(s => s.id === effectiveSubject)?.semester}
-                      </span>
-                      {SUBJECTS_DATA.find(s => s.id === effectiveSubject)?.name} Marks 
-                      {sortConfig?.key === effectiveSubject && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-brand-600" /> : <ChevronDown size={14} className="text-brand-600" />)}
+                    <div className="flex items-center gap-2">
+                      Seat No {sortConfig?.key === 'Seat No' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-brand-500" /> : <ChevronDown size={14} className="text-brand-500" />)}
                     </div>
                   </th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={effectiveSubject === ALL_SUBJECTS ? SUBJECTS_DATA.length + 3 : 4} className="p-12 text-center text-textMuted font-medium">
-                    <div className="animate-spin w-10 h-10 border-4 border-brand-400 border-t-transparent rounded-full mx-auto mb-4"></div>
-                    Loading official results...
-                  </td>
-                </tr>
-              ) : sortedAndFilteredData.length === 0 ? (
-                <tr>
-                  <td colSpan={effectiveSubject === ALL_SUBJECTS ? SUBJECTS_DATA.length + 3 : 4} className="p-12 text-center text-textMuted font-medium">
-                    <div className="bg-surface border border-border rounded-xl p-6 inline-block">
-                      No matching results found for "{searchQuery}".
+                  <th 
+                    className="p-4 font-bold text-textMuted text-sm cursor-pointer hover:bg-border/30 transition-colors min-w-[200px] sticky top-0 left-0 z-30 bg-surfaceHighlight shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]"
+                    onClick={() => handleSort('Name')}
+                  >
+                    <div className="flex items-center gap-2">
+                      Name {sortConfig?.key === 'Name' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-brand-500" /> : <ChevronDown size={14} className="text-brand-500" />)}
                     </div>
-                  </td>
-                </tr>
-              ) : (
-                sortedAndFilteredData.map((student, index) => {
-                  return (
-                    <tr 
-                      key={student['Seat No']} 
-                      className="border-b border-border/50 last:border-0 hover:bg-brand-500/5 transition-colors group"
+                  </th>
+                  
+                  {effectiveSubject === ALL_SUBJECTS ? (
+                    SUBJECTS_DATA.map(sub => (
+                      <th 
+                        key={sub.id}
+                        className={`p-4 font-bold text-textMuted text-sm cursor-pointer hover:bg-border/30 transition-colors border-l border-border/50 bg-brand-500/5 sticky top-0 z-10`}
+                        onClick={() => handleSort(sub.id)}
+                      >
+                        <div className="flex flex-col items-end gap-1">
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-600 uppercase tracking-wider">
+                            Sem {sub.semester}
+                          </span>
+                          <div className="flex items-center gap-1 text-xs text-textMuted/70 font-semibold uppercase tracking-wider">
+                            {sub.code}
+                            {sortConfig?.key === sub.id && (sortConfig.direction === 'asc' ? <ChevronUp size={12} className="text-brand-500" /> : <ChevronDown size={12} className="text-brand-500" />)}
+                          </div>
+                          <div className="text-xs">{sub.name}</div>
+                        </div>
+                      </th>
+                    ))
+                  ) : (
+                    <th 
+                      className="p-4 font-bold text-brand-600 text-sm cursor-pointer hover:bg-brand-500/20 transition-colors bg-brand-500/10 sticky top-0 z-10"
+                      onClick={() => handleSort(effectiveSubject)}
                     >
-                      <td className="p-4 text-center text-textMuted font-medium text-sm min-w-[60px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150">
-                        {index + 1}
-                      </td>
-                      <td className="p-4 font-mono text-sm text-textMuted font-bold min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150">
-                        {student['Seat No']}
-                      </td>
-                      <td className="p-4 text-sm text-textMain font-semibold min-w-[200px] whitespace-nowrap sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]" title={student['Name']}>
-                        {student['Name']}
-                      </td>
-                      
-                      {effectiveSubject === ALL_SUBJECTS ? (
-                        SUBJECTS_DATA.map(sub => {
-                          const mark = student[sub.id];
-                          const isMissing = typeof mark === 'string' && isNaN(Number(mark));
-                          return (
-                            <td key={sub.id} className="p-4 text-right border-l border-border/30">
-                              {isMissing ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-surfaceHighlight text-textMuted">
-                                  {mark === "Marks Missing" ? "Missing" : "Unannounced"}
-                                </span>
-                              ) : (
-                                <span className={`inline-flex items-center text-sm font-bold ${Number(mark) >= 90 ? 'text-brand-500 drop-shadow-[0_0_8px_rgba(var(--color-brand-500),0.6)] scale-110 transition-transform' : 'text-textMain'}`}>
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-500/25 text-brand-600 uppercase tracking-wider mr-2">
+                          Sem {SUBJECTS_DATA.find(s => s.id === effectiveSubject)?.semester}
+                        </span>
+                        {SUBJECTS_DATA.find(s => s.id === effectiveSubject)?.name} Marks 
+                        {sortConfig?.key === effectiveSubject && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-brand-600" /> : <ChevronDown size={14} className="text-brand-600" />)}
+                      </div>
+                    </th>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={effectiveSubject === ALL_SUBJECTS ? SUBJECTS_DATA.length + 3 : 4} className="p-12 text-center text-textMuted font-medium">
+                      <div className="animate-spin w-10 h-10 border-4 border-brand-400 border-t-transparent rounded-full mx-auto mb-4"></div>
+                      Loading official results...
+                    </td>
+                  </tr>
+                ) : sortedAndFilteredData.length === 0 ? (
+                  <tr>
+                    <td colSpan={effectiveSubject === ALL_SUBJECTS ? SUBJECTS_DATA.length + 3 : 4} className="p-12 text-center text-textMuted font-medium">
+                      <div className="bg-surface border border-border rounded-xl p-6 inline-block">
+                        No matching results found for "{searchQuery}".
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  sortedAndFilteredData.map((student, index) => {
+                    return (
+                      <tr 
+                        key={student['Seat No']} 
+                        className="border-b border-border/50 last:border-0 hover:bg-brand-500/5 transition-colors group"
+                      >
+                        <td className="p-4 text-center text-textMuted font-medium text-sm min-w-[60px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150">
+                          {index + 1}
+                        </td>
+                        <td className="p-4 font-mono text-sm text-textMuted font-bold min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150">
+                          {student['Seat No']}
+                        </td>
+                        <td className="p-4 text-sm text-textMain font-semibold min-w-[200px] whitespace-nowrap sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]" title={student['Name']}>
+                          {student['Name']}
+                        </td>
+                        
+                        {effectiveSubject === ALL_SUBJECTS ? (
+                          SUBJECTS_DATA.map(sub => {
+                            const mark = student[sub.id];
+                            const isMissing = typeof mark === 'string' && isNaN(Number(mark));
+                            return (
+                              <td key={sub.id} className="p-4 text-right border-l border-border/30">
+                                {isMissing ? (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-surfaceHighlight text-textMuted">
+                                    {mark === "Marks Missing" ? "Missing" : "Unannounced"}
+                                  </span>
+                                ) : (
+                                  <span className={`inline-flex items-center text-sm font-bold ${Number(mark) >= 90 ? 'text-brand-500 drop-shadow-[0_0_8px_rgba(var(--color-brand-500),0.6)] scale-110 transition-transform' : 'text-textMain'}`}>
+                                    {mark}
+                                  </span>
+                                )}
+                              </td>
+                            );
+                          })
+                        ) : (
+                          <td className="p-4 text-right bg-brand-500/5 group-hover:bg-brand-500/10 transition-colors">
+                            {(() => {
+                              const mark = student[effectiveSubject];
+                              const isMissing = typeof mark === 'string' && isNaN(Number(mark));
+                              return isMissing ? (
+                                <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-surfaceHighlight text-textMuted border border-border">
                                   {mark}
                                 </span>
-                              )}
-                            </td>
-                          );
-                        })
-                      ) : (
-                        <td className="p-4 text-right bg-brand-500/5 group-hover:bg-brand-500/10 transition-colors">
-                          {(() => {
-                            const mark = student[effectiveSubject];
-                            const isMissing = typeof mark === 'string' && isNaN(Number(mark));
-                            return isMissing ? (
-                              <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-surfaceHighlight text-textMuted border border-border">
-                                {mark}
-                              </span>
-                            ) : (
-                              <span className={`inline-flex items-center px-3.5 py-1.5 rounded-lg text-sm font-black border shadow-sm ${Number(mark) >= 90 ? 'bg-brand-500/20 text-brand-500 border-brand-500/50 drop-shadow-[0_0_10px_rgba(var(--color-brand-500),0.5)] scale-105' : 'bg-surfaceHighlight text-textMain border-border'}`}>
-                                {mark}
-                              </span>
-                            );
-                          })()}
-                        </td>
-                      )}
-                    </tr>
-                  )
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                              ) : (
+                                <span className={`inline-flex items-center px-3.5 py-1.5 rounded-lg text-sm font-black border shadow-sm ${Number(mark) >= 90 ? 'bg-brand-500/20 text-brand-500 border-brand-500/50 drop-shadow-[0_0_10px_rgba(var(--color-brand-500),0.5)] scale-105' : 'bg-surfaceHighlight text-textMain border-border'}`}>
+                                  {mark}
+                                </span>
+                              );
+                            })()}
+                          </td>
+                        )}
+                      </tr>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </section>
   );

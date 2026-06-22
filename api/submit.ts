@@ -25,7 +25,10 @@ export default async function handler(req: Request) {
 
     const payload = { name, cgpa, gpa1, gpa2, ip_address: ip };
 
-    const res = await fetch(`${supabaseUrl}/rest/v1/leaderboard`, {
+    // Upsert: if ip_address already exists, update the row (allows score updates)
+    // The 'Prefer: resolution=merge-duplicates' header with on_conflict
+    // tells Supabase to update existing rows matched by the unique constraint
+    const res = await fetch(`${supabaseUrl}/rest/v1/leaderboard?on_conflict=ip_address`, {
       method: 'POST',
       headers: {
         'apikey': supabaseKey,

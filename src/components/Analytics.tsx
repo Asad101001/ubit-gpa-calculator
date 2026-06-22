@@ -1,6 +1,6 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip, BarChart, Bar, XAxis, YAxis, ReferenceLine, Cell } from 'recharts';
-import { Activity, Code, TrendingUp, TrendingDown, BookOpen, Users, ChevronUp, ChevronDown, Calculator, Award } from 'lucide-react';
+import { Activity, Code, TrendingUp, TrendingDown, BookOpen, Calculator, Award } from 'lucide-react';
 import { exportToJson } from '../lib/utils';
 
 export const MetricCard = ({ title, value, subtitle, icon: Icon, highlight = false }: any) => (
@@ -36,8 +36,6 @@ export const Analytics = ({
   gpa1, gpa2, cgpa,
   bestCourse, worstCourse, radarData, chartData,
   sem1Grades, sem2Grades,
-  isStatsOpen, setIsStatsOpen,
-  globalStats
 }: any) => {
 
   const CustomTooltip = ({ active, payload }: any) => {
@@ -58,7 +56,7 @@ export const Analytics = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 mt-8 mb-16">
         <MetricCard title="Semester One GPA" value={gpa1} icon={Calculator} />
         <MetricCard title="Semester Two GPA" value={gpa2} icon={Calculator} />
-        <MetricCard title="Cumulative CGPA" value={cgpa} icon={Award} highlight />
+        <MetricCard title="CGPA" value={cgpa} icon={Award} highlight />
       </div>
 
       <section id="analytics" className="space-y-4 sm:space-y-8 pt-4 sm:pt-8">
@@ -131,47 +129,6 @@ export const Analytics = ({
               </BarChart>
             </ResponsiveContainer>
           </motion.div>
-        </div>
-
-        <div className="mt-8">
-          <button 
-            onClick={() => setIsStatsOpen(!isStatsOpen)}
-            className="w-full flex items-center justify-between p-4 sm:p-6 glass rounded-2xl border border-border hover:bg-surface/60 transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="bg-brand-600/10 p-2 rounded-lg group-hover:bg-brand-600/20 transition-colors">
-                <Users className="text-brand-600 w-5 h-5" />
-              </div>
-              <span className="font-bold text-textMain text-sm sm:text-base">View Global Batch Insights</span>
-            </div>
-            {isStatsOpen ? <ChevronUp className="text-textMuted" /> : <ChevronDown className="text-textMuted" />}
-          </button>
-
-          <AnimatePresence>
-            {isStatsOpen && globalStats && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                  <div className="glass-card p-5 sm:p-6 rounded-2xl border border-border">
-                     <p className="text-sm font-bold text-textMain mb-3 tracking-wide">The Competition is Strong ⚔️</p>
-                     <p className="text-textMuted text-sm leading-relaxed">
-                       Based on <span className="font-bold text-brand-500">{globalStats.total}</span> students currently on the leaderboard, the median CGPA sits at a solid <span className="font-bold text-textMain">{globalStats.median}</span>. Half the batch is scoring above this mark!
-                     </p>
-                  </div>
-                  <div className="glass-card p-5 sm:p-6 rounded-2xl border border-border">
-                     <p className="text-sm font-bold text-textMain mb-3 tracking-wide">The Elite Tier 👑</p>
-                     <p className="text-textMuted text-sm leading-relaxed">
-                       Want to break into the Top 10% of Batch '28? You'll need to aim for a <span className="font-bold text-brand-500">{globalStats.top10Cutoff}</span> or higher to secure your spot among the absolute best.
-                     </p>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </section>
     </>

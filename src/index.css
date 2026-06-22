@@ -23,42 +23,6 @@
     --glass-reflection-opacity: 0.1;
   }
 
-  [data-theme="midnight"] {
-    /* Theme 2: Midnight (Deep Space Indigo/Orchid) */
-    --color-brand-400: 167 139 250; /* violet 400 */
-    --color-brand-500: 139 92 246;  /* violet 500 */
-    --color-brand-600: 124 58 237;  /* violet 600 */
-    --color-background: 7 9 19;     /* premium deepest obsidian navy */
-    --color-surface: 15 22 38;      /* dark navy slate */
-    --color-surface-highlight: 29 39 61; /* slate highlight */
-    --color-text-main: 248 250 252;  /* slate 50 */
-    --color-text-muted: 170 185 205; /* bright grey-blue for excellent readability */
-    --color-border: 45 60 95;       /* clearer border contrast */
-    --color-accent-400: 56 189 248;  /* sky 400 */
-    --color-accent-500: 14 165 233;  /* sky 500 */
-    --color-accent-600: 2 132 199;   /* sky 600 */
-    --glass-reflection: 255 255 255;
-    --glass-reflection-opacity: 0.08;
-  }
-
-  [data-theme="neon"] {
-    /* Theme 3: Cyberpunk Shocking Pink (Obsidian Magenta) */
-    --color-brand-400: 255 105 180; /* bright hot pink */
-    --color-brand-500: 255 0 127;   /* shocking neon pink */
-    --color-brand-600: 220 0 100;   /* deep neon pink */
-    --color-background: 6 2 12;     /* cyber ultraviolet obsidian */
-    --color-surface: 18 9 32;       /* deep neon slate */
-    --color-surface-highlight: 35 21 60; /* neon slate highlight */
-    --color-text-main: 255 240 250;  /* clean pinkish white */
-    --color-text-muted: 255 180 230; /* pastel lilac pink for high contrast/readability */
-    --color-border: 120 28 92;      /* glowing magenta border */
-    --color-accent-400: 56 250 255;  /* neon cyan light */
-    --color-accent-500: 0 220 255;   /* electric neon cyan */
-    --color-accent-600: 0 180 220;   /* neon cyan dark */
-    --glass-reflection: 255 255 255;
-    --glass-reflection-opacity: 0.04;
-  }
-
   body {
     @apply bg-background text-textMain antialiased overflow-x-hidden transition-colors duration-500;
   }
