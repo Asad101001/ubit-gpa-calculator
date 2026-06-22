@@ -17,7 +17,7 @@ export const BoycottModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: ()
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.95, y: 10, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="bg-[#0f172a] border border-slate-300 rounded-3xl p-6 sm:p-8 max-w-lg w-full relative overflow-hidden shadow-2xl"
+            className="bg-surface border border-border rounded-3xl p-6 sm:p-8 max-w-lg w-full relative overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             <div className="absolute inset-0 pointer-events-none opacity-90 overflow-hidden flex flex-col justify-center gap-8 -rotate-12 scale-150">
@@ -34,16 +34,16 @@ export const BoycottModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: ()
 
             <button 
               onClick={onClose}
-              className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-slate-800 rounded-full text-slate-600 hover:text-slate-900 transition-colors"
+              className="absolute top-4 right-4 z-10 p-2 bg-surfaceHighlight hover:bg-brand-500/10 rounded-full text-textMuted hover:text-textMain transition-colors"
             >
               <X size={20} />
             </button>
 
-            <div className="relative z-10 flex flex-col items-center justify-center min-h-[250px] text-center bg-white/90 p-6 rounded-2xl backdrop-blur-md border border-slate-300">
+            <div className="relative z-10 flex flex-col items-center justify-center min-h-[250px] text-center bg-surface/90 p-6 rounded-2xl backdrop-blur-md border border-border">
               <AlertTriangle size={48} className="text-yellow-400 mb-4" />
-              <h2 className="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tight">Access Denied</h2>
-              <p className="text-slate-700 font-medium">Semester 03 data unavailable due to ongoing teachers association boycott.</p>
-              <p className="text-slate-500 text-sm mt-4 font-mono">ERR_EXAMS_NOT_CONDUCTED</p>
+              <h2 className="text-3xl font-black text-textMain mb-2 uppercase tracking-tight">Access Denied</h2>
+              <p className="text-textMuted font-medium">Semester 03 data unavailable due to ongoing teachers association boycott.</p>
+              <p className="text-brand-500 text-sm mt-4 font-mono">ERR_EXAMS_NOT_CONDUCTED</p>
             </div>
           </motion.div>
         </motion.div>

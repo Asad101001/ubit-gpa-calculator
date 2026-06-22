@@ -12,19 +12,19 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
   return (
     <motion.div 
       variants={itemVariants}
-      className="group flex flex-col p-2 sm:p-4 rounded-xl hover:bg-white/60 border border-transparent hover:border-slate-300/50 transition-all gap-2 sm:gap-4"
+      className="group flex flex-col p-2 sm:p-4 rounded-xl hover:bg-surface/60 border border-transparent hover:border-border/50 transition-all gap-2 sm:gap-4"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
         <div className="flex items-center gap-2 sm:gap-4 flex-1">
-          <div className="flex flex-col items-center justify-center w-6 h-6 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-white/70 border border-slate-300 text-brand-400 group-hover:scale-105 group-hover:bg-brand-500/10 transition-transform shrink-0">
-            <span className="text-[6px] sm:text-[10px] uppercase font-bold text-slate-500 mb-[-2px]">{course.code.split('-')[0]}</span>
+          <div className="flex flex-col items-center justify-center w-6 h-6 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-surface/70 border border-border text-brand-400 group-hover:scale-105 group-hover:bg-gradient-to-br group-hover:from-brand-500/10 group-hover:to-accent-500/10 group-hover:border-accent-500/30 group-hover:text-accent-500 transition-all shrink-0">
+            <span className="text-[6px] sm:text-[10px] uppercase font-bold text-textMuted mb-[-2px] group-hover:text-accent-400 transition-colors">{course.code.split('-')[0]}</span>
             <span className="text-[10px] sm:text-base font-extrabold">{course.code.split('-')[1]}</span>
           </div>
           <div>
-            <div className="font-semibold text-slate-800 group-hover:text-slate-900 transition-colors text-[11px] sm:text-[15px] leading-tight min-h-[24px] sm:min-h-[44px] flex items-end sm:items-center">
+            <div className="font-semibold text-textMain group-hover:text-textMain/90 transition-colors text-[11px] sm:text-[15px] leading-tight min-h-[24px] sm:min-h-[44px] flex items-end sm:items-center">
               <span className="line-clamp-2">{course.name}</span>
             </div>
-            <div className="text-[9px] sm:text-[11px] font-medium text-slate-500 mt-0.5 sm:mt-1 truncate max-w-[200px] sm:max-w-none">
+            <div className="text-[9px] sm:text-[11px] font-medium text-textMuted mt-0.5 sm:mt-1 truncate max-w-[200px] sm:max-w-none">
               {course.instructor}
             </div>
           </div>
@@ -36,7 +36,7 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
                 const val = typeof value === 'number' ? value : 0;
                 if (val > 0) onChange(val - 1);
               }}
-              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-l-lg sm:rounded-l-xl bg-white/70 hover:bg-slate-200 border border-slate-300 border-r-0 text-slate-600 font-bold"
+              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-l-lg sm:rounded-l-xl bg-surface/70 hover:bg-surfaceHighlight border border-border border-r-0 text-textMuted font-bold"
             >-</button>
             <input
               type="number"
@@ -55,18 +55,18 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
               }}
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="0"
-              className="w-12 sm:w-16 h-6 sm:h-8 glass-input text-slate-800 py-0 px-1 rounded-none border-y border-slate-300 font-bold text-[10px] sm:text-sm focus:ring-0 focus:outline-none placeholder:text-slate-400 text-center"
+              className="w-12 sm:w-16 h-6 sm:h-8 glass-input text-textMain py-0 px-1 rounded-none border-y border-border font-bold text-[10px] sm:text-sm focus:ring-0 focus:outline-none placeholder:text-textMuted/50 text-center"
             />
             <button
               onClick={() => {
                 const val = typeof value === 'number' ? value : 0;
                 if (val < 100) onChange(val + 1);
               }}
-              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-r-lg sm:rounded-r-xl bg-white/70 hover:bg-slate-200 border border-slate-300 border-l-0 text-slate-600 font-bold"
+              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-r-lg sm:rounded-r-xl bg-surface/70 hover:bg-surfaceHighlight border border-border border-l-0 text-textMuted font-bold"
             >+</button>
           </div>
-          <div className="w-12 sm:w-16 text-center py-1 px-1 sm:py-2 sm:px-2 rounded-lg sm:rounded-xl bg-white/70 border border-slate-300 font-mono font-bold text-brand-400 flex flex-col justify-center">
-            <span className="text-[8px] sm:text-[9px] text-slate-500 leading-none mb-0.5 sm:mb-1">GP</span>
+          <div className="w-12 sm:w-16 text-center py-1 px-1 sm:py-2 sm:px-2 rounded-lg sm:rounded-xl bg-surface/70 border border-border font-mono font-bold text-brand-400 flex flex-col justify-center">
+            <span className="text-[8px] sm:text-[9px] text-textMuted leading-none mb-0.5 sm:mb-1">GP</span>
             <span className="text-sm sm:text-base leading-none">{value === '' ? '-' : gp.toFixed(1)}</span>
           </div>
         </div>
@@ -79,7 +79,7 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
           max="100" 
           value={value === '' ? 0 : value}
           readOnly
-          className="w-full h-2 sm:h-1.5 bg-slate-200 rounded-lg appearance-none pointer-events-none accent-brand-500 transition-all opacity-70 group-hover:opacity-100"
+          className="w-full h-2 sm:h-1.5 bg-border rounded-lg appearance-none pointer-events-none accent-brand-500 transition-all opacity-70 group-hover:opacity-100 group-hover:accent-accent-500"
         />
       </div>
     </motion.div>
@@ -103,16 +103,16 @@ export const Calculator = ({
     >
       <motion.div 
         variants={itemVariants}
-        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 border-slate-300 relative overflow-hidden"
+        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden"
       >
         <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
           <div className="flex items-center gap-2 sm:gap-4">
-            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-brand-400 shadow-[0_0_20px_rgba(20,184,166,0.15)]">
+            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-brand-400 shadow-[0_0_20px_rgba(var(--color-brand-500),0.15)]">
               01
             </div>
             <div>
-              <h2 className="text-lg sm:text-2xl font-bold text-slate-800 tracking-tight">Semester One</h2>
-              <p className="text-[10px] sm:text-sm font-medium text-slate-500 uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
+              <h2 className="text-lg sm:text-2xl font-bold text-textMain tracking-tight">Semester One</h2>
+              <p className="text-[10px] sm:text-sm font-medium text-textMuted uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
             </div>
           </div>
         </div>
@@ -128,16 +128,16 @@ export const Calculator = ({
 
       <motion.div 
         variants={itemVariants}
-        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 border-slate-300 relative overflow-hidden"
+        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden"
       >
         <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
           <div className="flex items-center gap-2 sm:gap-4">
-            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
+            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-brand-600/20 to-brand-600/5 border border-brand-600/20 flex items-center justify-center text-sm sm:text-lg font-bold text-brand-600 shadow-[0_0_20px_rgba(var(--color-brand-600),0.15)]">
               02
             </div>
             <div>
-              <h2 className="text-lg sm:text-2xl font-bold text-slate-800 tracking-tight">Semester Two</h2>
-              <p className="text-[10px] sm:text-sm font-medium text-slate-500 uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
+              <h2 className="text-lg sm:text-2xl font-bold text-textMain tracking-tight">Semester Two</h2>
+              <p className="text-[10px] sm:text-sm font-medium text-textMuted uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
             </div>
           </div>
         </div>

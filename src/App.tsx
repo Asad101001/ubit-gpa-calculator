@@ -242,11 +242,11 @@ function App() {
         />
 
         <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10 bg-background">
-          <div className="absolute inset-0 opacity-[0.25] mix-blend-luminosity" />
-          <div className="hidden sm:block absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-brand-400/40 blur-[150px] mix-blend-multiply animate-blob" />
-          <div className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-brand-500/30 blur-[150px] mix-blend-multiply animate-blob animation-delay-2000" />
-          <div className="hidden sm:block absolute top-[30%] left-[30%] w-[50vw] h-[50vw] rounded-full bg-brand-300/40 blur-[150px] mix-blend-multiply animate-blob animation-delay-4000" />
-          <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-brand-100/50 via-background to-brand-100/30" />
+          <div className="absolute inset-0 opacity-30 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-500/20 via-background to-background" />
+          <div className="hidden sm:block absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-brand-500/10 blur-[120px] animate-blob" />
+          <div className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-accent-500/10 blur-[120px] animate-blob" style={{ animationDelay: '2s' }} />
+          <div className="hidden sm:block absolute top-[20%] left-[30%] w-[50vw] h-[50vw] rounded-full bg-brand-400/10 blur-[120px] animate-blob" style={{ animationDelay: '4s' }} />
+          <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-brand-500/10 via-background to-accent-500/10" />
         </div>
 
         <main className="pb-6 sm:pb-16 space-y-6 sm:space-y-16">

@@ -15,7 +15,7 @@ export const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="fixed inset-0 z-[200] bg-slate-50 flex flex-col items-center justify-center"
+      className="fixed inset-0 z-[200] bg-background flex flex-col items-center justify-center"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
@@ -24,9 +24,9 @@ export const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
         className="relative"
       >
         <div className="absolute inset-0 bg-brand-500/30 blur-3xl rounded-full" />
-        <div className="relative flex flex-col items-center p-8 bg-white/70 border border-slate-300 rounded-3xl shadow-2xl backdrop-blur-xl">
+        <div className="relative flex flex-col items-center p-8 bg-surface/70 border border-border rounded-3xl shadow-2xl backdrop-blur-xl">
           <GraduationCap size={64} className="text-brand-400 mb-4" />
-          <h1 className="text-2xl font-bold text-slate-900 tracking-widest uppercase">UBIT GPA</h1>
+          <h1 className="text-2xl font-bold text-textMain tracking-widest uppercase">UBIT GPA</h1>
           <div className="w-12 h-1 bg-brand-500/50 rounded-full mt-4 overflow-hidden relative">
             <motion.div 
               initial={{ x: "-100%" }}

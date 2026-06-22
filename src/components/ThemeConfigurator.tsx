@@ -5,12 +5,8 @@ import { useAppStore } from '../store/useAppStore';
 import gsap from 'gsap';
 
 const themes = [
-  { id: 'rose', name: 'Rose', color: 'bg-rose-500' },
-  { id: 'emerald', name: 'Emerald', color: 'bg-emerald-500' },
-  { id: 'cyberpunk', name: 'Cyberpunk', color: 'bg-violet-500' },
-  { id: 'sunset', name: 'Sunset', color: 'bg-amber-500' },
-  { id: 'ocean', name: 'Ocean', color: 'bg-blue-500' },
-  { id: 'midnight', name: 'Midnight', color: 'bg-slate-800' },
+  { id: 'light', name: 'Light', color: 'bg-emerald-500' },
+  { id: 'midnight', name: 'Midnight', color: 'bg-violet-500' },
   { id: 'neon', name: 'Neon', color: 'bg-pink-500' }
 ] as const;
 
@@ -103,7 +99,7 @@ export const ThemeConfigurator = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={toggleOpen}
-        className="w-14 h-14 bg-brand-500 text-white rounded-full shadow-[0_8px_32px_0_rgba(var(--color-brand-500),0.4)] flex items-center justify-center hover:bg-brand-600 transition-colors border-2 border-white/20 z-10 relative overflow-hidden group"
+        className="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 text-white rounded-full shadow-[0_8px_32px_0_rgba(var(--color-brand-500),0.4)] flex items-center justify-center hover:from-brand-600 hover:to-accent-600 transition-all border-2 border-white/20 z-10 relative overflow-hidden group"
       >
         <motion.div 
           className="absolute inset-0 bg-white/20 rounded-full"

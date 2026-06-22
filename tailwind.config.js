@@ -20,6 +20,11 @@ export default {
           400: 'rgb(var(--color-brand-400) / <alpha-value>)', 
           500: 'rgb(var(--color-brand-500) / <alpha-value>)',
           600: 'rgb(var(--color-brand-600) / <alpha-value>)',
+        },
+        accent: {
+          400: 'rgb(var(--color-accent-400) / <alpha-value>)', 
+          500: 'rgb(var(--color-accent-500) / <alpha-value>)',
+          600: 'rgb(var(--color-accent-600) / <alpha-value>)',
         }
       },
       animation: {

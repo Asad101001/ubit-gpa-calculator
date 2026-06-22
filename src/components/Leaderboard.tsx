@@ -16,7 +16,7 @@ const rankData = (rawList: any[]) => {
 const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolean }) => {
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-48 text-slate-500 font-bold animate-pulse">
+      <div className="flex justify-center items-center h-48 text-textMuted font-bold animate-pulse">
         Fetching latest rankings...
       </div>
     );
@@ -25,9 +25,9 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
   if (!data || data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-48 text-center px-4">
-        <Trophy className="text-slate-900/10 mb-4" size={48} />
-        <p className="text-slate-500 font-bold">The podium is currently empty.</p>
-        <p className="text-slate-500 text-sm mt-1">Be the first to claim a spot!</p>
+        <Trophy className="text-textMain/10 mb-4" size={48} />
+        <p className="text-textMuted font-bold">The podium is currently empty.</p>
+        <p className="text-textMuted text-sm mt-1">Be the first to claim a spot!</p>
       </div>
     );
   }
@@ -59,13 +59,13 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
           const rankColorClass = student.rank === 1 
             ? "text-yellow-400" 
             : student.rank === 2 
-            ? "text-slate-400" 
+            ? "text-textMuted" 
             : "text-amber-600";
 
           const rankBgClass = student.rank === 1
             ? "bg-gradient-to-t from-yellow-500/20 to-yellow-400/40 border-t-2 border-yellow-400 shadow-[0_-10px_30px_rgba(250,204,21,0.2)]" 
             : student.rank === 2
-            ? "bg-gradient-to-t from-slate-400/10 to-slate-300/30 border-t-2 border-slate-300" 
+            ? "bg-gradient-to-t from-textMuted/10 to-textMuted/30 border-t-2 border-border" 
             : "bg-gradient-to-t from-amber-700/10 to-amber-600/30 border-t-2 border-amber-600";
           
           return (
@@ -90,7 +90,7 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
                   <Medal className={`${rankColorClass} mx-auto mb-2 opacity-80`} size={24} />
                 )}
                 
-                <span className={`font-bold block text-[11px] sm:text-base w-full truncate overflow-hidden whitespace-nowrap px-0.5 sm:px-1 ${student.rank === 1 ? 'text-slate-900' : 'text-slate-700'}`} title={student.name}>
+                <span className={`font-bold block text-[11px] sm:text-base w-full truncate overflow-hidden whitespace-nowrap px-0.5 sm:px-1 ${student.rank === 1 ? 'text-yellow-500' : 'text-textMain'}`} title={student.name}>
                   {student.name.length > 15 ? `${student.name.substring(0, 13)}...` : student.name} 
                 </span>
                 <span className={`text-xl sm:text-3xl font-extrabold block mt-1 ${rankColorClass} ${student.rank === 1 ? 'drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]' : ''}`}>
@@ -114,13 +114,13 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.05 }}
               viewport={{ once: true }}
-              className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-slate-300 hover:bg-white/[0.04] transition-colors"
+              className="flex items-center justify-between p-4 rounded-2xl bg-surface/40 border border-border hover:bg-surface/60 transition-colors"
             >
               <div className="flex items-center gap-5 w-[70%]">
                 <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center font-bold text-sm text-brand-400 bg-brand-400/10 border border-brand-400/20">
                   {student.rank}
                 </div>
-                <span className="font-bold text-slate-700 truncate w-full">{student.name}</span>
+                <span className="font-bold text-textMain truncate w-full">{student.name}</span>
               </div>
               <div className="text-xl font-extrabold text-brand-400/80">
                 {student.cgpa.toFixed(2)}
@@ -149,12 +149,12 @@ export const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmit
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.95, y: 10, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="bg-[#0a0a0a] border border-slate-300 rounded-3xl p-6 sm:p-8 max-w-md w-full relative overflow-hidden shadow-2xl"
+            className="bg-surface border border-border rounded-3xl p-6 sm:p-8 max-w-md w-full relative overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             <button 
               onClick={onClose}
-              className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-slate-800 rounded-full text-slate-600 hover:text-slate-900 transition-colors"
+              className="absolute top-4 right-4 z-10 p-2 bg-surfaceHighlight hover:bg-brand-500/10 rounded-full text-textMuted hover:text-textMain transition-colors"
             >
               <X size={20} />
             </button>
@@ -163,8 +163,8 @@ export const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmit
               <div className="bg-brand-500/20 p-4 rounded-full mb-4">
                 <Trophy size={32} className="text-brand-400" />
               </div>
-              <h2 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">Join the Leaderboard</h2>
-              <p className="text-slate-600 font-medium mb-6 text-sm">Submit your current CGPA of <span className="text-slate-900 font-bold">{currentCgpa}</span> to the Batch '28 rankings.</p>
+              <h2 className="text-2xl font-black text-textMain mb-2 tracking-tight">Join the Leaderboard</h2>
+              <p className="text-textMuted font-medium mb-6 text-sm">Submit your current CGPA of <span className="text-textMain font-bold">{currentCgpa}</span> to the Batch '28 rankings.</p>
               
               <form onSubmit={onSubmit} className="w-full space-y-4">
                 {error && (
@@ -173,7 +173,7 @@ export const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmit
                   </div>
                 )}
                 <div className="text-left">
-                  <label className="block text-slate-600 text-xs font-bold mb-2 uppercase tracking-wider">Your Full Name</label>
+                  <label className="block text-textMuted text-xs font-bold mb-2 uppercase tracking-wider">Your Full Name</label>
                   <input
                     type="text"
                     required
@@ -181,18 +181,18 @@ export const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmit
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="e.g. Muhammad Asad"
-                    className="w-full glass-input text-slate-800 py-3 px-4 rounded-xl font-bold text-sm hover:bg-white/80 transition-colors focus:ring-2 focus:ring-brand-500/50 focus:outline-none placeholder:text-slate-400"
+                    className="w-full glass-input text-textMain py-3 px-4 rounded-xl font-bold text-sm hover:bg-surface/80 transition-colors focus:ring-2 focus:ring-brand-500/50 focus:outline-none placeholder:text-textMuted/50"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={isSubmitting || !name.trim()}
-                  className="w-full py-4 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 disabled:hover:bg-brand-500 text-black font-extrabold rounded-xl transition-all shadow-lg shadow-brand-500/20"
+                  className="w-full py-4 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 disabled:hover:bg-brand-500 text-background font-extrabold rounded-xl transition-all shadow-lg shadow-brand-500/20"
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit to Leaderboard'}
                 </button>
               </form>
-              <p className="text-slate-500 text-[10px] mt-4 max-w-xs uppercase tracking-wider font-semibold">
+              <p className="text-textMuted text-[10px] mt-4 max-w-xs uppercase tracking-wider font-semibold">
                 Only 1 submission allowed per IP address. Ensures fairness.
               </p>
             </div>
@@ -220,32 +220,32 @@ export const Leaderboard = ({
         className="flex items-center gap-2 sm:gap-4 mb-2 text-center justify-center flex-col"
       >
         <div className="bg-gradient-to-br from-yellow-400 to-amber-600 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(250,204,21,0.3)] mb-2 sm:mb-4 inline-flex">
-          <Trophy className="text-slate-900 w-6 h-6 sm:w-8 sm:h-8" />
+          <Trophy className="text-background w-6 h-6 sm:w-8 sm:h-8" />
         </div>
         <div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-amber-500">The Leaderboard</h2>
-          <p className="text-slate-600 text-sm sm:text-base mt-2 max-w-md mx-auto">The absolute best of Batch '28. Submit your CGPA to claim your spot on the podium.</p>
+          <p className="text-textMuted text-sm sm:text-base mt-2 max-w-md mx-auto">The absolute best of Batch '28. Submit your CGPA to claim your spot on the podium.</p>
         </div>
       </motion.div>
 
-      <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border-slate-300 relative overflow-hidden min-h-[250px] sm:min-h-[400px]">
+      <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 relative overflow-hidden min-h-[250px] sm:min-h-[400px]">
         <PodiumLeaderboard data={leaderboardData} isLoading={isLeaderboardLoading} />
 
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-16 pt-10 border-t border-slate-300 text-center relative z-10 flex flex-col items-center"
+          className="mt-16 pt-10 border-t border-border text-center relative z-10 flex flex-col items-center"
         >
           <button 
             onClick={() => setIsSubmitModalOpen(true)}
             disabled={Number(cgpa) <= 0}
-            className="px-6 py-3 sm:px-8 sm:py-4 bg-white/70 hover:bg-white/90 disabled:opacity-50 border border-slate-300 rounded-xl sm:rounded-2xl text-slate-900 font-bold tracking-wide transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center gap-2 sm:gap-3 text-sm sm:text-base"
+            className="group px-6 py-3 sm:px-8 sm:py-4 bg-surface/70 hover:bg-gradient-to-r hover:from-brand-500/10 hover:to-accent-500/10 disabled:opacity-50 border border-border hover:border-accent-500/30 rounded-xl sm:rounded-2xl text-textMain font-bold tracking-wide transition-all hover:scale-105 active:scale-95 hover:shadow-[0_0_30px_rgba(var(--color-accent-500),0.15)] shadow-2xl flex items-center gap-2 sm:gap-3 text-sm sm:text-base"
           >
-            <Database size={16} className="text-brand-400 sm:w-[18px] sm:h-[18px]" />
+            <Database size={16} className="text-brand-400 group-hover:text-accent-500 transition-colors sm:w-[18px] sm:h-[18px]" />
             {hasSubmitted ? "Update Score on Leaderboard" : "Submit Your CGPA to Leaderboard"}
           </button>
-          <p className="text-slate-500 text-xs mt-4">Powered by Supabase</p>
+          <p className="text-textMuted text-xs mt-4">Powered by Supabase</p>
 
           <AnimatePresence>
             {hasSubmitted && userPercentile && (

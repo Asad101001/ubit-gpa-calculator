@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-type Theme = 'rose' | 'emerald' | 'cyberpunk' | 'sunset' | 'ocean' | 'midnight' | 'neon';
+type Theme = 'light' | 'midnight' | 'neon';
 
 interface AppState {
   theme: Theme;
@@ -13,7 +13,7 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
-      theme: 'rose',
+      theme: 'light',
       setTheme: (theme) => {
         document.documentElement.setAttribute('data-theme', theme);
         set({ theme });

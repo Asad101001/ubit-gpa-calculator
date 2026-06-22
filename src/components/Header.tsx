@@ -10,11 +10,11 @@ export const Header = ({ currentView, setCurrentView }: { currentView: 'main' | 
   >
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
       <div className="flex items-center gap-2 sm:gap-3 cursor-pointer" onClick={() => setCurrentView('main')}>
-        <div className="bg-brand-500/20 p-1 sm:p-2 rounded-lg sm:rounded-xl border border-brand-500/30">
+        <div className="bg-gradient-to-br from-brand-500/20 to-accent-500/20 p-1 sm:p-2 rounded-lg sm:rounded-xl border border-brand-500/30 shadow-[0_0_15px_rgba(var(--color-brand-500),0.1)] transition-all hover:scale-105">
           <GraduationCap className="text-brand-500 w-4 h-4 sm:w-[18px] sm:h-[18px]" />
         </div>
         <div className="font-bold text-base sm:text-lg tracking-tight text-textMain">
-          DCS <span className="text-brand-500">UBIT</span>
+          DCS <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500">UBIT</span>
         </div>
       </div>
       <div className="flex items-center gap-2 sm:gap-4">
