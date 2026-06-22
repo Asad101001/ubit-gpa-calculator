@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronDown, ChevronUp, FileText, Filter, AlertTriangle } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const SUBJECTS_DATA = [
   // 1st Semester
@@ -29,6 +30,18 @@ export const ResultsPortal = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState(ALL_SUBJECTS);
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>({ key: 'Seat No', direction: 'asc' });
+
+  const [showDisclaimer, setShowDisclaimer] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return !localStorage.getItem('disclaimer_accepted');
+    }
+    return true;
+  });
+
+  const dismissDisclaimer = () => {
+    localStorage.setItem('disclaimer_accepted', 'true');
+    setShowDisclaimer(false);
+  };
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -140,22 +153,65 @@ export const ResultsPortal = () => {
   const effectiveSubject = searchQuery.trim() !== '' ? ALL_SUBJECTS : selectedSubject;
 
   return (
-    <section id="results" className="pt-8 sm:pt-16 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <section id="results" className="pt-8 sm:pt-16 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
       
-      {/* Data Inaccuracy Disclaimer */}
-      <div className="max-w-4xl mx-auto mb-8">
-        <div className="bg-brand-500/10 border border-brand-500/20 rounded-2xl p-4 sm:p-5 flex items-start gap-3 text-left shadow-sm">
-          <AlertTriangle className="text-brand-500 w-6 h-6 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <h3 className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500 font-bold text-sm sm:text-base">Disclaimer regarding Results Data</h3>
-            <p className="text-textMuted text-xs sm:text-sm font-medium leading-relaxed">
-              The academic results and marks displayed or utilized in this portal have been extracted via automated processes and manual data entry. 
-              <strong> This data may be incomplete, unannounced, or contain inaccuracies. </strong>
-              Always refer to your official transcript from the university administration for the final, authoritative results.
-            </p>
+      {/* Centered Popup Disclaimer */}
+      <AnimatePresence>
+        {showDisclaimer && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={dismissDisclaimer}
+              className="absolute inset-0 bg-black/75 backdrop-blur-md"
+            />
+            
+            {/* Popup Card */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: 'spring', duration: 0.5 }}
+              className="relative w-full max-w-lg overflow-hidden rounded-[2.5rem] border border-brand-500/30 bg-surface/95 backdrop-blur-xl p-8 sm:p-10 text-center shadow-[0_0_50px_-12px_rgba(var(--color-brand-500),0.25)] flex flex-col items-center"
+            >
+              {/* Decorative top glow */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent blur-sm" />
+              
+              {/* Pulse Icon Container */}
+              <div className="relative mb-6">
+                <div className="absolute inset-0 rounded-full bg-brand-500/20 blur-xl animate-pulse" />
+                <div className="relative bg-gradient-to-br from-brand-500/20 to-accent-500/20 p-5 rounded-full border border-brand-500/30 shadow-[0_0_20px_rgba(var(--color-brand-500),0.25)]">
+                  <AlertTriangle className="text-brand-500 w-10 h-10 animate-bounce" style={{ animationDuration: '3s' }} />
+                </div>
+              </div>
+
+              {/* Title */}
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-500 via-brand-400 to-accent-500 tracking-tight mb-4">
+                Important Disclaimer
+              </h3>
+
+              {/* Content */}
+              <p className="text-textMuted text-sm sm:text-base font-medium leading-relaxed mb-8">
+                The academic results and marks displayed in this portal have been compiled via automated extraction and manual entry. 
+                <span className="block mt-3 text-accent-500 font-semibold bg-accent-500/10 border border-accent-500/20 rounded-xl p-3">
+                  This data is unofficial and may be incomplete or contain errors.
+                </span>
+                Please always refer to your official physical transcript from the university administration for authoritative results.
+              </p>
+
+              {/* Accept Button */}
+              <button 
+                onClick={dismissDisclaimer}
+                className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-500 hover:to-accent-500 text-white font-bold text-base shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 active:scale-[0.98] transition-all duration-200 border border-brand-400/20 cursor-pointer"
+              >
+                I Understand & Accept
+              </button>
+            </motion.div>
           </div>
-        </div>
-      </div>
+        )}
+      </AnimatePresence>
 
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
         <div>
@@ -163,7 +219,14 @@ export const ResultsPortal = () => {
             <div className="bg-gradient-to-br from-brand-500/20 to-accent-500/20 p-2 rounded-xl border border-brand-500/30 shadow-[0_0_15px_rgba(var(--color-brand-500),0.1)]">
               <FileText className="text-brand-500 w-6 h-6 sm:w-8 sm:h-8" />
             </div>
-            Official Results Portal
+            <span>Official Results Portal</span>
+            <button 
+              onClick={() => setShowDisclaimer(true)}
+              className="text-textMuted/40 hover:text-brand-500 transition-all p-1.5 rounded-xl hover:bg-brand-500/10 cursor-pointer flex items-center justify-center border border-transparent hover:border-brand-500/20 shadow-sm"
+              title="Show disclaimer regarding results data"
+            >
+              <AlertTriangle size={18} />
+            </button>
           </h2>
           <p className="text-textMuted font-medium max-w-xl text-sm sm:text-base">
             Browse and filter academic results for Semester 1.
