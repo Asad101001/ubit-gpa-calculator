@@ -4,6 +4,16 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import { StudentResultCard, getMarkColor } from './StudentResultCard';
 
+const formatName = (fullName: string) => {
+  if (!fullName) return '';
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length > 2) {
+    return parts[0] + ' ' + parts[1];
+  }
+  return fullName;
+};
+
+
 const SUBJECTS_DATA = [
   // 1st Semester
   { id: "cs351", code: "CS-351", name: "Programming Fundamentals", teacher: "Mr. Badr Sami", semester: 1 },
@@ -383,7 +393,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                           {student['Seat No']}
                         </td>
                         <td className="p-2 sm:p-4 text-xs sm:text-sm text-textMain font-semibold min-w-[140px] max-w-[140px] sm:max-w-[300px] sm:min-w-[200px] truncate sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]" title={student['Name']}>
-                          {student['Name']}
+                          {formatName(student['Name'])}
                         </td>
                         
                         {effectiveSubject === ALL_SUBJECTS ? (

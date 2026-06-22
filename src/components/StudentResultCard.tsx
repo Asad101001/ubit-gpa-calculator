@@ -179,6 +179,15 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
             <Download size={16} />
             Download Transcript
           </button>
+          
+          {/* Report Issue Button */}
+          <a
+            href={`mailto:asad.tariq101001@gmail.com?subject=Correction Request for Seat No: ${student['Seat No']}&body=Name: ${student['Name']}%0ASeat No: ${student['Seat No']}%0A%0AHello, I am writing to report an error or submit missing marks for my result.%0A%0A[Please detail the correction here...]`}
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-600 font-bold text-sm rounded-xl transition-all active:scale-95 sm:w-auto w-full"
+            title="Submit a correction for missing or erroneous marks"
+          >
+            Report Issue
+          </a>
         </div>
       </div>
 
