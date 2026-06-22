@@ -97,18 +97,30 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
         initial={{ opacity: 0, x: -16 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay, duration: 0.35 }}
-        className="flex items-center gap-3 sm:gap-4 py-3 border-b border-border/40 last:border-0"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 py-3 sm:py-4 border-b border-border/40 last:border-0"
       >
-        <span className="text-[10px] font-black text-textMuted/60 w-14 shrink-0 font-mono">{sub.code}</span>
-        <span className="flex-1 text-xs sm:text-sm text-textMain font-medium leading-tight">{sub.name}</span>
-        <span className="text-[10px] text-textMuted shrink-0 w-6 text-center">{sub.credits}cr</span>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 flex-1">
+          <span className="text-[10px] font-black text-textMuted/60 w-14 shrink-0 font-mono hidden sm:block">{sub.code}</span>
+          <div className="flex flex-col">
+            <span className="text-xs sm:text-sm text-textMain font-medium leading-tight">{sub.name} <span className="sm:hidden text-[10px] text-textMuted/60 font-mono ml-1">({sub.code})</span></span>
+            <span className="sm:hidden text-[10px] text-textMuted mt-0.5">{sub.credits} Credit Hours</span>
+          </div>
+        </div>
+        
+        <span className="hidden sm:block text-[10px] text-textMuted shrink-0 w-24 text-center">{sub.credits} Credit Hours</span>
+        
         {isMissing ? (
-          <span className="shrink-0 w-32 text-right text-[10px] text-textMuted/50 italic pr-2">—</span>
+          <span className="shrink-0 sm:w-32 text-left sm:text-right text-[10px] text-textMuted/50 italic pr-2 mt-1 sm:mt-0">— Missing Marks</span>
         ) : (
-          <div className="shrink-0 flex items-center gap-1.5 w-32 justify-end">
-            <span className={`text-sm ${getMarkColor(marks!)} w-6 text-right`}>{marks}</span>
-            <span className="text-[10px] bg-surfaceHighlight border border-border px-1.5 py-0.5 rounded font-bold text-textMuted w-6 text-center">{getLetterGrade(marks!)}</span>
-            <span className="text-[10px] text-textMuted w-8 text-right">{gp?.toFixed(1)}</span>
+          <div className="shrink-0 flex items-center justify-between sm:justify-end gap-3 sm:gap-1.5 w-full sm:w-32 mt-2 sm:mt-0 bg-surfaceHighlight/30 sm:bg-transparent p-2.5 sm:p-0 rounded-lg sm:rounded-none">
+            <div className="flex items-center gap-3 sm:gap-1.5">
+              <span className={`text-sm ${getMarkColor(marks!)} w-6 text-center sm:text-right`}>{marks}</span>
+              <span className="text-[10px] bg-surfaceHighlight border border-border px-1.5 py-0.5 rounded font-bold text-textMuted w-6 text-center">{getLetterGrade(marks!)}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="sm:hidden text-[10px] font-bold text-textMuted uppercase tracking-wider">GPA:</span>
+              <span className="text-xs sm:text-[10px] font-bold sm:font-normal text-textMain sm:text-textMuted w-6 sm:w-8 text-right">{gp?.toFixed(1)}</span>
+            </div>
           </div>
         )}
       </motion.div>
@@ -186,7 +198,7 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
               <span className="text-sm font-black text-textMain uppercase tracking-wider">{label}</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-textMuted">{stats.cr} / {subs.reduce((a,s)=>a+s.credits,0)} credits</span>
+              <span className="text-xs text-textMuted">{stats.cr} / {subs.reduce((a,s)=>a+s.credits,0)} Credit Hours</span>
               <span className="text-sm font-black text-brand-500 bg-brand-500/10 px-3 py-1 rounded-lg border border-brand-500/30">
                 GPA {stats.gpa}
               </span>
@@ -194,10 +206,10 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
           </div>
 
           {/* Column headers */}
-          <div className="flex items-center gap-3 sm:gap-4 px-5 py-2 bg-surfaceHighlight/50 border-b border-border/30">
+          <div className="hidden sm:flex items-center gap-3 sm:gap-4 px-5 py-2 bg-surfaceHighlight/50 border-b border-border/30">
             <span className="text-[9px] font-bold text-textMuted/60 uppercase w-14 shrink-0">Code</span>
             <span className="flex-1 text-[9px] font-bold text-textMuted/60 uppercase">Course</span>
-            <span className="text-[9px] font-bold text-textMuted/60 uppercase w-6 text-center shrink-0">Cr</span>
+            <span className="text-[9px] font-bold text-textMuted/60 uppercase w-24 text-center shrink-0">Credit Hours</span>
             <span className="text-[9px] font-bold text-textMuted/60 uppercase w-32 text-right shrink-0">Marks / Grade / GP</span>
           </div>
 

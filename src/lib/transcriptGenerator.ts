@@ -99,8 +99,8 @@ export function generateTranscriptImage(student: Record<string, any>): void {
   ctx.fillText(`Generated: ${new Date().toLocaleDateString('en-PK', { year: 'numeric', month: 'long', day: 'numeric' })}`, 40, 168);
 
   // Table columns: Code, Course Name, Credits, Marks, Grade, GPA, QP
-  const cols = [40, 130, 490, 560, 630, 700, 770];
-  const colHeaders = ['Code', 'Course Title', 'Cr', 'Marks', 'Grade', 'GP', 'QP'];
+  const cols = [40, 130, 460, 560, 630, 700, 770];
+  const colHeaders = ['Code', 'Course Title', 'Credit Hours', 'Marks', 'Grade', 'GP', 'QP'];
 
   let y = headerH;
 
