@@ -223,22 +223,10 @@ export const ResultsPortal = () => {
         <div className="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-2xl border border-border bg-surface/40 shadow-inner relative overscroll-contain scroll-smooth">
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead className="sticky top-0 z-20 shadow-sm">
-              {effectiveSubject === ALL_SUBJECTS && (
-                <tr className="bg-surface/95 backdrop-blur-md border-b border-border">
-                  <th colSpan={2} className="p-2 bg-surface/95 backdrop-blur-md"></th>
-                  <th className="p-2 border-r border-border bg-surface/95 backdrop-blur-md sticky left-0 z-30 shadow-[1px_0_0_rgba(var(--color-border),0.5)]"></th>
-                  <th colSpan={6} className="p-2 text-center text-xs font-bold uppercase tracking-widest text-brand-600 bg-brand-500/10 backdrop-blur-md border-r border-border border-t-[3px] border-t-brand-400">
-                    1st Semester
-                  </th>
-                  <th colSpan={6} className="p-2 text-center text-xs font-bold uppercase tracking-widest text-brand-600 bg-brand-500/10 backdrop-blur-md border-t-[3px] border-t-brand-400">
-                    2nd Semester
-                  </th>
-                </tr>
-              )}
               <tr className="bg-surfaceHighlight/95 backdrop-blur-md border-b border-border shadow-sm">
-                <th className="p-4 font-bold text-textMuted text-sm min-w-[60px] text-center bg-surfaceHighlight/95">#</th>
+                <th className="p-4 font-bold text-textMuted text-sm min-w-[60px] text-center bg-surfaceHighlight/95 sticky top-0 z-20">#</th>
                 <th 
-                  className="p-4 font-bold text-textMuted text-sm min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors bg-surfaceHighlight/95"
+                  className="p-4 font-bold text-textMuted text-sm min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors bg-surfaceHighlight/95 sticky top-0 z-20"
                   onClick={() => handleSort('Seat No')}
                 >
                   <div className="flex items-center gap-2">
@@ -246,7 +234,7 @@ export const ResultsPortal = () => {
                   </div>
                 </th>
                 <th 
-                  className="p-4 font-bold text-textMuted text-sm cursor-pointer hover:bg-border/30 transition-colors min-w-[200px] sticky left-0 z-30 bg-surfaceHighlight/95 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]"
+                  className="p-4 font-bold text-textMuted text-sm cursor-pointer hover:bg-border/30 transition-colors min-w-[200px] sticky top-0 left-0 z-30 bg-surfaceHighlight/95 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]"
                   onClick={() => handleSort('Name')}
                 >
                   <div className="flex items-center gap-2">
@@ -258,10 +246,13 @@ export const ResultsPortal = () => {
                   SUBJECTS_DATA.map(sub => (
                     <th 
                       key={sub.id}
-                      className={`p-4 font-bold text-textMuted text-sm cursor-pointer hover:bg-border/30 transition-colors border-l border-border/50 bg-brand-500/5`}
+                      className={`p-4 font-bold text-textMuted text-sm cursor-pointer hover:bg-border/30 transition-colors border-l border-border/50 bg-brand-500/5 sticky top-0 z-10`}
                       onClick={() => handleSort(sub.id)}
                     >
                       <div className="flex flex-col items-end gap-1">
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-600 uppercase tracking-wider">
+                          Sem {sub.semester}
+                        </span>
                         <div className="flex items-center gap-1 text-xs text-textMuted/70 font-semibold uppercase tracking-wider">
                           {sub.code}
                           {sortConfig?.key === sub.id && (sortConfig.direction === 'asc' ? <ChevronUp size={12} className="text-brand-500" /> : <ChevronDown size={12} className="text-brand-500" />)}
@@ -272,10 +263,13 @@ export const ResultsPortal = () => {
                   ))
                 ) : (
                   <th 
-                    className="p-4 font-bold text-brand-600 text-sm cursor-pointer hover:bg-brand-500/20 transition-colors bg-brand-500/10"
+                    className="p-4 font-bold text-brand-600 text-sm cursor-pointer hover:bg-brand-500/20 transition-colors bg-brand-500/10 sticky top-0 z-10"
                     onClick={() => handleSort(effectiveSubject)}
                   >
                     <div className="flex items-center justify-end gap-2">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-500/25 text-brand-600 uppercase tracking-wider mr-2">
+                        Sem {SUBJECTS_DATA.find(s => s.id === effectiveSubject)?.semester}
+                      </span>
                       {SUBJECTS_DATA.find(s => s.id === effectiveSubject)?.name} Marks 
                       {sortConfig?.key === effectiveSubject && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-brand-600" /> : <ChevronDown size={14} className="text-brand-600" />)}
                     </div>
