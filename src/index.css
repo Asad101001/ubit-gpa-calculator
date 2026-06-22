@@ -6,21 +6,21 @@
 
 @layer base {
   :root {
-    /* Theme 1: Light (Clean, Professional Indigo) */
-    --color-brand-400: 99 102 241;  /* indigo 400 */
-    --color-brand-500: 79 70 229;   /* indigo 500 */
-    --color-brand-600: 67 56 202;   /* indigo 600 */
-    --color-background: 248 250 252; /* slate 50 */
-    --color-surface: 255 255 255;
-    --color-surface-highlight: 241 245 249; /* slate 100 */
-    --color-text-main: 15 23 42;
-    --color-text-muted: 71 85 105;   /* slate 600 for improved readability */
-    --color-border: 203 213 225;     /* slate 300 for clearer card boundaries */
-    --color-accent-400: 244 114 182; /* pink 400 */
-    --color-accent-500: 236 72 153;  /* pink 500 */
-    --color-accent-600: 219 39 119;  /* pink 600 */
+    /* Theme 1: Light (Black & White Brutalist with Gold Accents) */
+    --color-brand-400: 0 0 0;        /* pure black */
+    --color-brand-500: 0 0 0;        /* pure black */
+    --color-brand-600: 0 0 0;        /* pure black */
+    --color-background: 255 255 255; /* stark white background */
+    --color-surface: 255 255 255;    /* pure white surface */
+    --color-surface-highlight: 242 242 242; /* very light grey */
+    --color-text-main: 0 0 0;        /* stark black text */
+    --color-text-muted: 75 75 75;    /* dark grey for subtexts */
+    --color-border: 0 0 0;           /* solid black border */
+    --color-accent-400: 255 220 0;   /* shocking yellow gold */
+    --color-accent-500: 230 180 0;   /* gold */
+    --color-accent-600: 190 145 0;   /* deep gold */
     --glass-reflection: 255 255 255;
-    --glass-reflection-opacity: 0.95;
+    --glass-reflection-opacity: 0.1;
   }
 
   [data-theme="midnight"] {
@@ -96,5 +96,71 @@
   .pixel-hover:hover {
     transform: scale(1.05);
     box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.2), -4px -4px 0px rgba(20, 184, 166, 0.2);
+  }
+
+  /* Brutalist Theme Overrides (Light Theme only) */
+  :root .glass-card, [data-theme="light"] .glass-card {
+    border: 2.5px solid #000000 !important;
+    border-radius: 4px !important;
+    background-color: #ffffff !important;
+    backdrop-filter: none !important;
+    box-shadow: 5px 5px 0px 0px #000000, 9px 9px 0px 0px rgb(230, 180, 0) !important;
+  }
+
+  :root .glass, [data-theme="light"] .glass {
+    border: 2.5px solid #000000 !important;
+    border-radius: 4px !important;
+    background-color: #ffffff !important;
+    backdrop-filter: none !important;
+    box-shadow: 5px 5px 0px 0px #000000, 9px 9px 0px 0px rgb(230, 180, 0) !important;
+  }
+
+  :root .glass-input, [data-theme="light"] .glass-input {
+    border: 2.5px solid #000000 !important;
+    border-radius: 4px !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: 3px 3px 0px 0px #000000 !important;
+  }
+
+  :root .glass-input:focus, [data-theme="light"] .glass-input:focus {
+    box-shadow: 3px 3px 0px 0px rgb(230, 180, 0) !important;
+    background-color: #ffffff !important;
+    border-color: #000000 !important;
+  }
+
+  /* Override text gradients for true black & white brutalism */
+  :root .text-transparent, [data-theme="light"] .text-transparent {
+    background-image: none !important;
+    background-clip: unset !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: initial !important;
+    color: #000000 !important;
+  }
+
+  /* Brutalist Button Overrides */
+  :root button.bg-gradient-to-r, [data-theme="light"] button.bg-gradient-to-r,
+  :root a.bg-gradient-to-r, [data-theme="light"] a.bg-gradient-to-r {
+    background-image: none !important;
+    background-color: rgb(230, 180, 0) !important; /* Gold */
+    color: #000000 !important;
+    border: 2.5px solid #000000 !important;
+    box-shadow: 3px 3px 0px 0px #000000 !important;
+    border-radius: 4px !important;
+    font-weight: 800 !important;
+    text-shadow: none !important;
+    transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+  }
+
+  :root button.bg-gradient-to-r:hover, [data-theme="light"] button.bg-gradient-to-r:hover,
+  :root a.bg-gradient-to-r:hover, [data-theme="light"] a.bg-gradient-to-r:hover {
+    background-color: #ffd700 !important;
+    box-shadow: 1px 1px 0px 0px #000000 !important;
+    transform: translate(2px, 2px) !important;
+  }
+
+  :root .text-accent-500, [data-theme="light"] .text-accent-500 {
+    color: rgb(200, 150, 0) !important;
+    font-weight: 700 !important;
   }
 }

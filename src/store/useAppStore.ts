@@ -24,8 +24,10 @@ export const useAppStore = create<AppState>()(
     {
       name: 'app-storage',
       onRehydrateStorage: () => (state) => {
-        if (state) {
+        if (state && state.theme) {
           document.documentElement.setAttribute('data-theme', state.theme);
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
         }
       },
     }

@@ -5,7 +5,7 @@ import { useAppStore } from '../store/useAppStore';
 import gsap from 'gsap';
 
 const themes = [
-  { id: 'light', name: 'Light', color: 'bg-indigo-500' },
+  { id: 'light', name: 'Light', color: 'bg-white border-2 border-black shadow-[1px_1px_0px_rgba(0,0,0,1)]' },
   { id: 'midnight', name: 'Midnight', color: 'bg-violet-500' },
   { id: 'neon', name: 'Neon', color: 'bg-pink-500' }
 ] as const;
@@ -54,7 +54,7 @@ export const ThemeConfigurator = () => {
             initial={{ opacity: 0, y: 20, scale: 0.9, filter: 'blur(10px)' }}
             animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
             exit={{ opacity: 0, y: 20, scale: 0.9, filter: 'blur(10px)', transition: { delay: 0.2 } }}
-            className="mb-4 bg-surface/90 backdrop-blur-2xl border border-border p-4 rounded-3xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] flex flex-col gap-3 min-w-[200px]"
+            className="mb-4 glass-card p-4 rounded-2xl flex flex-col gap-3 min-w-[200px]"
           >
             <div className="text-xs font-bold text-textMuted uppercase tracking-widest px-2 pb-2 border-b border-border/50">
               Select Theme
