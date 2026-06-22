@@ -72,15 +72,18 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
         </div>
       </div>
 
-      <div className="w-full px-1">
-        <input 
-          type="range" 
-          min="0" 
-          max="100" 
-          value={value === '' ? 0 : value}
-          readOnly
-          className="w-full h-2 sm:h-1.5 bg-border rounded-lg appearance-none pointer-events-none accent-brand-500 transition-all opacity-70 group-hover:opacity-100 group-hover:accent-accent-500"
-        />
+      <div className="w-full px-1 mt-1 sm:mt-2">
+        <div className="w-full h-1.5 sm:h-2 bg-border/40 rounded-full overflow-hidden relative opacity-70 group-hover:opacity-100 transition-opacity">
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: `${value === '' ? 0 : value}%` }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className={`absolute top-0 left-0 h-full rounded-full ${
+              typeof value === 'number' && value >= 80 ? 'bg-green-500' : 
+              typeof value === 'number' && value >= 50 ? 'bg-brand-500' : 'bg-red-500'
+            }`}
+          />
+        </div>
       </div>
     </motion.div>
   );

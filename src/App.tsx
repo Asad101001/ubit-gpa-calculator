@@ -12,8 +12,30 @@ import { SplashScreen } from './components/SplashScreen';
 import { ResultsPortal } from './components/ResultsPortal';
 
 function App() {
-  const [appLoaded, setAppLoaded] = useState(false);
-  const [currentView, setCurrentView] = useState<'main' | 'results'>('main');
+  const [appLoaded, setAppLoaded] = useState(() => {
+    const lastSplash = localStorage.getItem('lastSplashTime');
+    const now = Date.now();
+    if (lastSplash && (now - parseInt(lastSplash) < 10 * 60 * 1000)) {
+      return true;
+    }
+    return false;
+  });
+  
+  const [currentView, setCurrentView] = useState<'main' | 'results'>(() => {
+    return window.location.hash === '#results' ? 'results' : 'main';
+  });
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentView(window.location.hash === '#results' ? 'results' : 'main');
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const navigateTo = (view: 'main' | 'results') => {
+    window.location.hash = view === 'results' ? 'results' : '';
+  };
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
   const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(true);
@@ -204,11 +226,14 @@ function App() {
   return (
     <>
       <AnimatePresence>
-        {!appLoaded && <SplashScreen onComplete={() => setAppLoaded(true)} />}
+        {!appLoaded && <SplashScreen onComplete={() => {
+          localStorage.setItem('lastSplashTime', Date.now().toString());
+          setAppLoaded(true);
+        }} />}
       </AnimatePresence>
 
       <div className={`min-h-screen relative selection:bg-brand-500/30 font-sans ${!appLoaded ? 'hidden' : ''}`}>
-        <Header currentView={currentView} setCurrentView={setCurrentView} />
+        <Header currentView={currentView} navigateTo={navigateTo} />
         <BoycottModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         <SubmitModal 
           isOpen={isSubmitModalOpen} 
@@ -312,7 +337,7 @@ function App() {
                 onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>) => {
                   setSem1Grades(s1);
                   setSem2Grades(s2);
-                  setCurrentView('main');
+                  navigateTo('main');
                   setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100);
                 }}
               />
