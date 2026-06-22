@@ -208,8 +208,7 @@ export const Leaderboard = ({
   isLeaderboardLoading,
   setIsSubmitModalOpen,
   cgpa,
-  hasSubmitted,
-  userPercentile
+  hasSubmitted
 }: any) => {
   return (
     <section id="leaderboard" className="space-y-4 sm:space-y-8 pt-4 sm:pt-8 pb-12">
@@ -247,22 +246,7 @@ export const Leaderboard = ({
           </button>
           <p className="text-textMuted text-xs mt-4">Powered by Supabase</p>
 
-          <AnimatePresence>
-            {hasSubmitted && userPercentile && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="mt-8 flex flex-col items-center gap-5 w-full"
-              >
-                <div className="bg-brand-500/10 border border-brand-500/20 px-5 py-2.5 rounded-full">
-                  <p className="text-brand-600 text-[11px] sm:text-sm font-semibold text-center">
-                    You rank in the <span className="font-extrabold text-brand-500 text-sm sm:text-base">top {userPercentile}%</span> of the class.
-                  </p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+
         </motion.div>
       </div>
     </section>

@@ -175,15 +175,6 @@ function App() {
     ];
   }, [sem1Grades, sem2Grades]);
 
-  const userPercentile = useMemo(() => {
-    if (!hasSubmitted || Number(cgpa) <= 0 || leaderboardData.length === 0) return null;
-    const userScore = Number(cgpa);
-    const higherScores = leaderboardData.filter(student => student.cgpa > userScore).length;
-    const rank = higherScores + 1;
-    const topPercent = Math.ceil((rank / leaderboardData.length) * 100);
-    return Math.max(1, topPercent); 
-  }, [hasSubmitted, cgpa, leaderboardData]);
-
 
   const handleLeaderboardSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -329,7 +320,6 @@ function App() {
                   setIsSubmitModalOpen={setIsSubmitModalOpen}
                   cgpa={cgpa}
                   hasSubmitted={hasSubmitted}
-                  userPercentile={userPercentile}
                 />
               </>
             ) : (

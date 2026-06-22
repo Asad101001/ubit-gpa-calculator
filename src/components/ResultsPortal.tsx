@@ -39,13 +39,17 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
 
   const [showDisclaimer, setShowDisclaimer] = useState(() => {
     if (typeof window !== 'undefined') {
-      return !localStorage.getItem('disclaimer_accepted');
+      const acceptedTime = localStorage.getItem('disclaimer_accepted');
+      if (acceptedTime && (Date.now() - parseInt(acceptedTime) < 10 * 60 * 1000)) {
+        return false;
+      }
+      return true;
     }
     return true;
   });
 
   const dismissDisclaimer = () => {
-    localStorage.setItem('disclaimer_accepted', 'true');
+    localStorage.setItem('disclaimer_accepted', Date.now().toString());
     setShowDisclaimer(false);
   };
 
@@ -303,7 +307,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                     </div>
                   </th>
                   <th 
-                    className="p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm cursor-pointer hover:bg-border/30 transition-colors min-w-[100px] max-w-[100px] sm:min-w-[200px] sm:max-w-none sticky top-0 left-0 z-30 bg-surfaceHighlight shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]"
+                    className="p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm cursor-pointer hover:bg-border/30 transition-colors min-w-[140px] max-w-[140px] sm:min-w-[200px] sm:max-w-none sticky top-0 left-0 z-30 bg-surfaceHighlight shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]"
                     onClick={() => handleSort('Name')}
                   >
                     <div className="flex items-center gap-1 sm:gap-2">
@@ -378,7 +382,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                         <td className="p-2 sm:p-4 font-mono text-xs sm:text-sm text-textMuted font-bold min-w-[90px] sm:min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150">
                           {student['Seat No']}
                         </td>
-                        <td className="p-2 sm:p-4 text-xs sm:text-sm text-textMain font-semibold min-w-[100px] max-w-[100px] sm:max-w-[300px] sm:min-w-[200px] truncate sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]" title={student['Name']}>
+                        <td className="p-2 sm:p-4 text-xs sm:text-sm text-textMain font-semibold min-w-[140px] max-w-[140px] sm:max-w-[300px] sm:min-w-[200px] truncate sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]" title={student['Name']}>
                           {student['Name']}
                         </td>
                         
