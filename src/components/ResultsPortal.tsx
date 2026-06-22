@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronDown, ChevronUp, FileText, Filter, AlertTriangle } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 const SUBJECTS_DATA = [
   // 1st Semester
@@ -221,12 +220,13 @@ export const ResultsPortal = () => {
         )}
 
         {/* Table */}
-        <div className="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-2xl border border-border bg-surface/40 shadow-inner relative">
+        <div className="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-2xl border border-border bg-surface/40 shadow-inner relative overscroll-contain scroll-smooth">
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead className="sticky top-0 z-20 shadow-sm">
               {effectiveSubject === ALL_SUBJECTS && (
                 <tr className="bg-surface/95 backdrop-blur-md border-b border-border">
-                  <th colSpan={3} className="p-2 border-r border-border bg-surface/95 backdrop-blur-md"></th>
+                  <th colSpan={2} className="p-2 bg-surface/95 backdrop-blur-md"></th>
+                  <th className="p-2 border-r border-border bg-surface/95 backdrop-blur-md sticky left-0 z-30 shadow-[1px_0_0_rgba(var(--color-border),0.5)]"></th>
                   <th colSpan={6} className="p-2 text-center text-xs font-bold uppercase tracking-widest text-brand-600 bg-brand-500/10 backdrop-blur-md border-r border-border border-t-[3px] border-t-brand-400">
                     1st Semester
                   </th>
@@ -236,9 +236,9 @@ export const ResultsPortal = () => {
                 </tr>
               )}
               <tr className="bg-surfaceHighlight/95 backdrop-blur-md border-b border-border shadow-sm">
-                <th className="p-4 font-bold text-textMuted text-sm min-w-[60px] text-center sticky left-0 z-30 bg-surfaceHighlight/95 shadow-[1px_0_0_rgba(var(--color-border),0.5)]">#</th>
+                <th className="p-4 font-bold text-textMuted text-sm min-w-[60px] text-center bg-surfaceHighlight/95">#</th>
                 <th 
-                  className="p-4 font-bold text-textMuted text-sm min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors sticky left-[60px] z-30 bg-surfaceHighlight/95 shadow-[1px_0_0_rgba(var(--color-border),0.5)]"
+                  className="p-4 font-bold text-textMuted text-sm min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors bg-surfaceHighlight/95"
                   onClick={() => handleSort('Seat No')}
                 >
                   <div className="flex items-center gap-2">
@@ -246,7 +246,7 @@ export const ResultsPortal = () => {
                   </div>
                 </th>
                 <th 
-                  className="p-4 font-bold text-textMuted text-sm cursor-pointer hover:bg-border/30 transition-colors min-w-[200px] sticky left-[200px] z-30 bg-surfaceHighlight/95 shadow-[1px_0_0_rgba(var(--color-border),0.5)]"
+                  className="p-4 font-bold text-textMuted text-sm cursor-pointer hover:bg-border/30 transition-colors min-w-[200px] sticky left-0 z-30 bg-surfaceHighlight/95 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]"
                   onClick={() => handleSort('Name')}
                 >
                   <div className="flex items-center gap-2">
@@ -302,20 +302,17 @@ export const ResultsPortal = () => {
               ) : (
                 sortedAndFilteredData.map((student, index) => {
                   return (
-                    <motion.tr 
+                    <tr 
                       key={student['Seat No']} 
                       className="border-b border-border/50 last:border-0 hover:bg-brand-500/5 transition-colors group"
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: Math.min(index * 0.03, 0.5), ease: "easeOut" }}
                     >
-                      <td className="p-4 text-center text-textMuted font-medium text-sm min-w-[60px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight shadow-[1px_0_0_rgba(var(--color-border),0.5)]">
+                      <td className="p-4 text-center text-textMuted font-medium text-sm min-w-[60px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150">
                         {index + 1}
                       </td>
-                      <td className="p-4 font-mono text-sm text-textMuted font-bold min-w-[140px] sticky left-[60px] z-20 bg-surface group-hover:bg-surfaceHighlight shadow-[1px_0_0_rgba(var(--color-border),0.5)]">
+                      <td className="p-4 font-mono text-sm text-textMuted font-bold min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150">
                         {student['Seat No']}
                       </td>
-                      <td className="p-4 text-sm text-textMain font-semibold min-w-[200px] whitespace-nowrap sticky left-[200px] z-20 bg-surface group-hover:bg-surfaceHighlight shadow-[1px_0_0_rgba(var(--color-border),0.5)]" title={student['Name']}>
+                      <td className="p-4 text-sm text-textMain font-semibold min-w-[200px] whitespace-nowrap sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]" title={student['Name']}>
                         {student['Name']}
                       </td>
                       
@@ -354,7 +351,7 @@ export const ResultsPortal = () => {
                           })()}
                         </td>
                       )}
-                    </motion.tr>
+                    </tr>
                   )
                 })
               )}
