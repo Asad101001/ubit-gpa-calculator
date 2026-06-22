@@ -13,6 +13,9 @@ export default {
         background: 'rgb(var(--color-background) / <alpha-value>)',
         surface: 'rgb(var(--color-surface) / <alpha-value>)',
         surfaceHighlight: 'rgb(var(--color-surface-highlight) / <alpha-value>)',
+        textMain: 'rgb(var(--color-text-main) / <alpha-value>)',
+        textMuted: 'rgb(var(--color-text-muted) / <alpha-value>)',
+        border: 'rgb(var(--color-border) / <alpha-value>)',
         brand: {
           400: 'rgb(var(--color-brand-400) / <alpha-value>)', 
           500: 'rgb(var(--color-brand-500) / <alpha-value>)',

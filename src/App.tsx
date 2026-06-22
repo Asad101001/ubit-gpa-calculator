@@ -241,18 +241,18 @@ function App() {
           currentCgpa={cgpa}
         />
 
-        <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10 bg-slate-50">
+        <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10 bg-background">
           <div className="absolute inset-0 opacity-[0.25] mix-blend-luminosity" />
-          <div className="hidden sm:block absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-emerald-400/40 blur-[150px] mix-blend-multiply animate-blob" />
-          <div className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-teal-400/40 blur-[150px] mix-blend-multiply animate-blob animation-delay-2000" />
-          <div className="hidden sm:block absolute top-[30%] left-[30%] w-[50vw] h-[50vw] rounded-full bg-emerald-300/40 blur-[150px] mix-blend-multiply animate-blob animation-delay-4000" />
-          <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-emerald-100 via-slate-50 to-teal-100" />
+          <div className="hidden sm:block absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-brand-400/40 blur-[150px] mix-blend-multiply animate-blob" />
+          <div className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-brand-500/30 blur-[150px] mix-blend-multiply animate-blob animation-delay-2000" />
+          <div className="hidden sm:block absolute top-[30%] left-[30%] w-[50vw] h-[50vw] rounded-full bg-brand-300/40 blur-[150px] mix-blend-multiply animate-blob animation-delay-4000" />
+          <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-brand-100/50 via-background to-brand-100/30" />
         </div>
 
         <main className="pb-6 sm:pb-16 space-y-6 sm:space-y-16">
           <section id="calculator" className="relative pt-4 sm:pt-12 pb-4 sm:pb-8 px-4">
             <div className="absolute inset-0 w-full h-full -z-10 overflow-hidden">
-               <div className="absolute inset-0 bg-gradient-to-b from-slate-50/60 via-slate-50/90 to-slate-50" />
+               <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/90 to-background" />
             </div>
 
             <motion.div 
@@ -263,16 +263,16 @@ function App() {
             >
               <div className="inline-block relative">
                 <div className="absolute inset-0 bg-brand-500/30 blur-xl rounded-full" />
-                <div className="relative inline-flex items-center justify-center p-3 sm:p-4 bg-white/70 border border-slate-300 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-2xl backdrop-blur-xl">
-                  <GraduationCap className="text-brand-400 w-8 h-8 sm:w-10 sm:h-10" />
+                <div className="relative inline-flex items-center justify-center p-3 sm:p-4 bg-surface/70 border border-border rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-2xl backdrop-blur-xl">
+                  <GraduationCap className="text-brand-500 w-8 h-8 sm:w-10 sm:h-10" />
                 </div>
               </div>
               
-              <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-slate-900 via-slate-800 to-slate-500 mb-3 sm:mb-4 tracking-tighter">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-textMain via-textMain/90 to-textMuted mb-3 sm:mb-4 tracking-tighter">
                 GPA Calculator
               </h1>
-              <p className="text-sm sm:text-lg md:text-xl text-slate-600 font-medium max-w-2xl mx-auto flex items-center justify-center gap-2 sm:gap-3 mb-6">
-                <Sparkles className="text-brand-400 w-4 h-4 sm:w-5 sm:h-5" />
+              <p className="text-sm sm:text-lg md:text-xl text-textMuted font-medium max-w-2xl mx-auto flex items-center justify-center gap-2 sm:gap-3 mb-6">
+                <Sparkles className="text-brand-500 w-4 h-4 sm:w-5 sm:h-5" />
                 Department of Computer Science
               </p>
 
@@ -290,21 +290,21 @@ function App() {
                   
                   <motion.div 
                     onClick={() => setIsModalOpen(true)}
-                    className="w-full glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 border-slate-300 relative overflow-hidden cursor-pointer hover:border-yellow-400/30 transition-colors group mt-8"
+                    className="w-full bg-surface/70 backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 border border-border relative overflow-hidden cursor-pointer hover:border-brand-500/30 transition-colors group mt-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.1)]"
                   >
                     <div className="relative z-10 flex items-center justify-between">
                       <div className="flex items-center gap-2 sm:gap-4">
-                        <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.15)] group-hover:scale-110 transition-transform">
+                        <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-brand-500 shadow-[0_0_20px_rgba(var(--color-brand-500),0.15)] group-hover:scale-110 transition-transform">
                           03
                         </div>
                         <div>
-                          <h2 className="text-lg sm:text-2xl font-bold text-slate-800 tracking-tight">Semester Three</h2>
-                          <p className="text-[9px] sm:text-sm font-medium text-yellow-400/80 uppercase tracking-widest mt-0.5 sm:mt-1 flex items-center gap-1 sm:gap-2">
+                          <h2 className="text-lg sm:text-2xl font-bold text-textMain tracking-tight">Semester Three</h2>
+                          <p className="text-[9px] sm:text-sm font-medium text-brand-500/80 uppercase tracking-widest mt-0.5 sm:mt-1 flex items-center gap-1 sm:gap-2">
                             <AlertTriangle size={12} className="w-[10px] h-[10px] sm:w-[14px] sm:h-[14px]" /> Pending Exams
                           </p>
                         </div>
                       </div>
-                      <div className="px-4 py-2 bg-yellow-400/10 text-yellow-400 font-bold rounded-xl text-sm hidden sm:block border border-yellow-400/20">
+                      <div className="px-4 py-2 bg-brand-500/10 text-brand-500 font-bold rounded-xl text-sm hidden sm:block border border-brand-500/20">
                         Click to Uncover
                       </div>
                     </div>

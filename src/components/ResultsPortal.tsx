@@ -234,9 +234,9 @@ export const ResultsPortal = () => {
                 </tr>
               )}
               <tr className="bg-slate-100/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
-                <th className="p-4 font-bold text-slate-600 text-sm min-w-[60px] text-center">#</th>
+                <th className="p-4 font-bold text-slate-600 text-sm min-w-[60px] text-center sticky left-0 z-30 bg-slate-100/95 shadow-[1px_0_0_rgba(203,213,225,1)]">#</th>
                 <th 
-                  className="p-4 font-bold text-slate-600 text-sm min-w-[140px] cursor-pointer hover:bg-slate-200/80 transition-colors"
+                  className="p-4 font-bold text-slate-600 text-sm min-w-[140px] cursor-pointer hover:bg-slate-200/80 transition-colors sticky left-[60px] z-30 bg-slate-100/95 shadow-[1px_0_0_rgba(203,213,225,1)]"
                   onClick={() => handleSort('Seat No')}
                 >
                   <div className="flex items-center gap-2">
@@ -244,7 +244,7 @@ export const ResultsPortal = () => {
                   </div>
                 </th>
                 <th 
-                  className="p-4 font-bold text-slate-600 text-sm cursor-pointer hover:bg-slate-200/80 transition-colors min-w-[200px]"
+                  className="p-4 font-bold text-slate-600 text-sm cursor-pointer hover:bg-slate-200/80 transition-colors min-w-[200px] sticky left-[200px] z-30 bg-slate-100/95 shadow-[1px_0_0_rgba(203,213,225,1)]"
                   onClick={() => handleSort('Name')}
                 >
                   <div className="flex items-center gap-2">
@@ -307,13 +307,13 @@ export const ResultsPortal = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: Math.min(index * 0.03, 0.5), ease: "easeOut" }}
                     >
-                      <td className="p-4 text-center text-slate-400 font-medium text-sm min-w-[60px] bg-white/90 group-hover:bg-slate-50/90">
+                      <td className="p-4 text-center text-slate-400 font-medium text-sm min-w-[60px] sticky left-0 z-20 bg-white/95 group-hover:bg-slate-50/95 shadow-[1px_0_0_rgba(203,213,225,0.4)]">
                         {index + 1}
                       </td>
-                      <td className="p-4 font-mono text-sm text-slate-600 font-bold min-w-[140px] bg-white/90 group-hover:bg-slate-50/90">
+                      <td className="p-4 font-mono text-sm text-slate-600 font-bold min-w-[140px] sticky left-[60px] z-20 bg-white/95 group-hover:bg-slate-50/95 shadow-[1px_0_0_rgba(203,213,225,0.4)]">
                         {student['Seat No']}
                       </td>
-                      <td className="p-4 text-sm text-slate-800 font-semibold min-w-[200px] whitespace-nowrap" title={student['Name']}>
+                      <td className="p-4 text-sm text-slate-800 font-semibold min-w-[200px] whitespace-nowrap sticky left-[200px] z-20 bg-white/95 group-hover:bg-slate-50/95 shadow-[1px_0_0_rgba(203,213,225,0.4)]" title={student['Name']}>
                         {student['Name']}
                       </td>
                       

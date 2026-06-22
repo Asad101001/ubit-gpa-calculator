@@ -23,6 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
+# Sensitive Data and Results
+actual results/
+Results/
+extracted_results_final.json
+students.txt
 # Results Data
 Results/
 extracted_results_final.json

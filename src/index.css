@@ -13,6 +13,9 @@
     --color-background: 255 241 242; /* rose-50 */
     --color-surface: 255 255 255;
     --color-surface-highlight: 255 228 230; /* rose-100 */
+    --color-text-main: 15 23 42; /* slate-900 */
+    --color-text-muted: 100 116 139; /* slate-500 */
+    --color-border: 203 213 225; /* slate-300 */
   }
 
   [data-theme="cyberpunk"] {
@@ -22,6 +25,9 @@
     --color-background: 245 243 255; /* violet-50 */
     --color-surface: 255 255 255;
     --color-surface-highlight: 237 233 254; /* violet-100 */
+    --color-text-main: 15 23 42;
+    --color-text-muted: 100 116 139;
+    --color-border: 203 213 225;
   }
 
   [data-theme="sunset"] {
@@ -31,6 +37,9 @@
     --color-background: 255 251 235; /* amber-50 */
     --color-surface: 255 255 255;
     --color-surface-highlight: 254 243 199; /* amber-100 */
+    --color-text-main: 15 23 42;
+    --color-text-muted: 100 116 139;
+    --color-border: 203 213 225;
   }
 
   [data-theme="ocean"] {
@@ -40,6 +49,9 @@
     --color-background: 239 246 255; /* blue-50 */
     --color-surface: 255 255 255;
     --color-surface-highlight: 219 234 254; /* blue-100 */
+    --color-text-main: 15 23 42;
+    --color-text-muted: 100 116 139;
+    --color-border: 203 213 225;
   }
 
   [data-theme="emerald"] {
@@ -49,10 +61,37 @@
     --color-background: 236 253 245; /* emerald-50 */
     --color-surface: 255 255 255;
     --color-surface-highlight: 209 250 229; /* emerald-100 */
+    --color-text-main: 15 23 42;
+    --color-text-muted: 100 116 139;
+    --color-border: 203 213 225;
+  }
+
+  [data-theme="midnight"] {
+    --color-brand-400: 96 165 250; 
+    --color-brand-500: 59 130 246; 
+    --color-brand-600: 37 99 235;  
+    --color-background: 15 23 42; /* slate-900 */
+    --color-surface: 30 41 59; /* slate-800 */
+    --color-surface-highlight: 51 65 85; /* slate-700 */
+    --color-text-main: 248 250 252; /* slate-50 */
+    --color-text-muted: 148 163 184; /* slate-400 */
+    --color-border: 51 65 85; /* slate-700 */
+  }
+
+  [data-theme="neon"] {
+    --color-brand-400: 253 164 175; 
+    --color-brand-500: 244 63 94; 
+    --color-brand-600: 225 29 72;  
+    --color-background: 9 9 11; /* zinc-950 */
+    --color-surface: 24 24 27; /* zinc-900 */
+    --color-surface-highlight: 39 39 42; /* zinc-800 */
+    --color-text-main: 255 255 255;
+    --color-text-muted: 161 161 170; /* zinc-400 */
+    --color-border: 39 39 42;
   }
 
   body {
-    @apply bg-background text-slate-900 antialiased overflow-x-hidden transition-colors duration-500;
+    @apply bg-background text-text-main antialiased overflow-x-hidden transition-colors duration-500;
   }
 }
 
