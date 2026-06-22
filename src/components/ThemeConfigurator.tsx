@@ -5,7 +5,7 @@ import { useAppStore } from '../store/useAppStore';
 import gsap from 'gsap';
 
 const themes = [
-  { id: 'light', name: 'Light', color: 'bg-emerald-500' },
+  { id: 'light', name: 'Light', color: 'bg-indigo-500' },
   { id: 'midnight', name: 'Midnight', color: 'bg-violet-500' },
   { id: 'neon', name: 'Neon', color: 'bg-pink-500' }
 ] as const;

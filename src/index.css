@@ -7,20 +7,20 @@
 @layer base {
   :root {
     /* Theme 1: Light (Clean, Professional Indigo) */
-    --color-brand-400: 129 140 248; /* indigo 400 */
-    --color-brand-500: 79 70 229;  /* indigo 500 */
-    --color-brand-600: 67 56 202;  /* indigo 600 */
+    --color-brand-400: 99 102 241;  /* indigo 400 */
+    --color-brand-500: 79 70 229;   /* indigo 500 */
+    --color-brand-600: 67 56 202;   /* indigo 600 */
     --color-background: 248 250 252; /* slate 50 */
     --color-surface: 255 255 255;
     --color-surface-highlight: 241 245 249; /* slate 100 */
     --color-text-main: 15 23 42;
-    --color-text-muted: 100 116 139;
-    --color-border: 226 232 240; /* slate 200 */
+    --color-text-muted: 71 85 105;   /* slate 600 for improved readability */
+    --color-border: 203 213 225;     /* slate 300 for clearer card boundaries */
     --color-accent-400: 244 114 182; /* pink 400 */
-    --color-accent-500: 219 39 119;  /* pink 500 */
-    --color-accent-600: 190 24 93;   /* pink 600 */
+    --color-accent-500: 236 72 153;  /* pink 500 */
+    --color-accent-600: 219 39 119;  /* pink 600 */
     --glass-reflection: 255 255 255;
-    --glass-reflection-opacity: 0.8;
+    --glass-reflection-opacity: 0.95;
   }
 
   [data-theme="midnight"] {
@@ -28,35 +28,35 @@
     --color-brand-400: 167 139 250; /* violet 400 */
     --color-brand-500: 139 92 246;  /* violet 500 */
     --color-brand-600: 124 58 237;  /* violet 600 */
-    --color-background: 7 9 19; /* premium deepest obsidian navy */
-    --color-surface: 15 22 38; /* dark navy slate */
+    --color-background: 7 9 19;     /* premium deepest obsidian navy */
+    --color-surface: 15 22 38;      /* dark navy slate */
     --color-surface-highlight: 29 39 61; /* slate highlight */
-    --color-text-main: 248 250 252; /* slate 50 */
-    --color-text-muted: 148 163 184; /* slate 400 */
-    --color-border: 32 44 70; /* subtle navy border */
-    --color-accent-400: 56 189 248; /* sky 400 */
-    --color-accent-500: 14 165 233; /* sky 500 */
-    --color-accent-600: 2 132 199;  /* sky 600 */
+    --color-text-main: 248 250 252;  /* slate 50 */
+    --color-text-muted: 170 185 205; /* bright grey-blue for excellent readability */
+    --color-border: 45 60 95;       /* clearer border contrast */
+    --color-accent-400: 56 189 248;  /* sky 400 */
+    --color-accent-500: 14 165 233;  /* sky 500 */
+    --color-accent-600: 2 132 199;   /* sky 600 */
     --glass-reflection: 255 255 255;
-    --glass-reflection-opacity: 0.05;
+    --glass-reflection-opacity: 0.08;
   }
 
   [data-theme="neon"] {
     /* Theme 3: Cyberpunk Shocking Pink (Obsidian Magenta) */
-    --color-brand-400: 255 133 227; /* neon pink light */
+    --color-brand-400: 255 105 180; /* bright hot pink */
     --color-brand-500: 255 0 127;   /* shocking neon pink */
-    --color-brand-600: 195 0 98;    /* neon pink dark */
-    --color-background: 6 2 12;    /* cyber ultraviolet obsidian */
-    --color-surface: 18 9 32;      /* deep neon slate */
+    --color-brand-600: 220 0 100;   /* deep neon pink */
+    --color-background: 6 2 12;     /* cyber ultraviolet obsidian */
+    --color-surface: 18 9 32;       /* deep neon slate */
     --color-surface-highlight: 35 21 60; /* neon slate highlight */
-    --color-text-main: 255 235 245; /* cyber white */
-    --color-text-muted: 255 168 223; /* neon lilac */
-    --color-border: 77 21 68;      /* glowing magenta border */
-    --color-accent-400: 92 225 230; /* neon cyan light */
-    --color-accent-500: 0 240 255;  /* electric neon cyan */
-    --color-accent-600: 0 184 196;  /* neon cyan dark */
+    --color-text-main: 255 240 250;  /* clean pinkish white */
+    --color-text-muted: 255 180 230; /* pastel lilac pink for high contrast/readability */
+    --color-border: 120 28 92;      /* glowing magenta border */
+    --color-accent-400: 56 250 255;  /* neon cyan light */
+    --color-accent-500: 0 220 255;   /* electric neon cyan */
+    --color-accent-600: 0 180 220;   /* neon cyan dark */
     --glass-reflection: 255 255 255;
-    --glass-reflection-opacity: 0.03;
+    --glass-reflection-opacity: 0.04;
   }
 
   body {
