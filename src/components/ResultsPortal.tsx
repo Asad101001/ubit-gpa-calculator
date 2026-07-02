@@ -166,33 +166,42 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
 
   const displayNames = useMemo(() => {
     const formattedMap = new Map<string, string>();
-    const truncatedCounts = new Map<string, number>();
+    const abbreviatedCounts = new Map<string, number>();
 
-    // First pass: compute truncated names and count occurrences
+    // First pass: abbreviate SYED MUHAMMAD and MUHAMMAD, and count truncated versions
     data.forEach(student => {
-      const fullName = student['Name'] || '';
-      const parts = fullName.trim().split(/\s+/);
-      let truncated = fullName;
-      if (parts.length > 2) {
-        truncated = parts[0] + ' ' + parts[1];
+      let fullName = (student['Name'] || '').trim();
+      let scrolledName = fullName;
+      
+      if (fullName.startsWith('SYED MUHAMMAD ')) {
+        scrolledName = 'S.M ' + fullName.substring('SYED MUHAMMAD '.length);
+      } else if (fullName.startsWith('MUHAMMAD ')) {
+        scrolledName = 'M. ' + fullName.substring('MUHAMMAD '.length);
       }
-      truncatedCounts.set(truncated, (truncatedCounts.get(truncated) || 0) + 1);
-    });
 
-    // Second pass: if count > 1, use full name, else use truncated
-    data.forEach(student => {
-      const fullName = student['Name'] || '';
-      const parts = fullName.trim().split(/\s+/);
-      let truncated = fullName;
-      if (parts.length > 2) {
-        truncated = parts[0] + ' ' + parts[1];
+      const parts = scrolledName.split(/\s+/);
+      let truncated = scrolledName;
+      if (parts.length > 3) {
+        truncated = parts.slice(0, 3).join(' ');
       }
       
-      const count = truncatedCounts.get(truncated) || 0;
-      if (count > 1) {
-        formattedMap.set(student['Seat No'], fullName);
-      } else {
+      abbreviatedCounts.set(truncated, (abbreviatedCounts.get(truncated) || 0) + 1);
+      formattedMap.set(student['Seat No'], scrolledName);
+    });
+
+    // Second pass: if the cleanly truncated 3-word version is unique, use it. Otherwise, use full abbreviated name.
+    data.forEach(student => {
+      const scrolledName = formattedMap.get(student['Seat No'])!;
+      const parts = scrolledName.split(/\s+/);
+      let truncated = scrolledName;
+      if (parts.length > 3) {
+        truncated = parts.slice(0, 3).join(' ');
+      }
+
+      if ((abbreviatedCounts.get(truncated) || 0) === 1) {
         formattedMap.set(student['Seat No'], truncated);
+      } else {
+        formattedMap.set(student['Seat No'], scrolledName);
       }
     });
 
