@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { GraduationCap } from 'lucide-react';
 
-export const Header = ({ currentView, navigateTo }: { currentView: 'main' | 'results', navigateTo: (v: 'main' | 'results') => void }) => (
+export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }: { currentView: 'main' | 'results', navigateTo: (v: 'main' | 'results') => void, activeSection?: string }) => (
   <motion.header 
     initial={{ y: -50, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
@@ -19,9 +19,9 @@ export const Header = ({ currentView, navigateTo }: { currentView: 'main' | 'res
       </div>
       <div className="flex items-center gap-3 sm:gap-4">
         <nav className="flex items-center gap-1 sm:gap-2 text-[11px] sm:text-sm font-medium text-textMuted bg-surface/50 p-1 rounded-xl border border-border">
-          <a href="#calculator" onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className={`${currentView === 'main' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'hover:text-textMain hover:bg-surfaceHighlight/50'} px-3 py-1.5 rounded-lg transition-all`}>Calculator</a>
-          <a href="#analytics" onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('analytics')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className={`${currentView === 'main' ? 'hidden sm:block' : 'hidden'} hover:text-textMain hover:bg-surfaceHighlight/50 px-3 py-1.5 rounded-lg transition-all`}>Analytics</a>
-          <a href="#leaderboard" onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className={`${currentView === 'main' ? 'hidden sm:block' : 'hidden'} hover:text-textMain hover:bg-surfaceHighlight/50 px-3 py-1.5 rounded-lg transition-all`}>Leaderboard</a>
+          <a href="#calculator" onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className={`${currentView === 'main' && activeSection === 'calculator' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'} px-3 py-1.5 rounded-lg transition-all`}>Calculator</a>
+          <a href="#analytics" onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('analytics')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className={`${currentView === 'main' ? 'hidden sm:block' : 'hidden'} ${activeSection === 'analytics' && currentView === 'main' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'} px-3 py-1.5 rounded-lg transition-all`}>Analytics</a>
+          <a href="#leaderboard" onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className={`${currentView === 'main' ? 'hidden sm:block' : 'hidden'} ${activeSection === 'leaderboard' && currentView === 'main' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'} px-3 py-1.5 rounded-lg transition-all`}>Leaderboard</a>
           <button onClick={() => navigateTo('results')} className={`${currentView === 'results' ? 'text-brand-500 font-bold bg-brand-500/10 shadow-sm' : 'text-textMuted hover:text-brand-500 hover:bg-brand-500/10'} px-3 py-1.5 rounded-lg transition-all`}>Results</button>
         </nav>
         <div className="px-2 sm:px-3 py-1 rounded-full bg-surface/90 text-textMain border border-border text-[9px] sm:text-xs font-bold tracking-wider hidden sm:block">

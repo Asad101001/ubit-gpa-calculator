@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GraduationCap, Sparkles, AlertTriangle } from 'lucide-react';
+import { GraduationCap, Sparkles, AlertTriangle, RotateCcw } from 'lucide-react';
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES } from './lib/utils';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -32,6 +32,30 @@ function App() {
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
+
+  const [activeSection, setActiveSection] = useState<string>('calculator');
+
+  useEffect(() => {
+    if (currentView !== 'main') return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let maxRatio = 0;
+        let activeId = activeSection;
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio;
+            activeId = entry.target.id;
+          }
+        });
+        if (maxRatio > 0) setActiveSection(activeId);
+      },
+      { rootMargin: '-20% 0px -40% 0px', threshold: [0.1, 0.5] }
+    );
+
+    const sections = ['calculator', 'analytics', 'leaderboard'].map(id => document.getElementById(id));
+    sections.forEach(s => s && observer.observe(s));
+    return () => observer.disconnect();
+  }, [currentView, activeSection]);
 
   const navigateTo = (view: 'main' | 'results') => {
     window.location.hash = view === 'results' ? 'results' : '';
@@ -71,6 +95,11 @@ function App() {
   useEffect(() => {
     localStorage.setItem('sem2Grades', JSON.stringify(sem2Grades));
   }, [sem2Grades]);
+
+  const clearGrades = () => {
+    setSem1Grades(SEM1_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
+    setSem2Grades(SEM2_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
+  };
 
   // Fetch Live Leaderboard
   const fetchLeaderboard = async () => {
@@ -224,7 +253,7 @@ function App() {
       </AnimatePresence>
 
       <div className={`min-h-screen relative selection:bg-brand-500/30 font-sans ${!appLoaded ? 'hidden' : ''}`}>
-        <Header currentView={currentView} navigateTo={navigateTo} />
+        <Header currentView={currentView} navigateTo={navigateTo} activeSection={activeSection} />
         <BoycottModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         <SubmitModal 
           isOpen={isSubmitModalOpen} 
@@ -279,6 +308,15 @@ function App() {
             {currentView === 'main' ? (
               <>
                 <section className="space-y-4 sm:space-y-8">
+                  <div className="flex justify-end">
+                    <button 
+                      onClick={clearGrades}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-400 border border-red-500/20 rounded-xl font-bold text-xs sm:text-sm transition-all active:scale-95"
+                    >
+                      <RotateCcw size={16} />
+                      Clear Results
+                    </button>
+                  </div>
                   <Calculator 
                     sem1Grades={sem1Grades} setSem1Grades={setSem1Grades}
                     sem2Grades={sem2Grades} setSem2Grades={setSem2Grades}
@@ -296,7 +334,7 @@ function App() {
                         <div>
                           <h2 className="text-lg sm:text-2xl font-bold text-textMain tracking-tight">Semester Three</h2>
                           <p className="text-[9px] sm:text-sm font-medium text-brand-500/80 uppercase tracking-widest mt-0.5 sm:mt-1 flex items-center gap-1 sm:gap-2">
-                            <AlertTriangle size={12} className="w-[10px] h-[10px] sm:w-[14px] sm:h-[14px]" /> Pending Exams
+                            <AlertTriangle size={12} className="w-[10px] h-[10px] sm:w-[14px] sm:h-[14px]" /> Ongoing Exams
                           </p>
                         </div>
                       </div>

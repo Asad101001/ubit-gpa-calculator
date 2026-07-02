@@ -183,7 +183,7 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <p className="text-xs font-bold text-textMuted uppercase tracking-widest mb-1">Search Result</p>
-            <h2 className="text-2xl sm:text-3xl font-black text-textMain tracking-tight">{student['Name']}</h2>
+            <h2 className="text-lg sm:text-2xl font-black text-textMain tracking-tight line-clamp-2">{student['Name']}</h2>
             <p className="text-sm text-textMuted font-mono mt-1">Seat No: <span className="font-bold text-textMain">{student['Seat No']}</span></p>
           </div>
           <div className="flex items-center gap-2">

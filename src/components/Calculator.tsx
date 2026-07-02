@@ -15,21 +15,21 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
       className="group flex flex-col p-2 sm:p-4 rounded-xl hover:bg-surface/60 border border-transparent hover:border-border/50 transition-all gap-2 sm:gap-4"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
-        <div className="flex items-center gap-2 sm:gap-4 flex-1">
-          <div className="flex flex-col items-center justify-center w-6 h-6 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-surface/70 border border-border text-brand-400 group-hover:scale-105 group-hover:bg-gradient-to-br group-hover:from-brand-500/10 group-hover:to-accent-500/10 group-hover:border-accent-500/30 group-hover:text-accent-500 transition-all shrink-0">
-            <span className="text-[6px] sm:text-[10px] uppercase font-bold text-textMuted mb-[-2px] group-hover:text-accent-400 transition-colors">{course.code.split('-')[0]}</span>
-            <span className="text-[10px] sm:text-base font-extrabold">{course.code.split('-')[1]}</span>
+        <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+          <div className="flex flex-col items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-surface/70 border border-border text-brand-400 group-hover:scale-105 group-hover:bg-gradient-to-br group-hover:from-brand-500/10 group-hover:to-accent-500/10 group-hover:border-accent-500/30 group-hover:text-accent-500 transition-all shrink-0">
+            <span className="text-[8px] sm:text-[10px] uppercase font-bold text-textMuted mb-[-2px] group-hover:text-accent-400 transition-colors">{course.code.split('-')[0]}</span>
+            <span className="text-[12px] sm:text-base font-extrabold">{course.code.split('-')[1]}</span>
           </div>
-          <div>
-            <div className="font-semibold text-textMain group-hover:text-textMain/90 transition-colors text-[11px] sm:text-[15px] leading-tight min-h-[24px] sm:min-h-[44px] flex items-end sm:items-center">
-              <span className="line-clamp-2">{course.name}</span>
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold text-textMain group-hover:text-textMain/90 transition-colors text-[12px] sm:text-[14px] leading-tight h-[34px] sm:h-[42px] flex items-center">
+              <span className="line-clamp-2 w-full pr-2">{course.name}</span>
             </div>
-            <div className="text-[9px] sm:text-[11px] font-medium text-textMuted mt-0.5 sm:mt-1 truncate max-w-[200px] sm:max-w-none">
+            <div className="text-[10px] sm:text-[11px] font-medium text-textMuted mt-0.5 sm:mt-1 truncate w-full">
               {course.instructor}
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 shrink-0">
           <div className="relative flex-1 sm:w-24 flex items-center justify-center">
             <button
               onClick={() => {

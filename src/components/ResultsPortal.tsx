@@ -392,7 +392,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                         <td className="p-2 sm:p-4 font-mono text-xs sm:text-sm text-textMuted font-bold min-w-[90px] sm:min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150">
                           {student['Seat No']}
                         </td>
-                        <td className="p-2 sm:p-4 text-xs sm:text-sm text-textMain font-semibold min-w-[140px] max-w-[140px] sm:max-w-[300px] sm:min-w-[200px] truncate sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]" title={student['Name']}>
+                        <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[140px] max-w-[140px] sm:max-w-[300px] sm:min-w-[200px] truncate sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]" title={student['Name']}>
                           {formatName(student['Name'])}
                         </td>
                         
