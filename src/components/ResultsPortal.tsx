@@ -341,12 +341,12 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
             className="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-2xl border border-border bg-surface/40 shadow-inner relative overscroll-contain snap-x snap-mandatory"
             onScroll={(e) => setIsScrolled(e.currentTarget.scrollLeft > 5)}
           >
-            <table className="w-full text-left border-collapse whitespace-nowrap">
+            <table className="w-full text-left border-separate border-spacing-0 whitespace-nowrap">
               <thead className="sticky top-0 z-40 shadow-sm">
-                <tr className="bg-surfaceHighlight border-b border-border shadow-sm">
-                  <th className="p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] text-center bg-surfaceHighlight sticky top-0 z-20 snap-start">#</th>
+                <tr className="bg-surfaceHighlight shadow-sm">
+                  <th className="p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] text-center bg-surfaceHighlight sticky top-0 z-20 snap-start border-b border-border">#</th>
                   <th 
-                    className="p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[90px] sm:min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors bg-surfaceHighlight sticky top-0 z-20 snap-start"
+                    className="p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[90px] sm:min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors bg-surfaceHighlight sticky top-0 z-20 snap-start border-b border-border"
                     onClick={() => handleSort('Seat No')}
                   >
                     <div className="flex items-center gap-1 sm:gap-2">
@@ -354,7 +354,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                     </div>
                   </th>
                   <th 
-                    className="p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm cursor-pointer hover:bg-border/30 transition-colors min-w-[140px] max-w-[140px] sm:min-w-[200px] sm:max-w-none sticky top-0 left-0 z-30 bg-surfaceHighlight shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start"
+                    className="p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm cursor-pointer hover:bg-border/30 transition-colors min-w-[140px] max-w-[140px] sm:min-w-[200px] sm:max-w-none sticky top-0 left-0 z-30 bg-surfaceHighlight shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border"
                     onClick={() => handleSort('Name')}
                   >
                     <div className="flex items-center gap-1 sm:gap-2">
@@ -365,7 +365,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                     SUBJECTS_DATA.map(sub => (
                       <th 
                         key={sub.id}
-                        className={`p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm cursor-pointer hover:bg-border/30 transition-colors border-l border-border/50 bg-brand-500/5 sticky top-0 z-10 snap-start`}
+                        className={`p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm cursor-pointer hover:bg-border/30 transition-colors border-l border-b border-border/50 bg-brand-500/5 sticky top-0 z-10 snap-start`}
                         onClick={() => handleSort(sub.id)}
                       >
                         <div className="flex flex-col items-end gap-0.5 sm:gap-1">
@@ -382,7 +382,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                     ))
                   ) : (
                     <th 
-                      className="p-2 sm:p-4 font-bold text-brand-600 text-xs sm:text-sm cursor-pointer hover:bg-brand-500/20 transition-colors bg-brand-500/10 sticky top-0 z-10 snap-start"
+                      className="p-2 sm:p-4 font-bold text-brand-600 text-xs sm:text-sm cursor-pointer hover:bg-brand-500/20 transition-colors bg-brand-500/10 sticky top-0 z-10 snap-start border-b border-brand-500/20"
                       onClick={() => handleSort(effectiveSubject)}
                     >
                       <div className="flex items-center justify-end gap-1 sm:gap-2">
@@ -420,15 +420,15 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3 }}
                         key={student['Seat No']} 
-                        className="border-b border-border/50 last:border-0 hover:bg-brand-500/5 transition-colors group"
+                        className="hover:bg-brand-500/5 transition-colors group"
                       >
-                        <td className="p-2 sm:p-4 text-center text-textMuted font-medium text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start">
+                        <td className="p-2 sm:p-4 text-center text-textMuted font-medium text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start border-b border-border/50">
                           {index + 1}
                         </td>
-                        <td className="p-2 sm:p-4 font-mono text-xs sm:text-sm text-textMuted font-bold min-w-[90px] sm:min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start">
+                        <td className="p-2 sm:p-4 font-mono text-xs sm:text-sm text-textMuted font-bold min-w-[90px] sm:min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start border-b border-border/50">
                           {student['Seat No']}
                         </td>
-                        <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[140px] max-w-[140px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start">
+                        <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[140px] max-w-[140px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border/50">
                           <div className="flex items-center justify-between gap-1 w-full h-full">
                             <span className="truncate" title={student['Name']}>
                               {isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}
@@ -451,7 +451,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                             const mark = student[sub.id];
                             const isMissing = typeof mark === 'string' && isNaN(Number(mark));
                             return (
-                              <td key={sub.id} className="p-2 sm:p-4 text-right border-l border-border/30 snap-start">
+                              <td key={sub.id} className="p-2 sm:p-4 text-right border-l border-b border-border/30 snap-start">
                                 {isMissing ? (
                                   <span className="inline-flex items-center px-1 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-surfaceHighlight text-textMuted">
                                     {mark === "Marks Missing" ? "Missing" : "Unannounced"}
@@ -465,7 +465,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                             );
                           })
                         ) : (
-                          <td className="p-2 sm:p-4 text-right bg-brand-500/5 group-hover:bg-brand-500/10 transition-colors snap-start">
+                          <td className="p-2 sm:p-4 text-right bg-brand-500/5 group-hover:bg-brand-500/10 transition-colors snap-start border-b border-border/30">
                             {(() => {
                               const mark = student[effectiveSubject];
                               const isMissing = typeof mark === 'string' && isNaN(Number(mark));
