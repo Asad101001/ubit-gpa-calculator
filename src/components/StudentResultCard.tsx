@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Calculator, CheckCircle, XCircle, AlertTriangle, Send, Loader2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { getGradePoint } from '../lib/utils';
 import { generateTranscriptImage } from '../lib/transcriptGenerator';
 import { SEM1_COURSES, SEM2_COURSES } from '../lib/utils';
@@ -79,16 +80,17 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
 
       if (response.ok) {
         setReportSuccess(true);
+        toast.success("Report submitted successfully!");
         setTimeout(() => {
           setIsReportModalOpen(false);
           setReportSuccess(false);
           setReportMessage('');
         }, 2500);
       } else {
-        alert("Failed to submit report. Please try again.");
+        toast.error("Failed to submit report. Please try again.");
       }
     } catch (error) {
-      alert("Network error. Please try again later.");
+      toast.error("Network error. Please try again later.");
     } finally {
       setIsSubmittingReport(false);
     }
@@ -213,9 +215,16 @@ export const StudentResultCard = ({ student, onPrefill }: Props) => {
           <button
             onClick={() => {
               if (hasMissing) {
-                alert("Cannot generate transcript: Marks are missing for one or more subjects. A complete CGPA cannot be calculated.");
+                toast.error("Cannot generate transcript: Marks are missing for one or more subjects.", { icon: '⚠️' });
               } else {
-                generateTranscriptImage(student);
+                toast.promise(
+                  Promise.resolve(generateTranscriptImage(student)),
+                  {
+                    loading: 'Generating transcript...',
+                    success: 'Transcript downloaded!',
+                    error: 'Could not generate transcript.',
+                  }
+                );
               }
             }}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 font-bold text-sm rounded-xl transition-all active:scale-95 ${hasMissing ? 'bg-surfaceHighlight text-textMuted border border-border cursor-not-allowed' : 'bg-accent-500/10 hover:bg-accent-500/20 border border-accent-500/40 text-accent-600'}`}

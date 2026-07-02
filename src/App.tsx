@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Toaster, toast } from 'react-hot-toast';
 import { GraduationCap, Sparkles, AlertTriangle, RotateCcw } from 'lucide-react';
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES } from './lib/utils';
 import { Header } from './components/Header';
@@ -99,6 +100,7 @@ function App() {
   const clearGrades = () => {
     setSem1Grades(SEM1_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
     setSem2Grades(SEM2_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
+    toast.success('Results cleared successfully!', { icon: '✨' });
   };
 
   // Fetch Live Leaderboard
@@ -236,8 +238,10 @@ function App() {
       localStorage.setItem('hasSubmitted', 'true');
       setIsSubmitModalOpen(false);
       fetchLeaderboard(); // Refresh from Edge API
+      toast.success('Successfully added to the Leaderboard!', { icon: '🏆' });
     } catch (err: any) {
       setSubmitError(err.message || "Failed to submit. Check your connection.");
+      toast.error(err.message || "Failed to submit. Check your connection.");
     } finally {
       setIsSubmitting(false);
     }
@@ -251,6 +255,14 @@ function App() {
           setAppLoaded(true);
         }} />}
       </AnimatePresence>
+
+      <Toaster 
+        position="bottom-center" 
+        toastOptions={{ 
+          className: 'glass text-sm font-medium',
+          style: { background: 'rgba(20,20,20,0.8)', color: '#fff', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px' }
+        }} 
+      />
 
       <div className={`min-h-screen relative selection:bg-brand-500/30 font-sans ${!appLoaded ? 'hidden' : ''}`}>
         <Header currentView={currentView} navigateTo={navigateTo} activeSection={activeSection} />
