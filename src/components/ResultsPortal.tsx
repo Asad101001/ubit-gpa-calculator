@@ -4,14 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import { StudentResultCard, getMarkColor } from './StudentResultCard';
 
-const formatName = (fullName: string) => {
-  if (!fullName) return '';
-  const parts = fullName.trim().split(/\s+/);
-  if (parts.length > 2) {
-    return parts[0] + ' ' + parts[1];
-  }
-  return fullName;
-};
+// Format name helper removed in favor of smart truncation logic in component
 
 
 const SUBJECTS_DATA = [
@@ -168,6 +161,41 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
 
     return filtered;
   }, [data, searchQuery, sortConfig]);
+
+  const displayNames = useMemo(() => {
+    const formattedMap = new Map<string, string>();
+    const truncatedCounts = new Map<string, number>();
+
+    // First pass: compute truncated names and count occurrences
+    data.forEach(student => {
+      const fullName = student['Name'] || '';
+      const parts = fullName.trim().split(/\s+/);
+      let truncated = fullName;
+      if (parts.length > 2) {
+        truncated = parts[0] + ' ' + parts[1];
+      }
+      truncatedCounts.set(truncated, (truncatedCounts.get(truncated) || 0) + 1);
+    });
+
+    // Second pass: if count > 1, use full name, else use truncated
+    data.forEach(student => {
+      const fullName = student['Name'] || '';
+      const parts = fullName.trim().split(/\s+/);
+      let truncated = fullName;
+      if (parts.length > 2) {
+        truncated = parts[0] + ' ' + parts[1];
+      }
+      
+      const count = truncatedCounts.get(truncated) || 0;
+      if (count > 1) {
+        formattedMap.set(student['Seat No'], fullName);
+      } else {
+        formattedMap.set(student['Seat No'], truncated);
+      }
+    });
+
+    return formattedMap;
+  }, [data]);
 
   // When searching, force effective selected subject to ALL_SUBJECTS to show all marks
   const effectiveSubject = searchQuery.trim() !== '' ? ALL_SUBJECTS : selectedSubject;
@@ -393,7 +421,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                           {student['Seat No']}
                         </td>
                         <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[140px] max-w-[140px] sm:max-w-[300px] sm:min-w-[200px] truncate sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)]" title={student['Name']}>
-                          {formatName(student['Name'])}
+                          {displayNames.get(student['Seat No']) || student['Name']}
                         </td>
                         
                         {effectiveSubject === ALL_SUBJECTS ? (
