@@ -46,10 +46,11 @@ export function getMarkColor(m: number) {
 interface Props {
   student: Record<string, any>;
   onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>) => void;
+  autoOpenReport?: boolean;
 }
 
-export const StudentResultCard = ({ student, onPrefill }: Props) => {
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }: Props) => {
+  const [isReportModalOpen, setIsReportModalOpen] = useState(autoOpenReport);
   const [reportMessage, setReportMessage] = useState('');
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const [reportSuccess, setReportSuccess] = useState(false);

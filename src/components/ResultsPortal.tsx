@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, ChevronDown, ChevronUp, FileText, Filter, AlertTriangle } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, FileText, Filter, AlertTriangle, Edit2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { StudentResultCard, getMarkColor } from './StudentResultCard';
@@ -40,6 +40,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   const [selectedSubject, setSelectedSubject] = useState(ALL_SUBJECTS);
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>({ key: 'Seat No', direction: 'asc' });
   const [isScrolled, setIsScrolled] = useState(false);
+  const [autoOpenReportFor, setAutoOpenReportFor] = useState<string | null>(null);
 
   const [showDisclaimer, setShowDisclaimer] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -330,10 +331,14 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
 
         {/* Results View */}
         {sortedAndFilteredData.length === 1 && searchQuery.trim() !== '' ? (
-          <StudentResultCard student={sortedAndFilteredData[0]} onPrefill={onPrefill} />
+          <StudentResultCard 
+            student={sortedAndFilteredData[0]} 
+            onPrefill={onPrefill} 
+            autoOpenReport={autoOpenReportFor === sortedAndFilteredData[0]['Seat No']}
+          />
         ) : (
           <div 
-            className="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-2xl border border-border bg-surface/40 shadow-inner relative overscroll-contain scroll-smooth snap-x snap-mandatory transition-all"
+            className="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-2xl border border-border bg-surface/40 shadow-inner relative overscroll-contain snap-x snap-mandatory"
             onScroll={(e) => setIsScrolled(e.currentTarget.scrollLeft > 5)}
           >
             <table className="w-full text-left border-collapse whitespace-nowrap">
@@ -423,8 +428,22 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                         <td className="p-2 sm:p-4 font-mono text-xs sm:text-sm text-textMuted font-bold min-w-[90px] sm:min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start">
                           {student['Seat No']}
                         </td>
-                        <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[140px] max-w-[140px] sm:max-w-[300px] sm:min-w-[200px] truncate sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start" title={student['Name']}>
-                          {isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}
+                        <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[140px] max-w-[140px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start">
+                          <div className="flex items-center justify-between gap-1 w-full h-full">
+                            <span className="truncate" title={student['Name']}>
+                              {isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}
+                            </span>
+                            <button 
+                              onClick={() => {
+                                setAutoOpenReportFor(student['Seat No']);
+                                setSearchQuery(student['Seat No']);
+                              }}
+                              className="text-textMuted/40 hover:text-red-500 transition-colors p-1"
+                              title="Report Issue"
+                            >
+                              <Edit2 size={12} />
+                            </button>
+                          </div>
                         </td>
                         
                         {effectiveSubject === ALL_SUBJECTS ? (

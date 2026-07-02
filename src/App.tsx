@@ -209,7 +209,16 @@ function App() {
 
   const handleLeaderboardSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!submitName.trim() || Number(cgpa) <= 0) return;
+    if (!submitName.trim() || Number(cgpa) <= 0) {
+      toast.error('Please enter a valid name and calculate your CGPA first.');
+      return;
+    }
+
+    if (!/^[a-zA-Z\s]+$/.test(submitName.trim())) {
+      toast.error('Name can only contain letters and spaces.');
+      return;
+    }
+
     
     setIsSubmitting(true);
     setSubmitError('');
@@ -257,10 +266,10 @@ function App() {
       </AnimatePresence>
 
       <Toaster 
-        position="bottom-center" 
+        position="top-center" 
         toastOptions={{ 
-          className: 'glass text-sm font-medium',
-          style: { background: 'rgba(20,20,20,0.8)', color: '#fff', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px' }
+          className: 'text-lg font-black shadow-2xl tracking-tight',
+          style: { background: '#09090b', color: '#fafafa', padding: '20px 30px', border: '2px solid #3f3f46', borderRadius: '24px', zIndex: 99999 }
         }} 
       />
 

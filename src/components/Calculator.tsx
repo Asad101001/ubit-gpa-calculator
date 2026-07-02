@@ -1,4 +1,5 @@
 import { motion, type Variants } from 'framer-motion';
+import { toast } from 'react-hot-toast';
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES } from '../lib/utils';
 
 const itemVariants: Variants = {
@@ -49,8 +50,12 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
                   return;
                 }
                 const val = parseInt(e.target.value);
-                if (!isNaN(val) && val >= 0 && val <= 100) {
-                  onChange(val);
+                if (!isNaN(val)) {
+                  if (val >= 0 && val <= 100) {
+                    onChange(val);
+                  } else {
+                    toast.error('Marks must be between 0 and 100', { id: 'marks-error' });
+                  }
                 }
               }}
               onWheel={(e) => e.currentTarget.blur()}
