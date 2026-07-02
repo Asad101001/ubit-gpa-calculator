@@ -363,7 +363,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                     </div>
                   </th>
                   <th 
-                    className="p-2 sm:p-4 font-bold text-textMuted text-[10px] sm:text-sm transition-colors min-w-[180px] max-w-[180px] sm:min-w-[200px] sm:max-w-none sticky top-0 left-0 z-30 bg-surfaceHighlight shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border"
+                    className="p-2 sm:p-4 font-bold text-textMuted text-[10px] sm:text-sm transition-colors min-w-[210px] max-w-[210px] sm:min-w-[200px] sm:max-w-none sticky top-0 left-0 z-30 bg-surfaceHighlight shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 w-full">
                       <div className="flex items-center gap-1 cursor-pointer hover:text-brand-500 transition-colors" onClick={() => handleSort('Name')}>
@@ -441,7 +441,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                         <td className="hidden sm:table-cell p-2 sm:p-4 font-mono text-xs sm:text-sm text-textMuted font-bold min-w-[90px] sm:min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start border-b border-border/50">
                           {student['Seat No']}
                         </td>
-                        <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[180px] max-w-[180px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border/50">
+                        <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[210px] max-w-[210px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border/50">
                           <div className="flex items-center justify-between gap-1 w-full h-full">
                             <div className="flex flex-col min-w-0 flex-1">
                               <span className="truncate leading-tight" title={student['Name']}>
