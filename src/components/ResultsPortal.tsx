@@ -346,7 +346,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                 <tr className="bg-surfaceHighlight shadow-sm">
                   <th className="hidden sm:table-cell p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] text-center bg-surfaceHighlight sticky top-0 z-20 snap-start border-b border-border">#</th>
                   <th 
-                    className="p-1 sm:p-4 font-bold text-textMuted text-[10px] sm:text-sm min-w-[75px] sm:min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors bg-surfaceHighlight sticky top-0 z-20 snap-start border-b border-border"
+                    className="hidden sm:table-cell p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[90px] sm:min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors bg-surfaceHighlight sticky top-0 z-20 snap-start border-b border-border"
                     onClick={() => handleSort('Seat No')}
                   >
                     <div className="flex items-center gap-1 sm:gap-2">
@@ -354,11 +354,15 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                     </div>
                   </th>
                   <th 
-                    className="p-1 sm:p-4 font-bold text-textMuted text-[10px] sm:text-sm cursor-pointer hover:bg-border/30 transition-colors min-w-[100px] max-w-[100px] sm:min-w-[200px] sm:max-w-none sticky top-0 left-0 z-30 bg-surfaceHighlight shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border"
-                    onClick={() => handleSort('Name')}
+                    className="p-2 sm:p-4 font-bold text-textMuted text-[10px] sm:text-sm transition-colors min-w-[140px] max-w-[140px] sm:min-w-[200px] sm:max-w-none sticky top-0 left-0 z-30 bg-surfaceHighlight shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border"
                   >
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      Name {sortConfig?.key === 'Name' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-brand-500" /> : <ChevronDown size={14} className="text-brand-500" />)}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 w-full">
+                      <div className="flex items-center gap-1 cursor-pointer hover:text-brand-500 transition-colors" onClick={() => handleSort('Name')}>
+                        Name {sortConfig?.key === 'Name' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-brand-500" /> : <ChevronDown size={14} className="text-brand-500" />)}
+                      </div>
+                      <div className="sm:hidden flex items-center gap-1 font-mono text-[9px] font-normal cursor-pointer hover:text-brand-500 transition-colors" onClick={() => handleSort('Seat No')}>
+                        Seat No {sortConfig?.key === 'Seat No' && (sortConfig.direction === 'asc' ? <ChevronUp size={12} className="text-brand-500" /> : <ChevronDown size={12} className="text-brand-500" />)}
+                      </div>
                     </div>
                   </th>
                   {effectiveSubject === ALL_SUBJECTS ? (
@@ -425,20 +429,25 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                         <td className="hidden sm:table-cell p-2 sm:p-4 text-center text-textMuted font-medium text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start border-b border-border/50">
                           {index + 1}
                         </td>
-                        <td className="p-1 sm:p-4 font-mono text-[10px] sm:text-sm text-textMuted font-bold min-w-[75px] sm:min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start border-b border-border/50">
+                        <td className="hidden sm:table-cell p-2 sm:p-4 font-mono text-xs sm:text-sm text-textMuted font-bold min-w-[90px] sm:min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start border-b border-border/50">
                           {student['Seat No']}
                         </td>
-                        <td className="p-1 sm:p-4 text-[10px] sm:text-xs text-textMain font-semibold min-w-[100px] max-w-[100px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border/50">
+                        <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[140px] max-w-[140px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border/50">
                           <div className="flex items-center justify-between gap-1 w-full h-full">
-                            <span className="truncate" title={student['Name']}>
-                              {isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}
-                            </span>
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="truncate leading-tight" title={student['Name']}>
+                                {isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}
+                              </span>
+                              <span className="sm:hidden font-mono text-[9px] text-textMuted mt-0.5 leading-tight">
+                                {student['Seat No']}
+                              </span>
+                            </div>
                             <button 
                               onClick={() => {
                                 setAutoOpenReportFor(student['Seat No']);
                                 setSearchQuery(student['Seat No']);
                               }}
-                              className="text-textMuted/40 hover:text-red-500 transition-colors p-1"
+                              className="shrink-0 text-textMuted/40 hover:text-red-500 transition-colors p-1.5 rounded-md hover:bg-surfaceHighlight"
                               title="Report Issue"
                             >
                               <Edit2 size={12} />
