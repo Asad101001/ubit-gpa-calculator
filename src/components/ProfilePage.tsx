@@ -40,6 +40,8 @@ export const ProfilePage = () => {
   const [adminUsers, setAdminUsers] = useState<Profile[]>([]);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [adminSelectedUser, setAdminSelectedUser] = useState<Profile | null>(null);
+  const [isLoadingAdmin, setIsLoadingAdmin] = useState(false);
+  const [adminSearchQuery, setAdminSearchQuery] = useState('');
 
   const isAdmin = profile?.is_admin ?? false;
   const isVerified = profile?.is_verified ?? false;
@@ -137,6 +139,29 @@ export const ProfilePage = () => {
     if (!error) { toast.success(`User ${!currentVal ? 'verified' : 'unverified'}.`); fetchAdminUsers(); }
     else toast.error('Failed to update.');
   };
+
+  const adminToggleRole = async (userId: string, currentVal: boolean) => {
+    const { error } = await supabase.from('profiles').update({ is_admin: !currentVal }).eq('id', userId);
+    if (!error) { toast.success(`User is ${!currentVal ? 'now an admin' : 'no longer an admin'}.`); fetchAdminUsers(); }
+    else toast.error('Failed to update role.');
+  };
+
+  const adminDeleteUser = async (userId: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete the profile for ${name}? This action cannot be undone.`)) return;
+    const { error } = await supabase.from('profiles').delete().eq('id', userId);
+    if (!error) { toast.success(`User ${name} deleted.`); fetchAdminUsers(); }
+    else toast.error('Failed to delete user.');
+  };
+
+  const filteredAdminUsers = useMemo(() => {
+    if (!adminSearchQuery.trim()) return adminUsers;
+    const q = adminSearchQuery.toLowerCase();
+    return adminUsers.filter(u => 
+      u.full_name.toLowerCase().includes(q) || 
+      u.email.toLowerCase().includes(q) || 
+      (u.seat_no && u.seat_no.toLowerCase().includes(q))
+    );
+  }, [adminUsers, adminSearchQuery]);
 
   const handleSignOut = async () => { await signOut(); window.location.hash = ''; };
 
@@ -309,16 +334,28 @@ export const ProfilePage = () => {
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                 className="border-t-2 border-black overflow-hidden">
                 <div className="p-6 sm:p-8">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm font-bold text-textMuted flex items-center gap-2"><Users size={14} /> Users ({adminUsers.length})</span>
-                    <button onClick={fetchAdminUsers} disabled={isLoadingAdmin} className="text-xs font-bold text-brand-500 hover:underline">
-                      {isLoadingAdmin ? 'Loading...' : 'Refresh'}
-                    </button>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                    <span className="text-sm font-bold text-textMuted flex items-center gap-2"><Users size={14} /> Users ({filteredAdminUsers.length})</span>
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-textMuted" />
+                        <input 
+                          type="text" 
+                          placeholder="Search users..." 
+                          value={adminSearchQuery}
+                          onChange={e => setAdminSearchQuery(e.target.value)}
+                          className="pl-8 pr-3 py-1.5 bg-surface text-xs text-textMain border border-border rounded-sm focus:outline-none focus:border-brand-500 w-full sm:w-48"
+                        />
+                      </div>
+                      <button onClick={fetchAdminUsers} disabled={isLoadingAdmin} className="text-xs font-bold text-brand-500 hover:underline shrink-0">
+                        {isLoadingAdmin ? 'Loading...' : 'Refresh'}
+                      </button>
+                    </div>
                   </div>
                   {isLoadingAdmin ? <div className="flex justify-center py-8"><Loader2 size={24} className="animate-spin text-textMuted" /></div>
-                  : adminUsers.length === 0 ? <p className="text-textMuted text-sm text-center py-8">No users yet.</p>
-                  : <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                      {adminUsers.map(u => (
+                  : filteredAdminUsers.length === 0 ? <p className="text-textMuted text-sm text-center py-8">No users found.</p>
+                  : <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                      {filteredAdminUsers.map(u => (
                         <div key={u.id} className="flex items-center justify-between p-3 bg-surfaceHighlight rounded-sm border border-border">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
@@ -339,6 +376,18 @@ export const ProfilePage = () => {
                               className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-sm border-2 transition-all ${u.is_verified ? 'bg-green-500/10 text-green-700 border-green-500/30' : 'bg-surfaceHighlight text-textMuted border-border'}`}>
                               <ShieldCheck size={12} /> {u.is_verified ? 'Verified' : 'Verify'}
                             </button>
+                            {u.id !== profile.id && (
+                              <button onClick={() => adminToggleRole(u.id, u.is_admin)}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-sm border-2 transition-all ${u.is_admin ? 'bg-yellow-500/10 text-yellow-700 border-yellow-500/30' : 'bg-surfaceHighlight text-textMuted border-border'}`} title="Toggle Admin Role">
+                                <Shield size={12} /> {u.is_admin ? 'Admin' : 'Make Admin'}
+                              </button>
+                            )}
+                            {u.id !== profile.id && (
+                              <button onClick={() => adminDeleteUser(u.id, u.full_name)}
+                                className="p-1.5 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-sm border border-red-500/30 transition-colors" title="Delete Profile">
+                                <Trash2 size={14} />
+                              </button>
+                            )}
                           </div>
                         </div>
                       ))}

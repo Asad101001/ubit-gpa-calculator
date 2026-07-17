@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, ChevronDown, ChevronUp, FileText, Filter, ArrowLeft } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, FileText, Filter, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { StudentResultCard, getMarkColor } from './StudentResultCard';
@@ -44,7 +44,6 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   const [selectedSubject, setSelectedSubject] = useState(ALL_SUBJECTS);
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>({ key: 'Seat No', direction: 'asc' });
   const [isScrolled, setIsScrolled] = useState(false);
-  const [autoOpenReportFor, setAutoOpenReportFor] = useState<string | null>(null);
 
   const [showDisclaimer, setShowDisclaimer] = useState(() => {
     if (typeof window !== 'undefined') {
