@@ -32,10 +32,9 @@ export default async function handler(req: Request) {
 
     const user = await userRes.json();
 
-    // Fetch profile to check verification
     const profileRes = await fetch(
       `${supabaseUrl}/rest/v1/profiles?id=eq.${user.id}&select=*`,
-      { headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` } }
+      { headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${token}` } }
     );
 
     if (!profileRes.ok) {
