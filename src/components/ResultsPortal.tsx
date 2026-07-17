@@ -377,7 +377,6 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
           <StudentResultCard 
             student={sortedAndFilteredData[0]} 
             onPrefill={onPrefill} 
-            autoOpenReport={autoOpenReportFor === sortedAndFilteredData[0]['Seat No']}
           />
         ) : (
           <div 

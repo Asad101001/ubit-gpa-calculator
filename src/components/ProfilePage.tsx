@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Shield, ShieldCheck, Eye, EyeOff, LogOut, Edit3, Check, X, Loader2, Users, ChevronDown, ArrowLeft, Search, Trash2 } from 'lucide-react';
+import { User, Shield, ShieldCheck, LogOut, Edit3, Check, X, Loader2, Users, ChevronDown, ArrowLeft, Search, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAuthStore, type Profile } from '../store/useAuthStore';
 import { supabase } from '../lib/supabase';
