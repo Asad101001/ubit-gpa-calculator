@@ -84,6 +84,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       if (profileError) {
         console.error('Profile creation error:', profileError);
+        return { error: 'Failed to link seat number. It might be invalid or already claimed.' };
       }
     }
 
