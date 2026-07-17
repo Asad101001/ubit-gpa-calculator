@@ -50,9 +50,9 @@ graph TD
     end
 
     subgraph Vercel [Serverless Backend]
-        API_Submit[/api/submit]
-        API_Leader[/api/leaderboard]
-        API_Update[/api/update-marks]
+        API_Submit["/api/submit"]
+        API_Leader["/api/leaderboard"]
+        API_Update["/api/update-marks"]
     end
 
     subgraph Supabase [Database & Auth]
