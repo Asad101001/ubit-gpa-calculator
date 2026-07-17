@@ -17,7 +17,7 @@ import { ProfilePage } from './components/ProfilePage';
 import { useAuthStore } from './store/useAuthStore';
 
 function App() {
-  const { user, profile, isLoading: isAuthLoading, initialize: initAuth } = useAuthStore();
+  const { user, profile, initialize: initAuth } = useAuthStore();
 
   const [appLoaded, setAppLoaded] = useState(() => {
     const lastSplash = localStorage.getItem('lastSplashTime');
