@@ -17,6 +17,10 @@ export const AuthModal = () => {
 
   const isSignUp = authModalMode === 'signup';
 
+  const showEmailHint = email.length > 0 && !email.includes('@');
+  const showPasswordHint = password.length > 0 && password.length < 6;
+  const showSeatNoHint = seatNo.length > 0 && !/^[a-zA-Z0-9-]{5,15}$/.test(seatNo) && seatNo.length > 3;
+
   const resetForm = () => {
     setEmail('');
     setPassword('');
@@ -47,7 +51,11 @@ export const AuthModal = () => {
 
     try {
       if (isSignUp) {
-        if (!fullName.trim()) {
+        const cleanEmail = email.trim();
+        const cleanFullName = fullName.trim();
+        const cleanSeatNo = seatNo.trim().toUpperCase();
+
+        if (!cleanFullName) {
           setError('Please enter your full name.');
           setIsSubmitting(false);
           return;
@@ -58,7 +66,7 @@ export const AuthModal = () => {
           return;
         }
 
-        const result = await signUp(email, password, fullName.trim(), seatNo.trim());
+        const result = await signUp(cleanEmail, password, cleanFullName, cleanSeatNo);
         if (result.error) {
           setError(result.error);
         } else {
@@ -69,7 +77,8 @@ export const AuthModal = () => {
           }, 3000);
         }
       } else {
-        const result = await signIn(email, password);
+        const cleanEmail = email.trim();
+        const result = await signIn(cleanEmail, password);
         if (result.error) {
           setError(result.error);
         } else {
@@ -156,17 +165,20 @@ export const AuthModal = () => {
                       </div>
                     </div>
                     <div className="text-left">
-                      <label className="block text-textMuted text-[10px] font-bold mb-1.5 uppercase tracking-wider">
-                        Seat Number <span className="text-textMuted/40">(Optional)</span>
-                      </label>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <label className="block text-textMuted text-[10px] font-bold uppercase tracking-wider">
+                          Seat Number <span className="text-textMuted/40">(Optional)</span>
+                        </label>
+                        {showSeatNoHint && <span className="text-[10px] text-red-500 font-bold">Invalid format</span>}
+                      </div>
                       <div className="relative">
                         <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-textMuted/50 w-4 h-4" />
                         <input
                           type="text"
                           value={seatNo}
-                          onChange={(e) => setSeatNo(e.target.value)}
+                          onChange={(e) => setSeatNo(e.target.value.trim())}
                           placeholder="e.g. EB24110001"
-                          className="w-full glass-input text-textMain py-3 pl-10 pr-4 text-sm font-bold font-mono placeholder:text-textMuted/40 uppercase"
+                          className={`w-full glass-input text-textMain py-3 pl-10 pr-4 text-sm font-bold font-mono placeholder:text-textMuted/40 uppercase ${showSeatNoHint ? 'border-red-500 focus:ring-red-500/20' : ''}`}
                         />
                       </div>
                       <p className="text-[10px] text-textMuted/50 mt-1 pl-1">Links your account to your results</p>
@@ -175,22 +187,28 @@ export const AuthModal = () => {
                 )}
 
                 <div className="text-left">
-                  <label className="block text-textMuted text-[10px] font-bold mb-1.5 uppercase tracking-wider">Email Address</label>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className="block text-textMuted text-[10px] font-bold uppercase tracking-wider">Email Address</label>
+                    {showEmailHint && <span className="text-[10px] text-red-500 font-bold">Invalid email</span>}
+                  </div>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-textMuted/50 w-4 h-4" />
                     <input
                       type="email"
                       required
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => setEmail(e.target.value.trim())}
                       placeholder="you@example.com"
-                      className="w-full glass-input text-textMain py-3 pl-10 pr-4 text-sm font-bold placeholder:text-textMuted/40"
+                      className={`w-full glass-input text-textMain py-3 pl-10 pr-4 text-sm font-bold placeholder:text-textMuted/40 ${showEmailHint ? 'border-red-500 focus:ring-red-500/20' : ''}`}
                     />
                   </div>
                 </div>
 
                 <div className="text-left">
-                  <label className="block text-textMuted text-[10px] font-bold mb-1.5 uppercase tracking-wider">Password</label>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className="block text-textMuted text-[10px] font-bold uppercase tracking-wider">Password</label>
+                    {showPasswordHint && <span className="text-[10px] text-red-500 font-bold">Min 6 characters</span>}
+                  </div>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-textMuted/50 w-4 h-4" />
                     <input
@@ -200,7 +218,7 @@ export const AuthModal = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full glass-input text-textMain py-3 pl-10 pr-11 text-sm font-bold placeholder:text-textMuted/40"
+                      className={`w-full glass-input text-textMain py-3 pl-10 pr-11 text-sm font-bold placeholder:text-textMuted/40 ${showPasswordHint ? 'border-red-500 focus:ring-red-500/20' : ''}`}
                     />
                     <button
                       type="button"

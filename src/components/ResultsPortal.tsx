@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, ChevronDown, ChevronUp, FileText, Filter, AlertTriangle, Edit2 } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, FileText, Filter, ArrowLeft } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { StudentResultCard, getMarkColor } from './StudentResultCard';
@@ -299,6 +299,13 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
 
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
         <div>
+          <button 
+            onClick={() => window.location.hash = ''} 
+            className="flex items-center gap-2 mb-4 p-2 sm:px-3 text-textMuted hover:text-textMain bg-surface/50 hover:bg-surfaceHighlight rounded-xl border border-border/50 transition-colors self-start w-fit"
+          >
+            <ArrowLeft size={16} />
+            <span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">Back to Calculator</span>
+          </button>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500 tracking-tight flex items-center gap-3 mb-2 pb-1">
             <div className="bg-gradient-to-br from-brand-500/20 to-accent-500/20 p-2 rounded-xl border border-brand-500/30 shadow-[0_0_15px_rgba(var(--color-brand-500),0.1)]">
               <FileText className="text-brand-500 w-6 h-6 sm:w-8 sm:h-8" />
@@ -479,16 +486,6 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                                 {student['Seat No']}
                               </span>
                             </div>
-                            <button 
-                              onClick={() => {
-                                setAutoOpenReportFor(student['Seat No']);
-                                setSearchQuery(student['Seat No']);
-                              }}
-                              className="shrink-0 text-textMuted/40 hover:text-red-500 transition-colors p-1.5 rounded-md hover:bg-surfaceHighlight"
-                              title="Report Issue"
-                            >
-                              <Edit2 size={12} />
-                            </button>
                           </div>
                         </td>
                         

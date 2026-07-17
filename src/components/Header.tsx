@@ -32,12 +32,17 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
       className="sticky top-0 z-50 w-full glass border-b border-border py-2 sm:py-3"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <div className="flex items-center gap-2 sm:gap-3 cursor-pointer" onClick={() => navigateTo('main')}>
-          <div className="bg-gradient-to-br from-brand-500/20 to-accent-500/20 p-1 sm:p-2 rounded-lg sm:rounded-xl border border-brand-500/30 shadow-[0_0_15px_rgba(var(--color-brand-500),0.1)] transition-all hover:scale-105">
-            <GraduationCap className="text-brand-500 w-5 h-5 sm:w-[18px] sm:h-[18px]" />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 cursor-pointer" onClick={() => navigateTo('main')}>
+            <div className="bg-gradient-to-br from-brand-500/20 to-accent-500/20 p-1 sm:p-2 rounded-lg sm:rounded-xl border border-brand-500/30 shadow-[0_0_15px_rgba(var(--color-brand-500),0.1)] transition-all hover:scale-105">
+              <GraduationCap className="text-brand-500 w-5 h-5 sm:w-[18px] sm:h-[18px]" />
+            </div>
+            <div className="font-bold text-sm sm:text-lg tracking-tight text-textMain hidden sm:block">
+              DCS <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500">UBIT</span>
+            </div>
           </div>
-          <div className="font-bold text-sm sm:text-lg tracking-tight text-textMain hidden sm:block">
-            DCS <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500">UBIT</span>
+          <div className="px-2.5 py-1 rounded-full bg-surface/90 text-textMain border border-border text-[10px] sm:text-xs font-bold tracking-wider hidden md:block shadow-sm">
+            BATCH '28
           </div>
         </div>
         <div className="flex items-center gap-3 sm:gap-4">
@@ -48,52 +53,48 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
             <button onClick={() => navigateTo('results')} className={`${currentView === 'results' ? 'text-brand-500 font-bold bg-brand-500/10 shadow-sm' : 'text-textMuted hover:text-brand-500 hover:bg-brand-500/10'} px-3 py-1.5 rounded-lg transition-all`}>Results</button>
           </nav>
 
-          <div className="px-2 sm:px-3 py-1 rounded-full bg-surface/90 text-textMain border border-border text-[9px] sm:text-xs font-bold tracking-wider hidden sm:block">
-            BATCH '28
-          </div>
-
           {/* Auth Controls */}
           {user && profile ? (
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-black text-white rounded-sm font-bold text-[11px] sm:text-xs border-2 border-black transition-all hover:bg-zinc-800 uppercase tracking-wider"
-                style={{ boxShadow: '2px 2px 0px 0px rgb(230, 180, 0)' }}
+                className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 bg-surfaceHighlight hover:bg-surfaceHighlight/80 text-textMain rounded-full font-bold text-xs border border-border transition-all shadow-sm group"
               >
-                <div className="w-5 h-5 bg-white text-black rounded-sm flex items-center justify-center text-[10px] font-black">
+                <div className="w-6 h-6 bg-brand-500/20 text-brand-500 rounded-full flex items-center justify-center text-[11px] font-black group-hover:scale-105 transition-transform">
                   {profile.full_name.charAt(0)}
                 </div>
-                <span className="hidden sm:inline max-w-[80px] truncate">{profile.full_name.split(' ')[0]}</span>
-                {profile.is_admin && <Shield size={10} className="text-yellow-400" />}
-                <ChevronDown size={12} className={`transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <span className="hidden sm:inline max-w-[100px] truncate">{profile.full_name.split(' ')[0]}</span>
+                {profile.is_admin && <Shield size={12} className="text-yellow-500" />}
+                <ChevronDown size={14} className={`transition-transform text-textMuted ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
               <AnimatePresence>
                 {isDropdownOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: -5, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -5, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-2 w-48 bg-surface border-2 border-black rounded-sm overflow-hidden z-50"
-                    style={{ boxShadow: '4px 4px 0px 0px #000000' }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="absolute right-0 mt-3 w-56 bg-surface/95 backdrop-blur-xl border border-border rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden z-50"
                   >
-                    <div className="px-3 py-2 border-b border-border">
-                      <p className="text-xs font-bold text-textMain truncate">{profile.full_name}</p>
-                      <p className="text-[10px] text-textMuted font-mono truncate">{profile.email}</p>
+                    <div className="px-4 py-3 border-b border-border/50 bg-surfaceHighlight/30">
+                      <p className="text-sm font-bold text-textMain truncate">{profile.full_name}</p>
+                      <p className="text-[11px] text-textMuted font-medium truncate mt-0.5">{profile.email}</p>
                     </div>
-                    <button
-                      onClick={() => { setIsDropdownOpen(false); navigateTo('profile'); }}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-bold text-textMain hover:bg-surfaceHighlight transition-colors text-left uppercase tracking-wider"
-                    >
-                      <User size={14} /> My Profile
-                    </button>
-                    <button
-                      onClick={handleSignOut}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-bold text-red-600 hover:bg-red-500/10 transition-colors text-left uppercase tracking-wider border-t border-border"
-                    >
-                      <LogOut size={14} /> Sign Out
-                    </button>
+                    <div className="p-1.5">
+                      <button
+                        onClick={() => { setIsDropdownOpen(false); navigateTo('profile'); }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-textMain hover:bg-brand-500/10 hover:text-brand-500 rounded-xl transition-colors text-left"
+                      >
+                        <User size={16} /> My Profile
+                      </button>
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-red-500 hover:bg-red-500/10 rounded-xl transition-colors text-left mt-1"
+                      >
+                        <LogOut size={16} /> Sign Out
+                      </button>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -101,8 +102,7 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
           ) : (
             <button
               onClick={() => openAuthModal('signin')}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-black text-white rounded-sm font-bold text-[11px] sm:text-xs border-2 border-black transition-all hover:bg-zinc-800 uppercase tracking-wider"
-              style={{ boxShadow: '2px 2px 0px 0px rgb(230, 180, 0)' }}
+              className="flex items-center gap-2 px-4 py-2 bg-textMain text-background rounded-full font-bold text-xs transition-all hover:bg-textMain/90 hover:scale-105 shadow-md shadow-brand-500/10"
             >
               <LogIn size={14} />
               <span className="hidden sm:inline">Sign In</span>
