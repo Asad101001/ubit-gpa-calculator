@@ -174,10 +174,10 @@ export const ProfilePage = () => {
     <section className="pt-4 sm:pt-8 pb-12 animate-in fade-in duration-500 space-y-6">
       <button 
         onClick={() => window.location.hash = ''} 
-        className="flex items-center gap-2 mb-2 p-2 sm:px-3 text-textMuted hover:text-textMain bg-surface/50 hover:bg-surfaceHighlight rounded-xl border border-border/50 transition-colors w-fit"
+        className="group flex items-center gap-2 mb-2 px-4 py-2 bg-black text-white hover:bg-brand-500 rounded-sm font-black uppercase tracking-wider text-xs transition-colors border-2 border-black w-fit shadow-[3px_3px_0px_0px_rgba(230,180,0,1)]"
       >
-        <ArrowLeft size={16} />
-        <span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">Back to Calculator</span>
+        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+        Back to Calculator
       </button>
 
       {/* Profile Header */}

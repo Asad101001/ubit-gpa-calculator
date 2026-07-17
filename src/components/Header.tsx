@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GraduationCap, LogIn, User, LogOut, Shield, ChevronDown } from 'lucide-react';
+import { GraduationCap, LogIn, User, LogOut, Shield, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 
 export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }: { currentView: 'main' | 'results' | 'profile', navigateTo: (v: 'main' | 'results' | 'profile') => void, activeSection?: string }) => {
@@ -58,9 +58,9 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 bg-surfaceHighlight hover:bg-surfaceHighlight/80 text-textMain rounded-full font-bold text-xs border border-border transition-all shadow-sm group"
+                className="flex items-center gap-2.5 pl-1.5 pr-3.5 py-1.5 bg-gradient-to-r from-surfaceHighlight/80 to-surface/80 hover:from-surfaceHighlight hover:to-surfaceHighlight text-textMain rounded-full font-bold text-xs border-[1.5px] border-border/80 hover:border-brand-500/30 transition-all shadow-[0_2px_10px_rgba(0,0,0,0.1)] group"
               >
-                <div className="w-6 h-6 bg-brand-500/20 text-brand-500 rounded-full flex items-center justify-center text-[11px] font-black group-hover:scale-105 transition-transform">
+                <div className="w-7 h-7 bg-black text-brand-500 rounded-full flex items-center justify-center text-[11px] font-black group-hover:scale-105 transition-transform border border-brand-500/20">
                   {profile.full_name.charAt(0)}
                 </div>
                 <span className="hidden sm:inline max-w-[100px] truncate">{profile.full_name.split(' ')[0]}</span>
@@ -77,13 +77,26 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
                     transition={{ duration: 0.2, ease: "easeOut" }}
                     className="absolute right-0 mt-3 w-56 bg-surface/95 backdrop-blur-xl border border-border rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden z-50"
                   >
-                    <div className="px-4 py-3 border-b border-border/50 bg-surfaceHighlight/30">
-                      <p className="text-sm font-bold text-textMain truncate">{profile.full_name}</p>
-                      <p className="text-[11px] text-textMuted font-medium truncate mt-0.5">{profile.email}</p>
+                    <div className="px-4 py-3 border-b border-border/50 bg-surfaceHighlight/30 flex flex-col items-start">
+                      <p className="text-sm font-bold text-textMain truncate w-full">{profile.full_name}</p>
+                      <p className="text-[11px] text-textMuted font-medium truncate mt-0.5 mb-2 w-full">{profile.email}</p>
+                      {profile.is_admin ? (
+                        <span className="inline-flex items-center gap-1 text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-2 py-0.5 rounded-sm font-bold uppercase tracking-wider shadow-sm">
+                          <Shield size={10} /> Admin
+                        </span>
+                      ) : profile.is_verified ? (
+                        <span className="inline-flex items-center gap-1 text-[9px] bg-green-500/10 text-green-500 border border-green-500/30 px-2 py-0.5 rounded-sm font-bold uppercase tracking-wider shadow-sm">
+                          <ShieldCheck size={10} /> Verified User
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[9px] bg-surfaceHighlight text-textMuted border border-border px-2 py-0.5 rounded-sm font-bold uppercase tracking-wider shadow-sm">
+                          Unverified
+                        </span>
+                      )}
                     </div>
                     <div className="p-1.5">
                       <button
-                        onClick={() => { setIsDropdownOpen(false); navigateTo('profile'); }}
+                        onClick={() => { setIsDropdownOpen(false); navigateTo('profile'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                         className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-textMain hover:bg-brand-500/10 hover:text-brand-500 rounded-xl transition-colors text-left"
                       >
                         <User size={16} /> My Profile

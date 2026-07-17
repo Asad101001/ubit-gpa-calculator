@@ -300,10 +300,10 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
         <div>
           <button 
             onClick={() => window.location.hash = ''} 
-            className="flex items-center gap-2 mb-4 p-2 sm:px-3 text-textMuted hover:text-textMain bg-surface/50 hover:bg-surfaceHighlight rounded-xl border border-border/50 transition-colors self-start w-fit"
+            className="group flex items-center gap-2 mb-6 px-4 py-2 bg-black text-white hover:bg-brand-500 rounded-sm font-black uppercase tracking-wider text-xs transition-colors border-2 border-black w-fit shadow-[3px_3px_0px_0px_rgba(230,180,0,1)]"
           >
-            <ArrowLeft size={16} />
-            <span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">Back to Calculator</span>
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+            Back to Calculator
           </button>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500 tracking-tight flex items-center gap-3 mb-2 pb-1">
             <div className="bg-gradient-to-br from-brand-500/20 to-accent-500/20 p-2 rounded-xl border border-brand-500/30 shadow-[0_0_15px_rgba(var(--color-brand-500),0.1)]">
