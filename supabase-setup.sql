@@ -58,6 +58,15 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'student_results' AND policyname = 'Auth can read student_results') THEN
       EXECUTE 'CREATE POLICY "Auth can read student_results" ON student_results FOR SELECT TO authenticated USING (true)';
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'student_results' AND policyname = 'Auth can update own results') THEN
+      EXECUTE 'CREATE POLICY "Auth can update own results" ON student_results FOR UPDATE TO authenticated USING (
+        EXISTS (
+          SELECT 1 FROM profiles 
+          WHERE profiles.id = auth.uid() 
+          AND (profiles.is_admin = true OR (profiles.is_verified = true AND profiles.seat_no = student_results.seat_no))
+        )
+      )';
+    END IF;
   END IF;
 END $$;
 

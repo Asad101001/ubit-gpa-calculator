@@ -90,7 +90,7 @@ export default async function handler(req: Request) {
         method: 'PATCH',
         headers: {
           'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
           'Prefer': 'return=minimal',
         },
