@@ -11,8 +11,14 @@ import { Leaderboard, SubmitModal } from './components/Leaderboard';
 import { BoycottModal } from './components/BoycottModal';
 import { SplashScreen } from './components/SplashScreen';
 import { ResultsPortal } from './components/ResultsPortal';
+import { AuthModal } from './components/AuthModal';
+import { AuthGate } from './components/AuthGate';
+import { ProfilePage } from './components/ProfilePage';
+import { useAuthStore } from './store/useAuthStore';
 
 function App() {
+  const { user, profile, isLoading: isAuthLoading, initialize: initAuth } = useAuthStore();
+
   const [appLoaded, setAppLoaded] = useState(() => {
     const lastSplash = localStorage.getItem('lastSplashTime');
     const now = Date.now();
@@ -22,13 +28,24 @@ function App() {
     return false;
   });
   
-  const [currentView, setCurrentView] = useState<'main' | 'results'>(() => {
-    return window.location.hash === '#results' ? 'results' : 'main';
+  const [currentView, setCurrentView] = useState<'main' | 'results' | 'profile'>(() => {
+    const hash = window.location.hash;
+    if (hash === '#results') return 'results';
+    if (hash === '#profile') return 'profile';
+    return 'main';
   });
+
+  // Initialize auth on mount
+  useEffect(() => {
+    initAuth();
+  }, []);
 
   useEffect(() => {
     const handleHashChange = () => {
-      setCurrentView(window.location.hash === '#results' ? 'results' : 'main');
+      const hash = window.location.hash;
+      if (hash === '#results') setCurrentView('results');
+      else if (hash === '#profile') setCurrentView('profile');
+      else setCurrentView('main');
     };
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
@@ -58,8 +75,10 @@ function App() {
     return () => observer.disconnect();
   }, [currentView, activeSection]);
 
-  const navigateTo = (view: 'main' | 'results') => {
-    window.location.hash = view === 'results' ? 'results' : '';
+  const navigateTo = (view: 'main' | 'results' | 'profile') => {
+    if (view === 'results') window.location.hash = 'results';
+    else if (view === 'profile') window.location.hash = 'profile';
+    else window.location.hash = '';
   };
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
@@ -273,6 +292,9 @@ function App() {
         }} 
       />
 
+      {/* Auth Modal */}
+      <AuthModal />
+
       <div className={`min-h-screen relative selection:bg-brand-500/30 font-sans ${!appLoaded ? 'hidden' : ''}`}>
         <Header currentView={currentView} navigateTo={navigateTo} activeSection={activeSection} />
         <BoycottModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
@@ -326,7 +348,13 @@ function App() {
           </section>
 
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-16">
-            {currentView === 'main' ? (
+            {currentView === 'profile' ? (
+              user && profile ? (
+                <ProfilePage />
+              ) : (
+                <AuthGate />
+              )
+            ) : currentView === 'main' ? (
               <>
                 <section className="space-y-4 sm:space-y-8">
                   <div className="flex justify-end">
@@ -382,14 +410,19 @@ function App() {
                 />
               </>
             ) : (
-              <ResultsPortal 
-                onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>) => {
-                  setSem1Grades(s1);
-                  setSem2Grades(s2);
-                  navigateTo('main');
-                  setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100);
-                }}
-              />
+              /* Results View — gated behind auth */
+              user ? (
+                <ResultsPortal 
+                  onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>) => {
+                    setSem1Grades(s1);
+                    setSem2Grades(s2);
+                    navigateTo('main');
+                    setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                  }}
+                />
+              ) : (
+                <AuthGate />
+              )
             )}
           </div>
         </main>

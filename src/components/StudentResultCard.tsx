@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import { getGradePoint } from '../lib/utils';
 import { generateTranscriptImage } from '../lib/transcriptGenerator';
 import { SEM1_COURSES, SEM2_COURSES } from '../lib/utils';
+import { TentativeCGPA } from './TentativeCGPA';
 
 const SUBJECTS_META = [
   { id: 'cs351', code: 'CS-351', name: 'Programming Fundamentals', credits: 4, sem: 1 },
@@ -115,6 +116,11 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
   const allQP = s1Stats.qp + s2Stats.qp;
   const allCr = s1Stats.cr + s2Stats.cr;
   const cgpa = allCr > 0 && !hasMissing ? (allQP / allCr).toFixed(3) : '—';
+  const tentativeCgpa = allCr > 0 ? (allQP / allCr).toFixed(3) : '0.000';
+  const missingCount = SUBJECTS_META.filter(s => {
+    const raw = student[s.id];
+    return raw === undefined || raw === null || isNaN(Number(raw));
+  }).length;
 
   const handlePrefill = () => {
     if (!onPrefill) return;
@@ -191,14 +197,16 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
           </div>
           <div className="flex items-center gap-2">
             {/* CGPA Badge */}
-            <div className={`flex flex-col items-center px-5 py-3 border-2 rounded-xl ${hasMissing ? 'bg-surfaceHighlight border-border' : 'bg-brand-500/10 border-brand-500'}`}>
-              <span className="text-[10px] font-bold text-textMuted uppercase tracking-wider">CGPA</span>
-              {hasMissing ? (
-                <span className="text-xl font-bold text-textMuted mt-1">Incomplete</span>
-              ) : (
+            {hasMissing ? (
+              <div className="flex flex-col items-center px-5 py-3 border-2 rounded-xl bg-surfaceHighlight border-border">
+                <TentativeCGPA cgpa={tentativeCgpa} missingCount={missingCount} size="lg" />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center px-5 py-3 border-2 rounded-xl bg-brand-500/10 border-brand-500">
+                <span className="text-[10px] font-bold text-textMuted uppercase tracking-wider">CGPA</span>
                 <span className="text-3xl font-black text-brand-500">{cgpa}</span>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
 

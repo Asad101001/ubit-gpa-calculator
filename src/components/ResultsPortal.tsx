@@ -3,6 +3,8 @@ import { Search, ChevronDown, ChevronUp, FileText, Filter, AlertTriangle, Edit2 
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { StudentResultCard, getMarkColor } from './StudentResultCard';
+import { useAuthStore } from '../store/useAuthStore';
+import { supabase } from '../lib/supabase';
 
 // Format name helper removed in favor of smart truncation logic in component
 
@@ -32,8 +34,10 @@ interface ResultsPortalProps {
 }
 
 export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
+  const { profile } = useAuthStore();
   const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hiddenSeatNos, setHiddenSeatNos] = useState<Set<string>>(new Set());
   const [error, setError] = useState('');
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,6 +65,19 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   useEffect(() => {
     const fetchResults = async () => {
       try {
+        // Fetch hidden profiles (opted out of public visibility)
+        try {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('seat_no, show_results_publicly')
+            .eq('show_results_publicly', false);
+          if (profiles) {
+            const hidden = new Set<string>();
+            profiles.forEach((p: any) => { if (p.seat_no) hidden.add(p.seat_no); });
+            setHiddenSeatNos(hidden);
+          }
+        } catch { /* profiles table may not exist yet */ }
+
         const res = await fetch('/api/results');
         if (res.ok) {
           const json = await res.json();
@@ -110,6 +127,17 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
 
   const sortedAndFilteredData = useMemo(() => {
     let filtered = [...data];
+
+    // Filter out students who opted out of public visibility
+    // (unless the viewer is that student or is admin)
+    const isAdmin = profile?.is_admin ?? false;
+    const mySeatNo = profile?.seat_no ?? '';
+    filtered = filtered.filter(item => {
+      const seatNo = item['Seat No'];
+      if (isAdmin) return true;
+      if (seatNo === mySeatNo) return true;
+      return !hiddenSeatNos.has(seatNo);
+    });
 
     // Filter by Search Query
     if (searchQuery.trim() !== '') {
@@ -162,7 +190,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
     }
 
     return filtered;
-  }, [data, searchQuery, sortConfig]);
+  }, [data, searchQuery, sortConfig, hiddenSeatNos, profile]);
 
   const displayNames = useMemo(() => {
     const formattedMap = new Map<string, string>();
