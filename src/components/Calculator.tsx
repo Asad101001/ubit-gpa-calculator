@@ -1,6 +1,6 @@
 import { motion, type Variants } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import { getGradePoint, SEM1_COURSES, SEM2_COURSES } from '../lib/utils';
+import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 10 },
@@ -96,7 +96,8 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
 
 export const Calculator = ({ 
   sem1Grades, setSem1Grades, 
-  sem2Grades, setSem2Grades 
+  sem2Grades, setSem2Grades,
+  sem3Grades, setSem3Grades,
 }: any) => {
   return (
     <motion.div 
@@ -109,6 +110,7 @@ export const Calculator = ({
         show: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } }
       }}
     >
+      {/* Semester 1 */}
       <motion.div 
         variants={itemVariants}
         className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden"
@@ -134,6 +136,7 @@ export const Calculator = ({
         </div>
       </motion.div>
 
+      {/* Semester 2 */}
       <motion.div 
         variants={itemVariants}
         className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden"
@@ -156,6 +159,85 @@ export const Calculator = ({
               onChange={(val: number | '') => setSem2Grades((prev: any) => ({ ...prev, [course.code]: val }))}
             />
           ))}
+        </div>
+      </motion.div>
+
+      {/* Semester 3 — full-width */}
+      <motion.div 
+        variants={itemVariants}
+        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden xl:col-span-2"
+      >
+        <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-accent-500/20 to-accent-500/5 border border-accent-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-accent-500 shadow-[0_0_20px_rgba(var(--color-accent-500),0.15)]">
+              03
+            </div>
+            <div>
+              <h2 className="text-lg sm:text-2xl font-bold text-textMain tracking-tight">Semester Three</h2>
+              <p className="text-[10px] sm:text-sm font-medium text-textMuted uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-6 relative z-10">
+          {SEM3_COURSES.map((course) => (
+            <CourseSelect 
+              key={course.code} course={course} value={sem3Grades[course.code]}
+              onChange={(val: number | '') => setSem3Grades((prev: any) => ({ ...prev, [course.code]: val }))}
+            />
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Semester 4 — Coming Soon (yellow caution tape) */}
+      <motion.div 
+        variants={itemVariants}
+        className="xl:col-span-2 w-full bg-surface/70 backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] relative overflow-hidden border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] group"
+      >
+        {/* Diagonal stripe background */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[2rem] sm:rounded-[2.5rem]">
+          <div 
+            className="absolute inset-0 opacity-[0.06] group-hover:opacity-[0.10] transition-opacity duration-500"
+            style={{
+              backgroundImage: `repeating-linear-gradient(-45deg, #f5c518 0px, #f5c518 24px, transparent 24px, transparent 48px)`
+            }}
+          />
+        </div>
+
+        {/* Top caution tape strip */}
+        <div className="absolute top-0 left-0 right-0 h-6 sm:h-8 z-10 overflow-hidden opacity-75">
+          <div 
+            className="w-full h-full"
+            style={{
+              backgroundImage: `repeating-linear-gradient(-45deg, #f5c518 0px, #f5c518 14px, #111 14px, #111 28px)`
+            }}
+          />
+        </div>
+        {/* Bottom caution tape strip */}
+        <div className="absolute bottom-0 left-0 right-0 h-6 sm:h-8 z-10 overflow-hidden opacity-75">
+          <div 
+            className="w-full h-full"
+            style={{
+              backgroundImage: `repeating-linear-gradient(-45deg, #f5c518 0px, #f5c518 14px, #111 14px, #111 28px)`
+            }}
+          />
+        </div>
+
+        <div className="relative z-10 flex items-center justify-between px-5 sm:px-8 py-6 sm:py-7 my-2">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/30 flex items-center justify-center text-sm sm:text-lg font-bold text-yellow-500 shadow-[0_0_20px_rgba(245,197,24,0.15)]">
+              04
+            </div>
+            <div>
+              <h2 className="text-lg sm:text-2xl font-bold text-textMain tracking-tight">Semester Four</h2>
+              <p className="text-[9px] sm:text-sm font-medium text-yellow-500/80 uppercase tracking-widest mt-0.5 sm:mt-1 flex items-center gap-1.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+                Coming Soon — Not Yet Available
+              </p>
+            </div>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-yellow-500/10 text-yellow-500 font-bold rounded-xl text-sm border border-yellow-500/20">
+            🚧 Under Construction
+          </div>
         </div>
       </motion.div>
     </motion.div>

@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-import { GraduationCap, Sparkles, AlertTriangle, RotateCcw } from 'lucide-react';
-import { getGradePoint, SEM1_COURSES, SEM2_COURSES } from './lib/utils';
+import { GraduationCap, Sparkles, RotateCcw } from 'lucide-react';
+import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from './lib/utils';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { Calculator } from './components/Calculator';
@@ -106,6 +106,10 @@ function App() {
     const saved = localStorage.getItem('sem2Grades');
     return saved ? JSON.parse(saved) : SEM2_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {});
   });
+  const [sem3Grades, setSem3Grades] = useState<Record<string, number | ''>>(() => {
+    const saved = localStorage.getItem('sem3Grades');
+    return saved ? JSON.parse(saved) : SEM3_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {});
+  });
 
   // Sync to LocalStorage
   useEffect(() => {
@@ -116,9 +120,14 @@ function App() {
     localStorage.setItem('sem2Grades', JSON.stringify(sem2Grades));
   }, [sem2Grades]);
 
+  useEffect(() => {
+    localStorage.setItem('sem3Grades', JSON.stringify(sem3Grades));
+  }, [sem3Grades]);
+
   const clearGrades = () => {
     setSem1Grades(SEM1_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
     setSem2Grades(SEM2_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
+    setSem3Grades(SEM3_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
     toast.success('Results cleared successfully!', { icon: '✨' });
   };
 
@@ -163,16 +172,18 @@ function App() {
     return { gpa: totalCredits > 0 ? totalQP / totalCredits : 0, totalQP, totalCredits, highest, lowest };
   };
 
-  const { gpa1, gpa2, cgpa, bestCourse, worstCourse, radarData } = useMemo(() => {
+  const { gpa1, gpa2, gpa3, cgpa, bestCourse, worstCourse, radarData } = useMemo(() => {
     const s1Calc = calculateGPA(SEM1_COURSES, sem1Grades);
     const s2Calc = calculateGPA(SEM2_COURSES, sem2Grades);
+    const s3Calc = calculateGPA(SEM3_COURSES, sem3Grades);
     
-    const validCredits = s1Calc.totalCredits + s2Calc.totalCredits;
-    const cgpaCalc = validCredits > 0 ? (s1Calc.totalQP + s2Calc.totalQP) / validCredits : 0;
+    const validCredits = s1Calc.totalCredits + s2Calc.totalCredits + s3Calc.totalCredits;
+    const cgpaCalc = validCredits > 0 ? (s1Calc.totalQP + s2Calc.totalQP + s3Calc.totalQP) / validCredits : 0;
     
     let allCourses = [
       ...SEM1_COURSES.filter(c => sem1Grades[c.code] !== '').map(c => ({ name: c.name, type: c.type, gp: getGradePoint(sem1Grades[c.code] as number) })),
-      ...SEM2_COURSES.filter(c => sem2Grades[c.code] !== '').map(c => ({ name: c.name, type: c.type, gp: getGradePoint(sem2Grades[c.code] as number) }))
+      ...SEM2_COURSES.filter(c => sem2Grades[c.code] !== '').map(c => ({ name: c.name, type: c.type, gp: getGradePoint(sem2Grades[c.code] as number) })),
+      ...SEM3_COURSES.filter(c => sem3Grades[c.code] !== '').map(c => ({ name: c.name, type: c.type, gp: getGradePoint(sem3Grades[c.code] as number) }))
     ];
 
     allCourses.sort((a, b) => b.gp - a.gp);
@@ -201,12 +212,13 @@ function App() {
     return {
       gpa1: s1Calc.gpa.toFixed(2),
       gpa2: s2Calc.gpa.toFixed(2),
+      gpa3: s3Calc.gpa.toFixed(2),
       cgpa: cgpaCalc.toFixed(3),
       bestCourse: best,
       worstCourse: worst,
       radarData: rData
     };
-  }, [sem1Grades, sem2Grades]);
+  }, [sem1Grades, sem2Grades, sem3Grades]);
 
   const chartData = useMemo(() => {
     return [
@@ -221,9 +233,15 @@ function App() {
         fullname: c.name,
         semester: 'Sem 2',
         gpa: getGradePoint(sem2Grades[c.code] as number),
+      })),
+      ...SEM3_COURSES.filter(c => sem3Grades[c.code] !== '').map(c => ({
+        name: c.code,
+        fullname: c.name,
+        semester: 'Sem 3',
+        gpa: getGradePoint(sem3Grades[c.code] as number),
       }))
     ];
-  }, [sem1Grades, sem2Grades]);
+  }, [sem1Grades, sem2Grades, sem3Grades]);
 
 
   const handleLeaderboardSubmit = async (e: React.FormEvent) => {
@@ -369,36 +387,15 @@ function App() {
                   <Calculator 
                     sem1Grades={sem1Grades} setSem1Grades={setSem1Grades}
                     sem2Grades={sem2Grades} setSem2Grades={setSem2Grades}
+                    sem3Grades={sem3Grades} setSem3Grades={setSem3Grades}
                   />
-                  
-                  <motion.div 
-                    onClick={() => setIsModalOpen(true)}
-                    className="w-full bg-surface/70 backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 border border-border relative overflow-hidden cursor-pointer hover:border-brand-500/30 transition-colors group mt-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.1)]"
-                  >
-                    <div className="relative z-10 flex items-center justify-between">
-                      <div className="flex items-center gap-2 sm:gap-4">
-                        <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-brand-500 shadow-[0_0_20px_rgba(var(--color-brand-500),0.15)] group-hover:scale-110 transition-transform">
-                          03
-                        </div>
-                        <div>
-                          <h2 className="text-lg sm:text-2xl font-bold text-textMain tracking-tight">Semester Three</h2>
-                          <p className="text-[9px] sm:text-sm font-medium text-brand-500/80 uppercase tracking-widest mt-0.5 sm:mt-1 flex items-center gap-1 sm:gap-2">
-                            <AlertTriangle size={12} className="w-[10px] h-[10px] sm:w-[14px] sm:h-[14px]" /> Ongoing Exams
-                          </p>
-                        </div>
-                      </div>
-                      <div className="px-4 py-2 bg-brand-500/10 text-brand-500 font-bold rounded-xl text-sm hidden sm:block border border-brand-500/20">
-                        Click to Uncover
-                      </div>
-                    </div>
-                  </motion.div>
                 </section>
 
                 <Analytics 
-                  gpa1={gpa1} gpa2={gpa2} cgpa={cgpa}
+                  gpa1={gpa1} gpa2={gpa2} gpa3={gpa3} cgpa={cgpa}
                   bestCourse={bestCourse} worstCourse={worstCourse}
                   radarData={radarData} chartData={chartData}
-                  sem1Grades={sem1Grades} sem2Grades={sem2Grades}
+                  sem1Grades={sem1Grades} sem2Grades={sem2Grades} sem3Grades={sem3Grades}
                 />
 
                 <Leaderboard 
@@ -413,9 +410,10 @@ function App() {
               /* Results View — gated behind auth */
               user ? (
                 <ResultsPortal 
-                  onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>) => {
+                  onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>) => {
                     setSem1Grades(s1);
                     setSem2Grades(s2);
+                    setSem3Grades(s3 || SEM3_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
                     navigateTo('main');
                     setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100);
                   }}

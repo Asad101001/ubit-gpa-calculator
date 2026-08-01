@@ -40,6 +40,8 @@ export const ProfilePage = () => {
   const [adminUsers, setAdminUsers] = useState<Profile[]>([]);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [adminSelectedUser, setAdminSelectedUser] = useState<Profile | null>(null);
+  const [adminCustomSeatNo, setAdminCustomSeatNo] = useState('');
+  const [adminCustomSeatInput, setAdminCustomSeatInput] = useState('');
   const [isLoadingAdmin, setIsLoadingAdmin] = useState(false);
   const [adminSearchQuery, setAdminSearchQuery] = useState('');
 
@@ -48,15 +50,25 @@ export const ProfilePage = () => {
 
   useEffect(() => {
     const fetchStudentData = async () => {
-      const targetSeatNo = adminSelectedUser ? adminSelectedUser.seat_no : profile?.seat_no;
+      // Admin can either select a profile user OR type a custom seat no
+      const targetSeatNo = adminSelectedUser
+        ? adminSelectedUser.seat_no
+        : adminCustomSeatNo || profile?.seat_no;
       if (!targetSeatNo) { setStudentData(null); setIsLoadingData(false); return; }
       
       setIsLoadingData(true);
       try {
+        let resultsData: any[] | null = null;
         const res = await fetch('/api/results');
         if (res.ok) {
-          const data = await res.json();
-          const match = data.find((row: any) => row.seat_no === targetSeatNo);
+          resultsData = await res.json();
+        } else {
+          // Fallback to local JSON snapshot for local dev
+          const fallbackRes = await fetch('/fallback-results.json');
+          if (fallbackRes.ok) resultsData = await fallbackRes.json();
+        }
+        if (resultsData) {
+          const match = resultsData.find((row: any) => row.seat_no === targetSeatNo);
           if (match) {
             const mapped: Record<string, any> = { 'Seat No': match.seat_no, 'Name': match.name };
             SUBJECTS_META.forEach(sub => { if (match[sub.id] !== undefined) mapped[sub.id] = match[sub.id]; });
@@ -69,7 +81,7 @@ export const ProfilePage = () => {
       setIsLoadingData(false);
     };
     fetchStudentData();
-  }, [profile?.seat_no, adminSelectedUser]);
+  }, [profile?.seat_no, adminSelectedUser, adminCustomSeatNo]);
 
   const stats = useMemo(() => {
     if (!studentData) return null;
@@ -103,7 +115,9 @@ export const ProfilePage = () => {
   };
 
   const handleSaveMark = async (subjectId: string) => {
-    const targetSeatNo = adminSelectedUser ? adminSelectedUser.seat_no : profile?.seat_no;
+    const targetSeatNo = adminSelectedUser
+      ? adminSelectedUser.seat_no
+      : adminCustomSeatNo || profile?.seat_no;
     if (!targetSeatNo || !editValue.trim()) return;
     const numVal = Number(editValue);
     if (isNaN(numVal) || numVal < 0 || numVal > 100) { toast.error('Enter a valid mark (0-100).'); return; }
@@ -240,10 +254,14 @@ export const ProfilePage = () => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-black text-textMain uppercase tracking-wider flex items-center gap-2">
-                {adminSelectedUser ? <span className="text-brand-500">Managing: {adminSelectedUser.full_name}</span> : 'Your Results'}
+                {adminSelectedUser
+                  ? <span className="text-brand-500">Managing: {adminSelectedUser.full_name}</span>
+                  : adminCustomSeatNo
+                  ? <span className="text-brand-500">Managing Seat: {adminCustomSeatNo}</span>
+                  : 'Your Results'}
               </h3>
-              {adminSelectedUser && (
-                <button onClick={() => setAdminSelectedUser(null)} className="text-xs text-textMuted hover:text-brand-500 font-bold uppercase tracking-wider mt-1">
+              {(adminSelectedUser || adminCustomSeatNo) && (
+                <button onClick={() => { setAdminSelectedUser(null); setAdminCustomSeatNo(''); setAdminCustomSeatInput(''); }} className="text-xs text-textMuted hover:text-brand-500 font-bold uppercase tracking-wider mt-1">
                   ← Back to my profile
                 </button>
               )}
@@ -351,6 +369,24 @@ export const ProfilePage = () => {
                         {isLoadingAdmin ? 'Loading...' : 'Refresh'}
                       </button>
                     </div>
+                  </div>
+                  {/* Edit marks for any seat number — no account required */}
+                  <div className="mb-4 p-3 bg-brand-500/5 border border-brand-500/20 rounded-sm">
+                    <p className="text-[10px] font-bold text-brand-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <Edit3 size={10} /> Edit Marks by Seat No (No Account Required)
+                    </p>
+                    <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); setAdminSelectedUser(null); setAdminCustomSeatNo(adminCustomSeatInput.toUpperCase().trim()); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                      <input
+                        type="text"
+                        placeholder="e.g. CS-123456"
+                        value={adminCustomSeatInput}
+                        onChange={e => setAdminCustomSeatInput(e.target.value)}
+                        className="flex-1 px-3 py-1.5 bg-surface text-xs text-textMain border border-border rounded-sm focus:outline-none focus:border-brand-500 font-mono uppercase"
+                      />
+                      <button type="submit" className="px-3 py-1.5 bg-brand-500 text-white text-xs font-bold rounded-sm hover:bg-brand-600 transition-colors shrink-0">
+                        Load
+                      </button>
+                    </form>
                   </div>
                   {isLoadingAdmin ? <div className="flex justify-center py-8"><Loader2 size={24} className="animate-spin text-textMuted" /></div>
                   : filteredAdminUsers.length === 0 ? <p className="text-textMuted text-sm text-center py-8">No users found.</p>

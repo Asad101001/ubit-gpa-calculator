@@ -37,9 +37,9 @@ export const MetricCard = ({ title, value, subtitle, icon: Icon, highlight = fal
 );
 
 export const Analytics = ({
-  gpa1, gpa2, cgpa,
+  gpa1, gpa2, gpa3, cgpa,
   bestCourse, worstCourse, radarData, chartData,
-  sem1Grades, sem2Grades,
+  sem1Grades, sem2Grades, sem3Grades,
 }: any) => {
 
   const CustomTooltip = ({ active, payload }: any) => {
@@ -57,9 +57,10 @@ export const Analytics = ({
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 mt-8 mb-16">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 relative z-10 mt-8 mb-16">
         <MetricCard title="Semester One GPA" value={gpa1} icon={Calculator} />
         <MetricCard title="Semester Two GPA" value={gpa2} icon={Calculator} />
+        <MetricCard title="Semester Three GPA" value={gpa3 ?? '—'} icon={Calculator} />
         <MetricCard title="CGPA" value={cgpa} icon={Award} highlight />
       </div>
 
@@ -68,7 +69,7 @@ export const Analytics = ({
           onClick={() => {
             const hasMissingMarks = Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === '');
             if (hasMissingMarks) {
-              alert("Cannot generate transcript: Marks are missing for one or more subjects. A complete CGPA cannot be calculated.");
+              alert("Cannot generate transcript: Marks are missing for one or more subjects.");
               return;
             }
             const studentObj: Record<string, any> = {
@@ -80,6 +81,9 @@ export const Analytics = ({
               if (mark !== '') studentObj[mapCodeToId(code)] = mark;
             });
             Object.entries(sem2Grades).forEach(([code, mark]) => {
+              if (mark !== '') studentObj[mapCodeToId(code)] = mark;
+            });
+            if (sem3Grades) Object.entries(sem3Grades).forEach(([code, mark]) => {
               if (mark !== '') studentObj[mapCodeToId(code)] = mark;
             });
             generateTranscriptImage(studentObj);

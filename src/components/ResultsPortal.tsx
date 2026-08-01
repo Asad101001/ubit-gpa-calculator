@@ -30,7 +30,7 @@ const SUBJECTS_DATA = [
 const ALL_SUBJECTS = "All Subjects Overview";
 
 interface ResultsPortalProps {
-  onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>) => void;
+  onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>) => void;
 }
 
 export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
@@ -100,6 +100,25 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
             return;
           }
         }
+
+        // Fallback to local JSON snapshot for local dev / offline testing
+        try {
+          const fallbackRes = await fetch('/fallback-results.json');
+          if (fallbackRes.ok) {
+            const json = await fallbackRes.json();
+            if (Array.isArray(json) && json.length > 0) {
+              const formatted = json.map((row: any) => {
+                const mappedRow: any = { 'Seat No': row.seat_no, 'Name': row.name };
+                SUBJECTS_DATA.forEach(sub => { if (row[sub.id] !== undefined) mappedRow[sub.id] = row[sub.id]; });
+                return mappedRow;
+              });
+              setData(formatted);
+              setIsLoading(false);
+              return;
+            }
+          }
+        } catch { /* no fallback available */ }
+
         setData([]);
         setError("No data found or database connection issue.");
       } catch (e) {
