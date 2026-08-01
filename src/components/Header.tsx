@@ -46,11 +46,35 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
           </div>
         </div>
         <div className="flex items-center gap-3 sm:gap-4">
-          <nav className="flex items-center gap-1 sm:gap-2 text-[11px] sm:text-sm font-medium text-textMuted bg-surface/50 p-1 rounded-xl border border-border">
-            <a href="#calculator" onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className={`${currentView === 'main' && activeSection === 'calculator' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'} px-3 py-1.5 rounded-lg transition-all`}>Calculator</a>
-            <a href="#analytics" onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('analytics')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className={`${currentView === 'main' ? 'hidden sm:block' : 'hidden'} ${activeSection === 'analytics' && currentView === 'main' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'} px-3 py-1.5 rounded-lg transition-all`}>Analytics</a>
-            <a href="#leaderboard" onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className={`${currentView === 'main' ? 'hidden sm:block' : 'hidden'} ${activeSection === 'leaderboard' && currentView === 'main' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'} px-3 py-1.5 rounded-lg transition-all`}>Leaderboard</a>
-            <button onClick={() => navigateTo('results')} className={`${currentView === 'results' ? 'text-brand-500 font-bold bg-brand-500/10 shadow-sm' : 'text-textMuted hover:text-brand-500 hover:bg-brand-500/10'} px-3 py-1.5 rounded-lg transition-all`}>Results</button>
+          {/* Nav — scrollable on mobile, no overflow clip */}
+          <nav className="flex items-center gap-0.5 text-[11px] sm:text-sm font-medium text-textMuted bg-surface/50 p-1 rounded-xl border border-border overflow-x-auto max-w-[calc(100vw-200px)] sm:max-w-none scrollbar-none">
+            <a
+              href="#calculator"
+              onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+              className={`shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${currentView === 'main' && activeSection === 'calculator' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'}`}
+            >
+              Calc
+            </a>
+            <a
+              href="#analytics"
+              onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('analytics')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+              className={`shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${activeSection === 'analytics' && currentView === 'main' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'}`}
+            >
+              Analytics
+            </a>
+            <a
+              href="#leaderboard"
+              onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+              className={`shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${activeSection === 'leaderboard' && currentView === 'main' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'}`}
+            >
+              Board
+            </a>
+            <button
+              onClick={() => navigateTo('results')}
+              className={`shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${currentView === 'results' ? 'text-brand-500 font-bold bg-brand-500/10 shadow-sm' : 'text-textMuted hover:text-brand-500 hover:bg-brand-500/10'}`}
+            >
+              Results
+            </button>
           </nav>
 
           {/* Auth Controls */}

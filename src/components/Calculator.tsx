@@ -3,8 +3,11 @@ import { toast } from 'react-hot-toast';
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
+  hidden: { opacity: 0, y: 24, scale: 0.98 },
+  show: { 
+    opacity: 1, y: 0, scale: 1, 
+    transition: { type: 'spring', stiffness: 280, damping: 24 } 
+  }
 };
 
 export const CourseSelect = ({ course, value, onChange }: any) => {
@@ -13,6 +16,8 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
   return (
     <motion.div 
       variants={itemVariants}
+      whileHover={{ y: -3 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       className="group flex flex-col p-2 sm:p-4 rounded-xl hover:bg-surface/60 border border-transparent hover:border-border/50 transition-all gap-2 sm:gap-4"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
@@ -82,7 +87,7 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${value === '' ? 0 : value}%` }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ type: 'spring', stiffness: 120, damping: 20, delay: 0.05 }}
             className={`absolute top-0 left-0 h-full rounded-full ${
               typeof value === 'number' && value >= 80 ? 'bg-green-500' : 
               typeof value === 'number' && value >= 50 ? 'bg-brand-500' : 'bg-red-500'
@@ -98,6 +103,7 @@ export const Calculator = ({
   sem1Grades, setSem1Grades, 
   sem2Grades, setSem2Grades,
   sem3Grades, setSem3Grades,
+  onSem3InfoClick,
 }: any) => {
   return (
     <motion.div 
@@ -113,6 +119,8 @@ export const Calculator = ({
       {/* Semester 1 */}
       <motion.div 
         variants={itemVariants}
+        whileHover={{ y: -4 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden"
       >
         <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
@@ -139,6 +147,8 @@ export const Calculator = ({
       {/* Semester 2 */}
       <motion.div 
         variants={itemVariants}
+        whileHover={{ y: -4 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden"
       >
         <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
@@ -162,10 +172,12 @@ export const Calculator = ({
         </div>
       </motion.div>
 
-      {/* Semester 3 — full-width */}
+      {/* Semester 3 */}
       <motion.div 
         variants={itemVariants}
-        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden xl:col-span-2"
+        whileHover={{ y: -4 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden"
       >
         <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
           <div className="flex items-center gap-2 sm:gap-4">
@@ -177,8 +189,14 @@ export const Calculator = ({
               <p className="text-[10px] sm:text-sm font-medium text-textMuted uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
             </div>
           </div>
+          <button
+            onClick={onSem3InfoClick}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-accent-500/10 text-accent-500 font-bold rounded-xl text-xs border border-accent-500/20 hover:bg-accent-500/20 transition-colors cursor-pointer"
+          >
+            📣 Ongoing
+          </button>
         </div>
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-6 relative z-10">
+        <div className="space-y-3 relative z-10">
           {SEM3_COURSES.map((course) => (
             <CourseSelect 
               key={course.code} course={course} value={sem3Grades[course.code]}
@@ -191,7 +209,7 @@ export const Calculator = ({
       {/* Semester 4 — Coming Soon (yellow caution tape) */}
       <motion.div 
         variants={itemVariants}
-        className="xl:col-span-2 w-full bg-surface/70 backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] relative overflow-hidden border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] group"
+        className="w-full bg-surface/70 backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] relative overflow-hidden border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] group"
       >
         {/* Diagonal stripe background */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[2rem] sm:rounded-[2.5rem]">

@@ -1,7 +1,22 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, X, PartyPopper } from 'lucide-react';
 
-export const BoycottModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+interface BoycottModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  message?: string;
+  errorCode?: string;
+  variant?: 'exam' | 'fresh';
+}
+
+export const BoycottModal = ({ 
+  isOpen, onClose, 
+  title = "Access Denied",
+  message = "Semester 03 data unavailable as examinations are about to commence.",
+  errorCode = "ERR_EXAMS_PENDING",
+  variant = 'exam'
+}: BoycottModalProps) => {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -13,19 +28,21 @@ export const BoycottModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: ()
           onClick={onClose}
         >
           <motion.div 
-            initial={{ scale: 0.95, y: 10, opacity: 0 }}
+            initial={{ scale: 0.9, y: 20, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
-            exit={{ scale: 0.95, y: 10, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            exit={{ scale: 0.9, y: 20, opacity: 0 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className="bg-surface border border-border rounded-3xl p-6 sm:p-8 max-w-lg w-full relative overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
              <div className="absolute inset-0 pointer-events-none opacity-90 overflow-hidden flex flex-col justify-center gap-8 -rotate-12 scale-150">
                {[...Array(6)].map((_, i) => (
-                 <div key={i} className="w-full h-12 bg-yellow-400 text-black font-black text-2xl tracking-widest uppercase flex items-center overflow-hidden shadow-xl" style={{ transform: i % 2 === 0 ? 'translateX(-10%)' : 'translateX(-5%)' }}>
+                 <div key={i} className={`w-full h-12 font-black text-2xl tracking-widest uppercase flex items-center overflow-hidden shadow-xl ${variant === 'fresh' ? 'bg-accent-500 text-white' : 'bg-yellow-400 text-black'}`} style={{ transform: i % 2 === 0 ? 'translateX(-10%)' : 'translateX(-5%)' }}>
                    <div className="flex whitespace-nowrap animate-tape-scroll" style={{ animationDirection: i % 2 === 0 ? 'normal' : 'reverse', animationDuration: '4s' }}>
                      {[...Array(10)].map((_, j) => (
-                       <span key={j} className="px-4">⚠️ EXAMS PENDING ⚠️</span>
+                       <span key={j} className="px-4">
+                         {variant === 'fresh' ? '🎓 SEMESTER JUST STARTED 🎓' : '⚠️ EXAMS PENDING ⚠️'}
+                       </span>
                      ))}
                    </div>
                  </div>
@@ -40,10 +57,13 @@ export const BoycottModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: ()
             </button>
 
             <div className="relative z-10 flex flex-col items-center justify-center min-h-[250px] text-center bg-surface/90 p-6 rounded-2xl backdrop-blur-md border border-border">
-              <AlertTriangle size={48} className="text-yellow-400 mb-4" />
-              <h2 className="text-3xl font-black text-textMain mb-2 uppercase tracking-tight">Access Denied</h2>
-              <p className="text-textMuted font-medium">Semester 03 data unavailable as examinations are about to commence.</p>
-              <p className="text-brand-500 text-sm mt-4 font-mono">ERR_EXAMS_PENDING</p>
+              {variant === 'fresh' 
+                ? <PartyPopper size={48} className="text-accent-500 mb-4" />
+                : <AlertTriangle size={48} className="text-yellow-400 mb-4" />
+              }
+              <h2 className="text-3xl font-black text-textMain mb-2 uppercase tracking-tight">{title}</h2>
+              <p className="text-textMuted font-medium">{message}</p>
+              <p className={`text-sm mt-4 font-mono ${variant === 'fresh' ? 'text-accent-500' : 'text-brand-500'}`}>{errorCode}</p>
             </div>
           </motion.div>
         </motion.div>
