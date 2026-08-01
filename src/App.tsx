@@ -82,7 +82,6 @@ function App() {
     else window.location.hash = '';
   };
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSem3ModalOpen, setIsSem3ModalOpen] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
   const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(true);
 
@@ -318,14 +317,6 @@ function App() {
       <div className={`min-h-screen relative selection:bg-brand-500/30 font-sans ${!appLoaded ? 'hidden' : ''}`}>
         <Header currentView={currentView} navigateTo={navigateTo} activeSection={activeSection} />
         <BoycottModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-        <BoycottModal 
-          isOpen={isSem3ModalOpen} 
-          onClose={() => setIsSem3ModalOpen(false)}
-          variant="fresh"
-          title="Semester Just Started!"
-          message="Bro, the semester literally just started. No results yet — go touch some grass first."
-          errorCode="ERR_TOO_EARLY_BRO"
-        />
         <SubmitModal 
           isOpen={isSubmitModalOpen} 
           onClose={() => !isSubmitting && setIsSubmitModalOpen(false)} 
@@ -398,7 +389,6 @@ function App() {
                     sem1Grades={sem1Grades} setSem1Grades={setSem1Grades}
                     sem2Grades={sem2Grades} setSem2Grades={setSem2Grades}
                     sem3Grades={sem3Grades} setSem3Grades={setSem3Grades}
-                    onSem3InfoClick={() => setIsSem3ModalOpen(true)}
                   />
                 </section>
 

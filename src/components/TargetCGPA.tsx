@@ -1,19 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Target, TrendingUp, ChevronDown, ChevronUp, Lightbulb, CheckCircle2 } from 'lucide-react';
+import { Target, TrendingUp, ChevronDown, ChevronUp, Lightbulb, CheckCircle2, Lock } from 'lucide-react';
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
+import { useAuthStore } from '../store/useAuthStore';
 
 const ALL_COURSES = [...SEM1_COURSES, ...SEM2_COURSES, ...SEM3_COURSES];
 
-// Grade boundaries — what mark gets you to the next grade point
+// Grade boundaries
 const GRADE_BOUNDARIES = [50, 53, 54, 55, 56, 57, 61, 64, 68, 71, 75, 80, 85];
-
-function getNextBoundary(currentMark: number): number | null {
-  for (const b of GRADE_BOUNDARIES) {
-    if (b > currentMark) return b;
-  }
-  return null;
-}
 
 interface TargetCGPAProps {
   sem1Grades: Record<string, number | ''>;
@@ -25,6 +19,36 @@ interface TargetCGPAProps {
 export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: TargetCGPAProps) => {
   const [targetCgpa, setTargetCgpa] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // To lock courses that already exist in results portal
+  const { profile } = useAuthStore();
+  const [officialMarks, setOfficialMarks] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    const fetchOfficial = async () => {
+      if (!profile?.seat_no) return;
+      try {
+        let resultsData: any[] | null = null;
+        try {
+          const res = await fetch('https://ubit-gpa-calculator-api.vercel.app/api/results');
+          if (res.ok) resultsData = await res.json();
+        } catch (e) {}
+
+        if (!resultsData) {
+          const fallbackRes = await fetch('/fallback-results.json');
+          if (fallbackRes.ok) resultsData = await fallbackRes.json();
+        }
+
+        if (resultsData) {
+          const match = resultsData.find((row: any) => row.seat_no === profile.seat_no);
+          if (match) {
+            setOfficialMarks(match);
+          }
+        }
+      } catch (e) {}
+    };
+    fetchOfficial();
+  }, [profile?.seat_no]);
 
   const allGrades: Record<string, number | ''> = {
     ...sem1Grades, ...sem2Grades, ...sem3Grades
@@ -33,13 +57,13 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
   const currentVal = parseFloat(currentCgpa);
   const targetVal = parseFloat(targetCgpa);
 
-  const suggestions = useMemo(() => {
+  const suggestions = useMemo<any[]>(() => {
     if (!targetVal || isNaN(targetVal) || targetVal <= 0 || targetVal > 4) return [];
     if (currentVal >= targetVal) return [];
 
-    // Build current state
     let currentTotalQP = 0;
     let currentTotalCredits = 0;
+    const editableCourses: any[] = [];
 
     ALL_COURSES.forEach(c => {
       const marks = allGrades[c.code];
@@ -47,6 +71,15 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
         const gp = getGradePoint(Number(marks));
         currentTotalQP += gp * c.credits;
         currentTotalCredits += c.credits;
+        
+        // Check if locked
+        const dbKey = c.code.toLowerCase().replace('-', '');
+        const officialVal = officialMarks[dbKey];
+        const isLocked = officialVal !== undefined && officialVal !== '' && officialVal !== 'Results Unannounced' && officialVal !== 'Marks Missing';
+        
+        if (!isLocked && Number(marks) < 85) {
+          editableCourses.push(c);
+        }
       }
     });
 
@@ -54,65 +87,86 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
 
     const neededTotalQP = targetVal * currentTotalCredits;
     const qpDeficit = neededTotalQP - currentTotalQP;
-
     if (qpDeficit <= 0) return [];
 
-    // Find courses where improving marks would help
-    const improvements: {
-      course: typeof ALL_COURSES[0];
-      currentMark: number;
-      currentGP: number;
-      suggestedMark: number;
-      suggestedGP: number;
-      gpGain: number;
-      cgpaImpact: number;
-      marksNeeded: number;
-    }[] = [];
-
-    ALL_COURSES.forEach(course => {
-      const marks = allGrades[course.code];
-      if (marks === '' || marks === undefined || isNaN(Number(marks))) return;
-      const currentMark = Number(marks);
-      if (currentMark >= 100) return;
-
+    // Scale QP by 10 to use as integer for DP (since GPAs are one decimal place e.g. 0.4 jump)
+    // Wait, let's just do a backtracking search to find the minimum sum of marks to reach qpDeficit
+    
+    // For each editable course, find all valid upward improvements
+    const courseOptions = editableCourses.map(course => {
+      const currentMark = Number(allGrades[course.code]);
       const currentGP = getGradePoint(currentMark);
-      const nextBoundary = getNextBoundary(currentMark);
-      if (!nextBoundary) return;
-
-      const nextGP = getGradePoint(nextBoundary);
-      const gpGain = nextGP - currentGP;
-      if (gpGain <= 0) return;
-
-      const cgpaImpact = (gpGain * course.credits) / currentTotalCredits;
-      const marksNeeded = nextBoundary - currentMark;
-
-      improvements.push({
-        course,
-        currentMark,
-        currentGP,
-        suggestedMark: nextBoundary,
-        suggestedGP: nextGP,
-        gpGain,
-        cgpaImpact,
-        marksNeeded,
-      });
+      
+      const options = [];
+      for (const b of GRADE_BOUNDARIES) {
+        if (b > currentMark) {
+          const nextGP = getGradePoint(b);
+          const gpGain = nextGP - currentGP;
+          if (gpGain > 0) {
+            options.push({
+              course,
+              currentMark,
+              currentGP,
+              suggestedMark: b,
+              suggestedGP: nextGP,
+              gpGain,
+              cgpaImpact: (gpGain * course.credits) / currentTotalCredits,
+              marksNeeded: b - currentMark,
+              qpGain: gpGain * course.credits
+            });
+          }
+        }
+      }
+      return options;
     });
 
-    // Sort by: most CGPA impact per mark needed (efficiency)
-    improvements.sort((a, b) => (b.cgpaImpact / b.marksNeeded) - (a.cgpaImpact / a.marksNeeded));
+    // DP: min marks needed to achieve at least X QP gain
+    // Scale factor: QP values like 1.2, 0.4. Multiply by 10.
+    const targetQpInt = Math.ceil(qpDeficit * 10);
+    // Max possible QP gain is ~4.0 * 18 * 10 = 720
+    const MAX_QP = 800;
+    
+    const dp = new Array(MAX_QP + 1).fill(Infinity);
+    const dpChoice = new Array(MAX_QP + 1).fill(null);
+    
+    dp[0] = 0;
+    dpChoice[0] = {} as Record<string, any>; // Map of course.code -> selected option
 
-    // Greedily pick suggestions until we hit target
-    let remainingDeficit = qpDeficit;
-    const selected: typeof improvements = [];
-
-    for (const imp of improvements) {
-      if (remainingDeficit <= 0) break;
-      selected.push(imp);
-      remainingDeficit -= imp.gpGain * imp.course.credits;
+    for (const options of courseOptions) {
+      if (options.length === 0) continue;
+      
+      // Traverse backwards to use each course at most once
+      for (let q = MAX_QP; q >= 0; q--) {
+        if (dp[q] === Infinity) continue;
+        
+        for (const opt of options) {
+          const gainInt = Math.round(opt.qpGain * 10);
+          const newQ = Math.min(MAX_QP, q + gainInt);
+          const newCost = dp[q] + opt.marksNeeded;
+          
+          if (newCost < dp[newQ]) {
+            dp[newQ] = newCost;
+            dpChoice[newQ] = { ...dpChoice[q], [opt.course.code]: opt };
+          }
+        }
+      }
     }
 
-    return selected;
-  }, [targetVal, currentVal, allGrades]);
+    // Find the minimum cost that achieves at least targetQpInt
+    let bestCost = Infinity;
+    let bestChoices = null;
+    
+    for (let q = targetQpInt; q <= MAX_QP; q++) {
+      if (dp[q] < bestCost) {
+        bestCost = dp[q];
+        bestChoices = dpChoice[q];
+      }
+    }
+
+    if (!bestChoices) return []; // Unachievable
+    
+    return Object.values(bestChoices);
+  }, [targetVal, currentVal, allGrades, officialMarks]);
 
   const projectedCgpa = useMemo(() => {
     if (suggestions.length === 0) return currentVal;
@@ -121,7 +175,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
     ALL_COURSES.forEach(c => {
       const marks = allGrades[c.code];
       if (marks !== '' && marks !== undefined && !isNaN(Number(marks))) {
-        const suggestion = suggestions.find(s => s.course.code === c.code);
+        const suggestion = suggestions.find((s: any) => s.course.code === c.code);
         const effectiveMark = suggestion ? suggestion.suggestedMark : Number(marks);
         totalQP += getGradePoint(effectiveMark) * c.credits;
         totalCredits += c.credits;
@@ -133,6 +187,8 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
   const isTargetAchievable = suggestions.length > 0 && projectedCgpa >= targetVal - 0.005;
   const hasGrades = Object.values(allGrades).some(v => v !== '' && v !== undefined);
   const alreadyMet = targetVal > 0 && currentVal >= targetVal;
+
+  const totalMarksToImprove = suggestions.reduce((sum: number, s: any) => sum + s.marksNeeded, 0);
 
   return (
     <motion.div
@@ -188,15 +244,20 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
               {/* Input */}
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                 <div className="flex-1">
-                  <label className="text-[11px] font-bold text-textMuted uppercase tracking-widest mb-2 block">
+                  <label className="text-[11px] font-bold text-textMuted uppercase tracking-widest mb-2 block flex items-center gap-2">
                     Your Target CGPA
+                    {Object.keys(officialMarks).length > 0 && (
+                      <span className="flex items-center gap-1 text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded-full lowercase font-medium">
+                        <Lock size={10} /> {Object.keys(officialMarks).length} subjects locked
+                      </span>
+                    )}
                   </label>
                   <div className="relative flex items-center gap-3">
                     <input
                       type="number"
                       min="0"
                       max="4"
-                      step="0.1"
+                      step="0.01"
                       value={targetCgpa}
                       onChange={e => setTargetCgpa(e.target.value)}
                       placeholder="e.g. 3.5"
@@ -245,7 +306,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
               {hasGrades && targetVal > 0 && !alreadyMet && suggestions.length === 0 && currentVal > 0 && (
                 <div className="flex items-center gap-3 p-4 bg-red-500/10 rounded-xl border border-red-500/30 text-sm text-red-400">
                   <TrendingUp size={16} className="shrink-0" />
-                  <p>Target {targetVal.toFixed(2)} isn't reachable just by improving existing subject marks. You'd need perfect scores in everything.</p>
+                  <p>Target {targetVal.toFixed(2)} isn't reachable with the current editable subjects. You might need perfect scores, or some subjects are locked from the portal.</p>
                 </div>
               )}
 
@@ -254,7 +315,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-bold text-textMuted uppercase tracking-widest flex items-center gap-2">
                       <TrendingUp size={12} className="text-emerald-400" />
-                      Suggested Improvements ({suggestions.length} subject{suggestions.length > 1 ? 's' : ''})
+                      Optimum Improvements ({suggestions.length} subject{suggestions.length > 1 ? 's' : ''})
                     </p>
                     <div className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border ${
                       isTargetAchievable ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30'
@@ -264,7 +325,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                   </div>
 
                   <div className="space-y-2">
-                    {suggestions.map((s, i) => (
+                    {suggestions.map((s: any, i: number) => (
                       <motion.div
                         key={s.course.code}
                         initial={{ opacity: 0, x: -10 }}
@@ -307,7 +368,9 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                       className="flex items-center gap-2 px-4 py-3 bg-emerald-500/10 rounded-xl border border-emerald-500/30 text-xs text-emerald-400 font-medium"
                     >
                       <CheckCircle2 size={14} className="shrink-0" />
-                      By improving the above subjects, your CGPA would reach <span className="font-black mx-1">{projectedCgpa.toFixed(3)}</span> — meeting your {targetVal.toFixed(2)} target!
+                      <span>
+                        By studying for exactly <span className="font-black text-emerald-300">+{totalMarksToImprove}</span> more total marks across these subjects, your CGPA will reach <span className="font-black mx-1">{projectedCgpa.toFixed(3)}</span>.
+                      </span>
                     </motion.div>
                   )}
                 </div>

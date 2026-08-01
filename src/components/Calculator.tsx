@@ -1,4 +1,5 @@
-import { motion, type Variants } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 
@@ -103,8 +104,9 @@ export const Calculator = ({
   sem1Grades, setSem1Grades, 
   sem2Grades, setSem2Grades,
   sem3Grades, setSem3Grades,
-  onSem3InfoClick,
 }: any) => {
+  const [isSem4Expanded, setIsSem4Expanded] = useState(false);
+
   return (
     <motion.div 
       initial="hidden"
@@ -177,7 +179,7 @@ export const Calculator = ({
         variants={itemVariants}
         whileHover={{ y: -4 }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden"
+        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden xl:col-span-2 max-w-3xl mx-auto w-full"
       >
         <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
           <div className="flex items-center gap-2 sm:gap-4">
@@ -189,12 +191,6 @@ export const Calculator = ({
               <p className="text-[10px] sm:text-sm font-medium text-textMuted uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
             </div>
           </div>
-          <button
-            onClick={onSem3InfoClick}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-accent-500/10 text-accent-500 font-bold rounded-xl text-xs border border-accent-500/20 hover:bg-accent-500/20 transition-colors cursor-pointer"
-          >
-            📣 Ongoing
-          </button>
         </div>
         <div className="space-y-3 relative z-10">
           {SEM3_COURSES.map((course) => (
@@ -206,57 +202,65 @@ export const Calculator = ({
         </div>
       </motion.div>
 
-      {/* Semester 4 — Coming Soon (yellow caution tape) */}
+      {/* Semester 4 — Expanding Pill */}
       <motion.div 
         variants={itemVariants}
-        className="w-full bg-surface/70 backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] relative overflow-hidden border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] group"
+        className="xl:col-span-2 max-w-3xl mx-auto w-full"
       >
-        {/* Diagonal stripe background */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[2rem] sm:rounded-[2.5rem]">
-          <div 
-            className="absolute inset-0 opacity-[0.06] group-hover:opacity-[0.10] transition-opacity duration-500"
-            style={{
-              backgroundImage: `repeating-linear-gradient(-45deg, #f5c518 0px, #f5c518 24px, transparent 24px, transparent 48px)`
-            }}
-          />
-        </div>
-
-        {/* Top caution tape strip */}
-        <div className="absolute top-0 left-0 right-0 h-6 sm:h-8 z-10 overflow-hidden opacity-75">
-          <div 
-            className="w-full h-full"
-            style={{
-              backgroundImage: `repeating-linear-gradient(-45deg, #f5c518 0px, #f5c518 14px, #111 14px, #111 28px)`
-            }}
-          />
-        </div>
-        {/* Bottom caution tape strip */}
-        <div className="absolute bottom-0 left-0 right-0 h-6 sm:h-8 z-10 overflow-hidden opacity-75">
-          <div 
-            className="w-full h-full"
-            style={{
-              backgroundImage: `repeating-linear-gradient(-45deg, #f5c518 0px, #f5c518 14px, #111 14px, #111 28px)`
-            }}
-          />
-        </div>
-
-        <div className="relative z-10 flex items-center justify-between px-5 sm:px-8 py-6 sm:py-7 my-2">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/30 flex items-center justify-center text-sm sm:text-lg font-bold text-yellow-500 shadow-[0_0_20px_rgba(245,197,24,0.15)]">
+        <div 
+          onClick={() => setIsSem4Expanded(!isSem4Expanded)}
+          className="glass rounded-full px-6 sm:px-8 py-4 flex items-center justify-between cursor-pointer hover:bg-surface/60 transition-all border border-border group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/30 flex items-center justify-center text-sm font-bold text-yellow-500 shadow-[0_0_15px_rgba(245,197,24,0.15)] group-hover:scale-110 transition-transform">
               04
             </div>
-            <div>
-              <h2 className="text-lg sm:text-2xl font-bold text-textMain tracking-tight">Semester Four</h2>
-              <p className="text-[9px] sm:text-sm font-medium text-yellow-500/80 uppercase tracking-widest mt-0.5 sm:mt-1 flex items-center gap-1.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
-                Coming Soon — Not Yet Available
-              </p>
+            <h2 className="text-base sm:text-lg font-bold text-textMain tracking-tight">Semester Four</h2>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-yellow-500/80 uppercase tracking-widest bg-yellow-500/10 px-3 py-1.5 rounded-full border border-yellow-500/20">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+              Ongoing
+            </span>
+            <div className={`text-textMuted group-hover:text-textMain transition-transform duration-300 ${isSem4Expanded ? 'rotate-180' : ''}`}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
           </div>
-          <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-yellow-500/10 text-yellow-500 font-bold rounded-xl text-sm border border-yellow-500/20">
-            🚧 Under Construction
-          </div>
         </div>
+
+        <AnimatePresence>
+          {isSem4Expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0, marginTop: 0 }}
+              animate={{ height: 'auto', opacity: 1, marginTop: 16 }}
+              exit={{ height: 0, opacity: 0, marginTop: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="glass rounded-[2rem] p-6 sm:p-10 relative overflow-hidden border border-yellow-500/30 shadow-[0_0_40px_rgba(245,197,24,0.1)]">
+                 <div className="absolute inset-0 pointer-events-none opacity-20 sm:opacity-40 overflow-hidden flex flex-col justify-center gap-8 -rotate-12 scale-150 mix-blend-overlay">
+                   {[...Array(6)].map((_, i) => (
+                     <div key={i} className="w-full h-12 bg-yellow-400 text-black font-black text-2xl tracking-widest uppercase flex items-center overflow-hidden" style={{ transform: i % 2 === 0 ? 'translateX(-10%)' : 'translateX(-5%)' }}>
+                       <div className="flex whitespace-nowrap animate-tape-scroll" style={{ animationDirection: i % 2 === 0 ? 'normal' : 'reverse', animationDuration: '4s' }}>
+                         {[...Array(10)].map((_, j) => (
+                           <span key={j} className="px-4">🎓 SEMESTER JUST STARTED 🎓</span>
+                         ))}
+                       </div>
+                     </div>
+                   ))}
+                </div>
+                
+                <div className="relative z-10 flex flex-col items-center justify-center text-center py-8">
+                  <div className="w-16 h-16 rounded-full bg-yellow-500/20 border border-yellow-500/40 flex items-center justify-center mb-4">
+                    <svg className="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-black text-textMain mb-2 uppercase tracking-tight">Hold Your Horses</h3>
+                  <p className="text-textMuted font-medium max-w-md mx-auto">Bro, the semester literally just started. No results yet — go touch some grass first.</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </motion.div>
   );

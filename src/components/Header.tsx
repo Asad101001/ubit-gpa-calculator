@@ -53,7 +53,7 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
               onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
               className={`shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${currentView === 'main' && activeSection === 'calculator' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'}`}
             >
-              Calc
+              Calculator
             </a>
             <a
               href="#analytics"
@@ -67,7 +67,7 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
               onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
               className={`shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${activeSection === 'leaderboard' && currentView === 'main' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'}`}
             >
-              Board
+              Leaderboard
             </a>
             <button
               onClick={() => navigateTo('results')}
