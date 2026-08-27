@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip, BarChart, Bar, XAxis, YAxis, ReferenceLine, Cell } from 'recharts';
-import { Activity, TrendingUp, TrendingDown, BookOpen, Calculator, Award } from 'lucide-react';
+import { TrendingUp, TrendingDown, BookOpen, Calculator, Award } from 'lucide-react';
 import { generateTranscriptImage } from '../lib/transcriptGenerator';
 import { Download } from 'lucide-react';
 
@@ -57,7 +57,7 @@ export const Analytics = ({
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 relative z-10 mt-8 mb-16">
+      <div id="analytics" className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 relative z-10 mt-8 mb-12">
         <MetricCard title="Semester One GPA" value={gpa1} icon={Calculator} />
         <MetricCard title="Semester Two GPA" value={gpa2} icon={Calculator} />
         <MetricCard title="Semester Three GPA" value={gpa3 ?? '—'} icon={Calculator} />
@@ -101,16 +101,14 @@ export const Analytics = ({
 
       <section id="analytics" className="space-y-4 sm:space-y-8 pt-4 sm:pt-8">
         <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex items-center justify-between mb-4 sm:mb-8"
+          className="flex items-center justify-between mb-6 sm:mb-10"
         >
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="bg-surface/70 p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border">
-              <Activity className="text-brand-400 w-5 h-5 sm:w-6 sm:h-6" />
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-textMain">Advanced Analytics</h2>
+          <div>
+            <p className="text-[10px] font-bold text-brand-400 uppercase tracking-widest mb-1">Performance Breakdown</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-textMain tracking-tight">Advanced Analytics</h2>
           </div>
         </motion.div>
         

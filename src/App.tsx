@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-import { GraduationCap, Sparkles, RotateCcw } from 'lucide-react';
+import { RotateCcw, BookOpen } from 'lucide-react';
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from './lib/utils';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -328,45 +328,61 @@ function App() {
           currentCgpa={cgpa}
         />
 
-        <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10 bg-background">
-          <div className="absolute inset-0 opacity-30 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-500/20 via-background to-background" />
-          <div className="hidden sm:block absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-brand-500/10 blur-[120px] animate-blob" />
-          <div className="hidden sm:block absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full bg-accent-500/10 blur-[120px] animate-blob" style={{ animationDelay: '2s' }} />
-          <div className="hidden sm:block absolute top-[20%] left-[30%] w-[50vw] h-[50vw] rounded-full bg-brand-400/10 blur-[120px] animate-blob" style={{ animationDelay: '4s' }} />
-          <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-brand-500/10 via-background to-accent-500/10" />
+        {/* Fixed page background */}
+        <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
+          <div className="absolute inset-0 bg-background" />
+          {/* Subtle building silhouette in the background */}
+          <div
+            className="absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage: 'url(/images/ubit_building_night.jpg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center 40%',
+              filter: 'grayscale(100%) contrast(1.4)',
+            }}
+          />
+          {/* Subtle gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-500/[0.04] via-transparent to-accent-500/[0.03]" />
+          <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background/60 to-transparent" />
         </div>
 
-        <main className="pb-6 sm:pb-16 space-y-6 sm:space-y-16">
-          <section id="calculator" className="relative pt-4 sm:pt-12 pb-4 sm:pb-8 px-4">
-            <div className="absolute inset-0 w-full h-full -z-10 overflow-hidden">
-               <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/90 to-background" />
-            </div>
-
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="text-center relative max-w-4xl mx-auto"
-            >
-              <div className="inline-block relative">
-                <div className="absolute inset-0 bg-brand-500/30 blur-xl rounded-full" />
-                <div className="relative inline-flex items-center justify-center p-3 sm:p-4 bg-surface/70 border border-border rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 shadow-2xl backdrop-blur-xl">
-                  <GraduationCap className="text-brand-500 w-8 h-8 sm:w-10 sm:h-10" />
+        <main className="pb-6 sm:pb-20 space-y-6 sm:space-y-14">
+          {/* ── HERO SECTION ── */}
+          <section className="relative overflow-hidden pt-8 pb-4">
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="text-center relative z-10"
+              >
+                {/* UBIT Building Banner Card */}
+                <div className="relative rounded-2xl overflow-hidden mb-6 border-2 border-black shadow-[6px_6px_0px_0px_#000000]">
+                  <img
+                    src="/images/ubit_building_day.jpg"
+                    alt="UBIT Building"
+                    className="w-full h-48 sm:h-64 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex items-end p-6">
+                    <div className="text-left">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-yellow-400 text-black border border-black font-extrabold text-xs tracking-wider uppercase mb-2">
+                        <BookOpen size={12} />
+                        Umaer Basha Institute of Information Technology
+                      </span>
+                      <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                        Academic Results & GPA Hub
+                      </h1>
+                      <p className="text-xs sm:text-sm text-gray-200 font-medium mt-1">
+                        University of Karachi · BSSE Batch 2024–28
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-textMain via-textMain/90 to-textMuted mb-3 sm:mb-4 tracking-tighter">
-                GPA Calculator
-              </h1>
-              <p className="text-sm sm:text-lg md:text-xl text-textMuted font-medium max-w-2xl mx-auto flex items-center justify-center gap-2 sm:gap-3 mb-6">
-                <Sparkles className="text-brand-500 w-4 h-4 sm:w-5 sm:h-5" />
-                Department of Computer Science
-              </p>
-
-            </motion.div>
+              </motion.div>
+            </div>
           </section>
 
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-12">
             {currentView === 'profile' ? (
               user && profile ? (
                 <ProfilePage />
@@ -375,14 +391,14 @@ function App() {
               )
             ) : currentView === 'main' ? (
               <>
-                <section className="space-y-4 sm:space-y-8">
+                <section id="calculator" className="space-y-4 sm:space-y-6">
                   <div className="flex justify-end">
                     <button 
                       onClick={clearGrades}
-                      className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-400 border border-red-500/20 rounded-xl font-bold text-xs sm:text-sm transition-all active:scale-95"
+                      className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 text-red-400 hover:bg-red-500/15 border border-red-500/15 rounded-lg font-semibold text-xs transition-all active:scale-95"
                     >
-                      <RotateCcw size={16} />
-                      Clear Results
+                      <RotateCcw size={13} />
+                      Clear All
                     </button>
                   </div>
                   <Calculator 
@@ -433,7 +449,7 @@ function App() {
           </div>
         </main>
 
-        <Footer />
+        <Footer navigateTo={navigateTo} />
       </div>
     </>
   );

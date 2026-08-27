@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Medal, Database, X } from 'lucide-react';
+import { validateName } from '../lib/validation';
+import { toast } from 'react-hot-toast';
 
 const rankData = (rawList: any[]) => {
   const sorted = [...rawList].sort((a, b) => b.cgpa - a.cgpa);
@@ -134,6 +136,17 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
 };
 
 export const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmitting, error, currentCgpa }: any) => {
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const validated = validateName(name);
+    if (!validated.isValid) {
+      toast.error(validated.error || 'Invalid name input');
+      return;
+    }
+    setName(validated.sanitized);
+    onSubmit(e);
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -166,7 +179,7 @@ export const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmit
               <h2 className="text-2xl font-black text-textMain mb-2 tracking-tight">Join the Leaderboard</h2>
               <p className="text-textMuted font-medium mb-6 text-sm">Submit your current CGPA of <span className="text-textMain font-bold">{currentCgpa}</span> to the Batch '28 rankings.</p>
               
-              <form onSubmit={onSubmit} className="w-full space-y-4">
+              <form onSubmit={handleFormSubmit} className="w-full space-y-4">
                 {error && (
                   <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-xl font-medium text-left">
                     {error}
@@ -177,7 +190,7 @@ export const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmit
                   <input
                     type="text"
                     required
-                    maxLength={30}
+                    maxLength={50}
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="e.g. Muhammad Asad"
@@ -216,15 +229,18 @@ export const Leaderboard = ({
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="flex items-center gap-2 sm:gap-4 mb-2 text-center justify-center flex-col"
+        className="flex items-center justify-between mb-6 sm:mb-10"
       >
-        <div className="bg-gradient-to-br from-yellow-400 to-amber-600 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_0_30px_rgba(250,204,21,0.3)] mb-2 sm:mb-4 inline-flex">
-          <Trophy className="text-background w-6 h-6 sm:w-8 sm:h-8" />
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-yellow-500/20 to-amber-600/10 border border-yellow-500/20">
+            <Trophy className="text-yellow-400 w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-yellow-500/80 uppercase tracking-widest mb-0.5">Batch '28</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-textMain tracking-tight">Leaderboard</h2>
+          </div>
         </div>
-        <div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-amber-500">The Leaderboard</h2>
-          <p className="text-textMuted text-sm sm:text-base mt-2 max-w-md mx-auto">The absolute best of Batch '28. Submit your CGPA to claim your spot on the podium.</p>
-        </div>
+        <p className="hidden sm:block text-sm text-textMuted max-w-xs text-right">Submit your CGPA to claim a spot on the podium.</p>
       </motion.div>
 
       <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 relative overflow-hidden min-h-[250px] sm:min-h-[400px]">
@@ -245,8 +261,6 @@ export const Leaderboard = ({
             {hasSubmitted ? "Update Score on Leaderboard" : "Submit Your CGPA to Leaderboard"}
           </button>
           <p className="text-textMuted text-xs mt-4">Powered by Supabase</p>
-
-
         </motion.div>
       </div>
     </section>

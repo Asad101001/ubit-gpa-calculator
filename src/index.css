@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    /* Theme 1: Light (Black & White Brutalist with Gold Accents) */
+    /* Theme 1: Original Black & White Brutalist with Gold Accents */
     --color-brand-400: 0 0 0;        /* pure black */
     --color-brand-500: 0 0 0;        /* pure black */
     --color-brand-600: 0 0 0;        /* pure black */
@@ -23,8 +23,22 @@
     --glass-reflection-opacity: 0.1;
   }
 
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
   body {
     @apply bg-background text-textMain antialiased overflow-x-hidden transition-colors duration-500;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  * {
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -54,6 +68,14 @@
     @apply bg-border rounded-full hover:bg-brand-500/50 transition-colors;
   }
 
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   .pixel-hover {
     transition: all 0.2s steps(5);
   }
@@ -62,7 +84,7 @@
     box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.2), -4px -4px 0px rgba(20, 184, 166, 0.2);
   }
 
-  /* Brutalist Theme Overrides (Light Theme only) */
+  /* Brutalist Theme Overrides (Original Design Style) */
   :root .glass-card, [data-theme="light"] .glass-card {
     border: 2.5px solid #000000 !important;
     border-radius: 4px !important;
@@ -126,5 +148,13 @@
   :root .text-accent-500, [data-theme="light"] .text-accent-500 {
     color: rgb(200, 150, 0) !important;
     font-weight: 700 !important;
+  }
+
+  /* Graceful Tentative GPA Display */
+  .tentative-cgpa-text {
+    color: #888888;
+    letter-spacing: -0.02em;
+    font-style: italic;
+    font-weight: 900;
   }
 }

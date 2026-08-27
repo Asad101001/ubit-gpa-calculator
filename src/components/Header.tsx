@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GraduationCap, LogIn, User, LogOut, Shield, ChevronDown, ShieldCheck } from 'lucide-react';
+import { LogIn, User, LogOut, Shield, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 
 export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }: { currentView: 'main' | 'results' | 'profile', navigateTo: (v: 'main' | 'results' | 'profile') => void, activeSection?: string }) => {
@@ -24,57 +24,97 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
     navigateTo('main');
   };
 
+  const navItems = [
+    { id: 'calculator', label: 'Calculator', section: 'calculator', view: 'main' as const },
+    { id: 'analytics', label: 'Analytics', section: 'analytics', view: 'main' as const },
+    { id: 'leaderboard', label: 'Leaderboard', section: 'leaderboard', view: 'main' as const },
+    { id: 'results', label: 'Results', section: '', view: 'results' as const },
+  ];
+
+  const isActive = (item: typeof navItems[0]) => {
+    if (item.view === 'results') return currentView === 'results';
+    return currentView === 'main' && activeSection === item.section;
+  };
+
   return (
     <motion.header
-      initial={{ y: -50, opacity: 0 }}
+      initial={{ y: -60, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="sticky top-0 z-50 w-full glass border-b border-border py-2 sm:py-3"
+      className="sticky top-0 z-50 w-full glass border-b border-border"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 sm:gap-3 cursor-pointer" onClick={() => navigateTo('main')}>
-            <div className="bg-gradient-to-br from-brand-500/20 to-accent-500/20 p-1 sm:p-2 rounded-lg sm:rounded-xl border border-brand-500/30 shadow-[0_0_15px_rgba(var(--color-brand-500),0.1)] transition-all hover:scale-105">
-              <GraduationCap className="text-brand-500 w-5 h-5 sm:w-[18px] sm:h-[18px]" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-14 sm:h-16">
+        {/* Logo & Branding */}
+        <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+          <button
+            onClick={() => navigateTo('main')}
+            className="flex items-center gap-2.5 group"
+          >
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden border border-border/60 shadow-md flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
+              <img
+                src="/images/ubit_logo.jpg"
+                alt="UBIT Logo"
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="font-bold text-sm sm:text-lg tracking-tight text-textMain hidden sm:block">
-              DCS <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500">UBIT</span>
+            <div className="hidden sm:flex flex-col items-start leading-none">
+              <span className="font-black text-sm tracking-tight text-textMain">
+                UBIT <span className="text-brand-400">GPA</span>
+              </span>
+              <span className="text-[9px] font-medium text-textMuted tracking-wide uppercase mt-0.5">
+                Batch '28 · CS
+              </span>
             </div>
-          </div>
-          <div className="px-2.5 py-1 rounded-full bg-surface/90 text-textMain border border-border text-[10px] sm:text-xs font-bold tracking-wider hidden md:block shadow-sm">
-            BATCH '28
-          </div>
+          </button>
+
+          {/* Separator */}
+          <div className="hidden md:block h-6 w-px bg-border" />
+
+          {/* Slim nav — desktop */}
+          <nav className="hidden md:flex items-center gap-1 text-sm font-medium">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  navigateTo(item.view);
+                  if (item.section) {
+                    setTimeout(() => document.getElementById(item.section)?.scrollIntoView({ behavior: 'smooth' }), 100);
+                  }
+                }}
+                className={`px-3 py-1.5 rounded-lg transition-all duration-150 whitespace-nowrap text-[13px] ${
+                  isActive(item)
+                    ? 'bg-brand-500/15 text-brand-400 font-semibold'
+                    : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/60'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
         </div>
-        <div className="flex items-center gap-3 sm:gap-4">
-          {/* Nav — scrollable on mobile, no overflow clip */}
-          <nav className="flex items-center gap-0.5 text-[11px] sm:text-sm font-medium text-textMuted bg-surface/50 p-1 rounded-xl border border-border overflow-x-auto max-w-[calc(100vw-200px)] sm:max-w-none scrollbar-none">
-            <a
-              href="#calculator"
-              onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-              className={`shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${currentView === 'main' && activeSection === 'calculator' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'}`}
-            >
-              Calculator
-            </a>
-            <a
-              href="#analytics"
-              onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('analytics')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-              className={`shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${activeSection === 'analytics' && currentView === 'main' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'}`}
-            >
-              Analytics
-            </a>
-            <a
-              href="#leaderboard"
-              onClick={(e) => { e.preventDefault(); navigateTo('main'); setTimeout(() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-              className={`shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${activeSection === 'leaderboard' && currentView === 'main' ? 'text-textMain font-bold bg-surfaceHighlight shadow-sm' : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'}`}
-            >
-              Leaderboard
-            </a>
-            <button
-              onClick={() => navigateTo('results')}
-              className={`shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${currentView === 'results' ? 'text-brand-500 font-bold bg-brand-500/10 shadow-sm' : 'text-textMuted hover:text-brand-500 hover:bg-brand-500/10'}`}
-            >
-              Results
-            </button>
+
+        {/* Right side */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Mobile nav pill */}
+          <nav className="flex md:hidden items-center gap-0.5 text-[11px] font-medium bg-surfaceHighlight/50 p-1 rounded-xl border border-border overflow-x-auto max-w-[calc(100vw-160px)] scrollbar-none">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  navigateTo(item.view);
+                  if (item.section) {
+                    setTimeout(() => document.getElementById(item.section)?.scrollIntoView({ behavior: 'smooth' }), 100);
+                  }
+                }}
+                className={`shrink-0 px-2.5 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                  isActive(item)
+                    ? 'text-brand-400 font-bold bg-brand-500/10'
+                    : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
           </nav>
 
           {/* Auth Controls */}
@@ -82,54 +122,56 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2.5 pl-1.5 pr-3.5 py-1.5 bg-gradient-to-r from-surfaceHighlight/80 to-surface/80 hover:from-surfaceHighlight hover:to-surfaceHighlight text-textMain rounded-full font-bold text-xs border-[1.5px] border-border/80 hover:border-brand-500/30 transition-all shadow-[0_2px_10px_rgba(0,0,0,0.1)] group"
+                className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 bg-surfaceHighlight/70 hover:bg-surfaceHighlight text-textMain rounded-full font-bold text-xs border border-border hover:border-brand-500/30 transition-all shadow-sm group"
               >
-                <div className="w-7 h-7 bg-black text-brand-500 rounded-full flex items-center justify-center text-[11px] font-black group-hover:scale-105 transition-transform border border-brand-500/20">
+                <div className="w-7 h-7 bg-brand-500/20 text-brand-400 rounded-full flex items-center justify-center text-[11px] font-black border border-brand-500/30">
                   {profile.full_name.charAt(0)}
                 </div>
-                <span className="hidden sm:inline max-w-[100px] truncate">{profile.full_name.split(' ')[0]}</span>
-                {profile.is_admin && <Shield size={12} className="text-yellow-500" />}
-                <ChevronDown size={14} className={`transition-transform text-textMuted ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <span className="hidden sm:inline max-w-[80px] truncate text-[12px]">{profile.full_name.split(' ')[0]}</span>
+                {profile.is_admin && <Shield size={11} className="text-yellow-400" />}
+                <ChevronDown size={13} className={`transition-transform text-textMuted ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
               <AnimatePresence>
                 {isDropdownOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="absolute right-0 mt-3 w-56 bg-surface/95 backdrop-blur-xl border border-border rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden z-50"
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                    className="absolute right-0 mt-2 w-52 bg-surface/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl overflow-hidden z-50"
                   >
-                    <div className="px-4 py-3 border-b border-border/50 bg-surfaceHighlight/30 flex flex-col items-start">
-                      <p className="text-sm font-bold text-textMain truncate w-full">{profile.full_name}</p>
-                      <p className="text-[11px] text-textMuted font-medium truncate mt-0.5 mb-2 w-full">{profile.email}</p>
-                      {profile.is_admin ? (
-                        <span className="inline-flex items-center gap-1 text-[9px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-2 py-0.5 rounded-sm font-bold uppercase tracking-wider shadow-sm">
-                          <Shield size={10} /> Admin
-                        </span>
-                      ) : profile.is_verified ? (
-                        <span className="inline-flex items-center gap-1 text-[9px] bg-green-500/10 text-green-500 border border-green-500/30 px-2 py-0.5 rounded-sm font-bold uppercase tracking-wider shadow-sm">
-                          <ShieldCheck size={10} /> Verified User
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[9px] bg-surfaceHighlight text-textMuted border border-border px-2 py-0.5 rounded-sm font-bold uppercase tracking-wider shadow-sm">
-                          Unverified
-                        </span>
-                      )}
+                    <div className="px-4 py-3 border-b border-border/50 bg-surfaceHighlight/20">
+                      <p className="text-sm font-bold text-textMain truncate">{profile.full_name}</p>
+                      <p className="text-[11px] text-textMuted mt-0.5 truncate">{profile.email}</p>
+                      <div className="mt-2">
+                        {profile.is_admin ? (
+                          <span className="inline-flex items-center gap-1 text-[9px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                            <Shield size={9} /> Admin
+                          </span>
+                        ) : profile.is_verified ? (
+                          <span className="inline-flex items-center gap-1 text-[9px] bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                            <ShieldCheck size={9} /> Verified
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[9px] bg-surfaceHighlight text-textMuted border border-border px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                            Unverified
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="p-1.5">
+                    <div className="p-1.5 space-y-0.5">
                       <button
                         onClick={() => { setIsDropdownOpen(false); navigateTo('profile'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-textMain hover:bg-brand-500/10 hover:text-brand-500 rounded-xl transition-colors text-left"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-textMain hover:bg-brand-500/10 hover:text-brand-400 rounded-xl transition-colors text-left"
                       >
-                        <User size={16} /> My Profile
+                        <User size={15} /> My Profile
                       </button>
                       <button
                         onClick={handleSignOut}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-red-500 hover:bg-red-500/10 rounded-xl transition-colors text-left mt-1"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-red-400 hover:bg-red-500/10 rounded-xl transition-colors text-left"
                       >
-                        <LogOut size={16} /> Sign Out
+                        <LogOut size={15} /> Sign Out
                       </button>
                     </div>
                   </motion.div>
@@ -139,9 +181,9 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
           ) : (
             <button
               onClick={() => openAuthModal('signin')}
-              className="flex items-center gap-2 px-4 py-2 bg-textMain text-background rounded-full font-bold text-xs transition-all hover:bg-textMain/90 hover:scale-105 shadow-md shadow-brand-500/10"
+              className="flex items-center gap-2 px-4 py-2 bg-brand-500 hover:bg-brand-400 text-white rounded-full font-semibold text-xs transition-all hover:scale-105 shadow-md shadow-brand-500/20"
             >
-              <LogIn size={14} />
+              <LogIn size={13} />
               <span className="hidden sm:inline">Sign In</span>
             </button>
           )}

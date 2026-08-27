@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
+import { validateMarks } from '../lib/validation';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 24, scale: 0.98 },
@@ -12,14 +13,27 @@ const itemVariants: Variants = {
 };
 
 export const CourseSelect = ({ course, value, onChange }: any) => {
-  const gp = getGradePoint(value);
+  const gp = getGradePoint(typeof value === 'number' ? value : 0);
   
+  const handleDirectChange = (raw: string) => {
+    if (raw === '') {
+      onChange('');
+      return;
+    }
+    const validation = validateMarks(raw);
+    if (validation.isValid) {
+      onChange(validation.parsed);
+    } else {
+      toast.error(validation.error || 'Marks must be between 0 and 100', { id: 'marks-validation-err' });
+    }
+  };
+
   return (
     <motion.div 
       variants={itemVariants}
       whileHover={{ y: -3 }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className="group flex flex-col p-2 sm:p-4 rounded-xl hover:bg-surface/60 border border-transparent hover:border-border/50 transition-all gap-2 sm:gap-4"
+      className="group flex flex-col p-2.5 sm:p-4 rounded-xl hover:bg-surface/60 border border-transparent hover:border-border/50 transition-all gap-2 sm:gap-4"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
         <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
@@ -37,43 +51,30 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <div className="relative flex-1 sm:w-24 flex items-center justify-center">
+          <div className="relative flex-1 sm:w-28 flex items-center justify-center">
             <button
               onClick={() => {
                 const val = typeof value === 'number' ? value : 0;
                 if (val > 0) onChange(val - 1);
               }}
-              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-l-lg sm:rounded-l-xl bg-surface/70 hover:bg-surfaceHighlight border border-border border-r-0 text-textMuted font-bold"
+              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-l-lg sm:rounded-l-xl bg-surface/70 hover:bg-surfaceHighlight border border-border border-r-0 text-textMuted font-bold active:scale-95 transition-all"
             >-</button>
             <input
               type="number"
               min="0"
               max="100"
               value={value === '' ? '' : value}
-              onChange={(e) => {
-                if (e.target.value === '') {
-                  onChange('');
-                  return;
-                }
-                const val = parseInt(e.target.value);
-                if (!isNaN(val)) {
-                  if (val >= 0 && val <= 100) {
-                    onChange(val);
-                  } else {
-                    toast.error('Marks must be between 0 and 100', { id: 'marks-error' });
-                  }
-                }
-              }}
+              onChange={(e) => handleDirectChange(e.target.value)}
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="0"
-              className="w-12 sm:w-16 h-6 sm:h-8 glass-input text-textMain py-0 px-1 rounded-none border-y border-border font-bold text-[10px] sm:text-sm focus:ring-0 focus:outline-none placeholder:text-textMuted/50 text-center"
+              className="w-12 sm:w-16 h-7 sm:h-8 glass-input text-textMain py-0 px-1 rounded-none border-y border-border font-bold text-xs sm:text-sm focus:ring-0 focus:outline-none placeholder:text-textMuted/50 text-center"
             />
             <button
               onClick={() => {
                 const val = typeof value === 'number' ? value : 0;
                 if (val < 100) onChange(val + 1);
               }}
-              className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-r-lg sm:rounded-r-xl bg-surface/70 hover:bg-surfaceHighlight border border-border border-l-0 text-textMuted font-bold"
+              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-r-lg sm:rounded-r-xl bg-surface/70 hover:bg-surfaceHighlight border border-border border-l-0 text-textMuted font-bold active:scale-95 transition-all"
             >+</button>
           </div>
           <div className="w-12 sm:w-16 text-center py-1 px-1 sm:py-2 sm:px-2 rounded-lg sm:rounded-xl bg-surface/70 border border-border font-mono font-bold text-brand-400 flex flex-col justify-center">
@@ -87,10 +88,10 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
         <div className="w-full h-1.5 sm:h-2 bg-border/40 rounded-full overflow-hidden relative opacity-70 group-hover:opacity-100 transition-opacity">
           <motion.div 
             initial={{ width: 0 }}
-            animate={{ width: `${value === '' ? 0 : value}%` }}
+            animate={{ width: `${value === '' ? 0 : Math.min(100, Math.max(0, Number(value)))}%` }}
             transition={{ type: 'spring', stiffness: 120, damping: 20, delay: 0.05 }}
             className={`absolute top-0 left-0 h-full rounded-full ${
-              typeof value === 'number' && value >= 80 ? 'bg-green-500' : 
+              typeof value === 'number' && value >= 80 ? 'bg-emerald-500' : 
               typeof value === 'number' && value >= 50 ? 'bg-brand-500' : 'bg-red-500'
             }`}
           />

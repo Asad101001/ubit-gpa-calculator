@@ -1,45 +1,55 @@
+import { AlertCircle } from 'lucide-react';
+
 interface TentativeCGPAProps {
   cgpa: string;
   missingCount: number;
   size?: 'sm' | 'md' | 'lg';
+  showBadge?: boolean;
 }
 
-export const TentativeCGPA = ({ cgpa, missingCount, size = 'md' }: TentativeCGPAProps) => {
+export const TentativeCGPA = ({ cgpa, missingCount, size = 'md', showBadge = true }: TentativeCGPAProps) => {
   const sizeMap = {
-    sm: { text: 'text-lg', stroke: '1px', label: 'text-[9px]', sub: 'text-[8px]' },
-    md: { text: 'text-xl', stroke: '1.5px', label: 'text-[10px]', sub: 'text-[9px]' },
-    lg: { text: 'text-3xl', stroke: '2px', label: 'text-[10px]', sub: 'text-[9px]' },
+    sm: { num: 'text-2xl', label: 'text-[9px]', badge: 'text-[8px]', gap: 'gap-1' },
+    md: { num: 'text-3xl', label: 'text-[9px]', badge: 'text-[9px]', gap: 'gap-1.5' },
+    lg: { num: 'text-4xl', label: 'text-[10px]', badge: 'text-[9px]', gap: 'gap-2' },
   };
-
   const s = sizeMap[size];
 
   return (
-    <div className="flex flex-col items-center">
-      <span className={`${s.label} font-bold text-textMuted/50 uppercase tracking-wider mb-1`}>
-        Tentative CGPA
+    <div className={`flex flex-col items-center ${s.gap}`}>
+      {/* Tentative label */}
+      <span className={`${s.label} font-bold uppercase tracking-[0.14em] text-textMuted/50 flex items-center gap-1`}>
+        <AlertCircle size={9} className="opacity-60" />
+        Tentative
       </span>
-      <div className="relative inline-flex items-center">
+
+      {/* The ghosted number */}
+      <div className="relative group">
         <span
-          className={`${s.text} font-black italic tracking-tight tentative-cgpa-text`}
+          className={`${s.num} font-black italic leading-none select-none tentative-cgpa-pulse`}
           style={{
             color: 'transparent',
-            WebkitTextStroke: `${s.stroke} rgba(0, 0, 0, 0.22)`,
-            letterSpacing: '-0.02em',
+            WebkitTextStroke: '1.5px rgba(120,135,165,0.35)',
+            letterSpacing: '-0.03em',
           }}
         >
           {cgpa}
         </span>
         {/* Dotted underline */}
         <div
-          className="absolute -bottom-0.5 left-0 right-0 h-[2px]"
+          className="absolute -bottom-1 left-0 right-0 h-[1.5px]"
           style={{
-            backgroundImage: 'repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 0, rgba(0,0,0,0.15) 3px, transparent 3px, transparent 7px)',
+            backgroundImage: 'repeating-linear-gradient(90deg, rgba(120,135,165,0.25) 0, rgba(120,135,165,0.25) 3px, transparent 3px, transparent 7px)',
           }}
         />
       </div>
-      <span className={`${s.sub} text-textMuted/40 mt-1.5 font-medium italic`}>
-        {missingCount} subject{missingCount !== 1 ? 's' : ''} missing
-      </span>
+
+      {/* Missing subjects badge */}
+      {showBadge && (
+        <span className={`${s.badge} text-textMuted/40 font-medium italic mt-0.5`}>
+          {missingCount} result{missingCount !== 1 ? 's' : ''} pending
+        </span>
+      )}
     </div>
   );
 };
