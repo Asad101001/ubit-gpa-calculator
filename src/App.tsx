@@ -373,7 +373,7 @@ function App() {
                         Academic Results & GPA Hub
                       </h1>
                       <p className="text-xs sm:text-sm text-gray-200 font-medium mt-1">
-                        University of Karachi · BSSE Batch 2024–28
+                        University of Karachi · BSCS Batch 2024–28
                       </p>
                     </div>
                   </div>

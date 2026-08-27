@@ -62,7 +62,7 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
                 UBIT <span className="text-brand-400">GPA</span>
               </span>
               <span className="text-[9px] font-medium text-textMuted tracking-wide uppercase mt-0.5">
-                Batch '28 · CS
+                Batch '28 · BSCS
               </span>
             </div>
           </button>

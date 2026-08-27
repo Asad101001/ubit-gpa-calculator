@@ -52,7 +52,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: 'main' | 'results' 
               </p>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surfaceHighlight border border-border text-[10px] font-bold text-emerald-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Batch '28 · BSSE
+                Batch '28 · BSCS
               </div>
             </div>
 
