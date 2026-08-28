@@ -62,34 +62,82 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signIn: async (email, password) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { error: error.message };
-    return { error: null };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          return { error: 'Invalid email or password. Please check your credentials and try again.' };
+        }
+        return { error: error.message };
+      }
+      return { error: null };
+    } catch (e: any) {
+      return { error: e.message || 'Connection failed. Please retry.' };
+    }
   },
 
   signUp: async (email, password, fullName, seatNo) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) return { error: error.message };
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+      const cleanSeatNo = seatNo.toUpperCase().trim();
 
-    if (data.user) {
-      const { error: profileError } = await supabase.from('profiles').insert({
-        id: data.user.id,
-        email,
-        full_name: fullName,
-        seat_no: seatNo.toUpperCase().trim() || null,
-        is_admin: false,
-        is_verified: false,
-        show_results_publicly: true,
+      // 1. Account Deduplication Check: Ensure Seat No is not claimed by another user
+      if (cleanSeatNo) {
+        const { data: existingSeat } = await supabase
+          .from('profiles')
+          .select('id, seat_no')
+          .eq('seat_no', cleanSeatNo)
+          .maybeSingle();
+
+        if (existingSeat) {
+          return {
+            error: `Seat number ${cleanSeatNo} is already registered to another account. If this is your seat number, please sign in or contact the administrator.`
+          };
+        }
+      }
+
+      // 2. Perform Supabase Sign Up
+      const { data, error } = await supabase.auth.signUp({ 
+        email: cleanEmail, 
+        password,
+        options: {
+          data: {
+            full_name: fullName.trim(),
+            seat_no: cleanSeatNo || null
+          }
+        }
       });
 
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        return { error: 'Failed to link seat number. It might be invalid or already claimed.' };
+      if (error) {
+        if (error.message.includes('already registered')) {
+          return { error: 'An account with this email address already exists. Please sign in.' };
+        }
+        return { error: error.message };
       }
-    }
 
-    return { error: null };
+      if (data.user) {
+        const { error: profileError } = await supabase.from('profiles').insert({
+          id: data.user.id,
+          email: cleanEmail,
+          full_name: fullName.trim(),
+          seat_no: cleanSeatNo || null,
+          is_admin: false,
+          is_verified: false,
+          show_results_publicly: true,
+        });
+
+        if (profileError && !profileError.message.includes('duplicate key')) {
+          console.error('Profile creation error:', profileError);
+          return { error: 'Account created, but failed to link seat number. You can link it later in your profile.' };
+        }
+      }
+
+      return { error: null };
+    } catch (e: any) {
+      return { error: e.message || 'Registration failed. Please check your network and retry.' };
+    }
   },
+
 
   signOut: async () => {
     await supabase.auth.signOut();

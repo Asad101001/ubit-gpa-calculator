@@ -134,14 +134,15 @@ export const Analytics = ({
             <h3 className="text-textMain font-bold mb-4 text-center">Skill Distribution</h3>
             <div className="w-full flex-1 min-h-0">
               <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                <RadarChart cx="50%" cy="50%" outerRadius="55%" margin={{ top: 10, right: 25, bottom: 10, left: 25 }} data={radarData}>
                   <PolarGrid stroke="var(--color-border)" />
-                  <PolarAngleAxis dataKey="subject" tick={{fill: 'var(--color-text-muted)', fontSize: 12, fontWeight: 600}} />
+                  <PolarAngleAxis dataKey="subject" tick={{ fill: '#000000', fontSize: 11, fontWeight: 700 }} />
                   <PolarRadiusAxis angle={30} domain={[0, 4]} tick={false} axisLine={false} />
-                  <Radar name="GPA" dataKey="A" stroke="var(--color-brand-500)" fill="var(--color-brand-500)" fillOpacity={0.4} />
+                  <Radar name="GPA" dataKey="A" stroke="#000000" fill="#fbbf24" fillOpacity={0.6} />
                   <Tooltip content={<CustomTooltip />} />
                 </RadarChart>
               </ResponsiveContainer>
+
             </div>
           </motion.div>
 

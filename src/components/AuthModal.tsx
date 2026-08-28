@@ -38,6 +38,9 @@ export const AuthModal = () => {
     }
   };
 
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+
   const switchMode = () => {
     resetForm();
     openAuthModal(isSignUp ? 'signin' : 'signup');
@@ -45,42 +48,69 @@ export const AuthModal = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (cooldownSeconds > 0) return;
+
     setError('');
     setSuccess('');
+
+    const cleanEmail = email.trim();
+    const cleanPassword = password;
+    const cleanFullName = fullName.trim();
+    const cleanSeatNo = seatNo.trim().toUpperCase();
+
+    // Basic format validations
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    if (isSignUp) {
+      if (!cleanFullName || cleanFullName.length < 2) {
+        setError('Please enter your full name (at least 2 characters).');
+        return;
+      }
+      if (cleanPassword.length < 6) {
+        setError('Password must be at least 6 characters.');
+        return;
+      }
+      if (cleanSeatNo && !/^[A-Za-z0-9-]{5,15}$/.test(cleanSeatNo)) {
+        setError('Please enter a valid Seat Number format (e.g. B24110006087).');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
       if (isSignUp) {
-        const cleanEmail = email.trim();
-        const cleanFullName = fullName.trim();
-        const cleanSeatNo = seatNo.trim().toUpperCase();
-
-        if (!cleanFullName) {
-          setError('Please enter your full name.');
-          setIsSubmitting(false);
-          return;
-        }
-        if (password.length < 6) {
-          setError('Password must be at least 6 characters.');
-          setIsSubmitting(false);
-          return;
-        }
-
-        const result = await signUp(cleanEmail, password, cleanFullName, cleanSeatNo);
+        const result = await signUp(cleanEmail, cleanPassword, cleanFullName, cleanSeatNo);
         if (result.error) {
           setError(result.error);
         } else {
-          setSuccess('Account created! Check your email to verify, then sign in.');
+          setSuccess('Account created! Please check your email to verify your address, then sign in.');
           setTimeout(() => {
             resetForm();
             openAuthModal('signin');
           }, 3000);
         }
       } else {
-        const cleanEmail = email.trim();
-        const result = await signIn(cleanEmail, password);
+        const result = await signIn(cleanEmail, cleanPassword);
         if (result.error) {
           setError(result.error);
+          setFailedAttempts(prev => {
+            const next = prev + 1;
+            if (next >= 4) {
+              setCooldownSeconds(20);
+              const timer = setInterval(() => {
+                setCooldownSeconds(s => {
+                  if (s <= 1) { clearInterval(timer); return 0; }
+                  return s - 1;
+                });
+              }, 1000);
+            }
+            return next;
+          });
         } else {
           resetForm();
           closeAuthModal();
@@ -92,6 +122,7 @@ export const AuthModal = () => {
       setIsSubmitting(false);
     }
   };
+
 
   return (
     <AnimatePresence>
@@ -232,19 +263,24 @@ export const AuthModal = () => {
 
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || cooldownSeconds > 0}
                   className="w-full py-4 bg-black hover:bg-zinc-800 disabled:opacity-50 text-white font-extrabold rounded-sm transition-all text-sm uppercase tracking-wider border-2 border-black mt-2"
                   style={{ boxShadow: '3px 3px 0px 0px rgb(230, 180, 0)' }}
                 >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <Loader2 size={16} className="animate-spin" />
-                      {isSignUp ? 'Creating Account...' : 'Signing In...'}
-                    </span>
+                  {cooldownSeconds > 0 ? (
+                    `Too many attempts (${failedAttempts}). Please wait ${cooldownSeconds}s`
+                  ) : isSubmitting ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="animate-spin" size={16} />
+                      <span>Processing...</span>
+                    </div>
+                  ) : isSignUp ? (
+                    'Create Account'
                   ) : (
-                    isSignUp ? 'Create Account' : 'Sign In'
+                    'Sign In'
                   )}
                 </button>
+
               </form>
 
               <div className="mt-5 pt-4 border-t border-border w-full">

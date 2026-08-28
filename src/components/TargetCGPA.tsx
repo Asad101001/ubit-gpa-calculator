@@ -1,10 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Target, ChevronDown, ChevronUp, Lightbulb, CheckCircle2, Sparkles, Calculator, RefreshCw, AlertCircle, Award } from 'lucide-react';
 import { getGradePoint, getMarkColor, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
-import { useAuthStore } from '../store/useAuthStore';
 import { validateTargetCgpa } from '../lib/validation';
 import { triggerConfetti } from '../lib/confetti';
+
 
 
 const ALL_COURSES = [...SEM1_COURSES, ...SEM2_COURSES, ...SEM3_COURSES];
@@ -46,38 +46,8 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
   const [excludedCourses, setExcludedCourses] = useState<Record<string, boolean>>({});
   const [remainingSemesters, setRemainingSemesters] = useState(5);
 
-  const { profile } = useAuthStore();
-  const [officialMarks, setOfficialMarks] = useState<Record<string, unknown>>({});
-
-  useEffect(() => {
-    const fetchOfficial = async () => {
-      if (!profile?.seat_no) return;
-      try {
-        let resultsData: Record<string, unknown>[] | null = null;
-        try {
-          const res = await fetch('https://ubit-results-28-api.vercel.app/api/results');
-          if (res.ok) resultsData = await res.json();
-        } catch {
-          // ignore network error
-        }
-
-        if (!resultsData) {
-          const fallbackRes = await fetch('/fallback-results.json');
-          if (fallbackRes.ok) resultsData = await fallbackRes.json();
-        }
-
-        if (resultsData) {
-          const match = resultsData.find((row) => row.seat_no === profile.seat_no);
-          if (match) setOfficialMarks(match);
-        }
-      } catch {
-        // ignore error
-      }
-    };
-    fetchOfficial();
-  }, [profile?.seat_no]);
-
   const allGrades: Record<string, number | ''> = useMemo(() => ({
+
     ...sem1Grades, ...sem2Grades, ...sem3Grades
   }), [sem1Grades, sem2Grades, sem3Grades]);
 
@@ -104,25 +74,30 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
     let currentTotalCredits = 0;
     const editableCourses: CourseItem[] = [];
 
+    // Compute current total credits and QP across all completed courses
     ALL_COURSES.forEach(c => {
       const marks = allGrades[c.code];
       if (marks !== '' && marks !== undefined && !isNaN(Number(marks))) {
         const gp = getGradePoint(Number(marks));
         currentTotalQP += gp * c.credits;
         currentTotalCredits += c.credits;
-        
-        const dbKey = c.code.toLowerCase().replace('-', '');
-        const officialVal = officialMarks[dbKey];
-        const isLocked = officialVal !== undefined && officialVal !== '' && officialVal !== 'Results Unannounced' && officialVal !== 'Marks Missing';
-        const isExcludedByUser = excludedCourses[c.code];
+      }
+    });
 
-        if (!isLocked && !isExcludedByUser && Number(marks) < 85) {
+
+    // Sem 1 and Sem 2 are finalized official records and cannot be changed.
+    // Only ongoing Semester 3 courses are candidate for improvement in existing marks mode.
+    SEM3_COURSES.forEach(c => {
+      const marks = allGrades[c.code];
+      if (marks !== '' && marks !== undefined && !isNaN(Number(marks))) {
+        const isExcludedByUser = excludedCourses[c.code];
+        if (!isExcludedByUser && Number(marks) < 85) {
           editableCourses.push(c);
         }
       }
     });
 
-    if (currentTotalCredits === 0) return [];
+    if (currentTotalCredits === 0 || editableCourses.length === 0) return [];
 
     const neededTotalQP = targetVal * currentTotalCredits;
     const qpDeficit = neededTotalQP - currentTotalQP;
@@ -156,7 +131,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
     });
 
     const targetQpInt = Math.ceil(qpDeficit * 10);
-    const MAX_QP = 800;
+    const MAX_QP = 400;
     
     const dp = new Array(MAX_QP + 1).fill(Infinity);
     const dpChoice: Array<Record<string, CourseSuggestion> | null> = new Array(MAX_QP + 1).fill(null);
@@ -193,9 +168,26 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
       }
     }
 
-    if (!bestChoices) return [];
-    return Object.values(bestChoices);
-  }, [targetVal, currentVal, allGrades, officialMarks, excludedCourses]);
+    if (!bestChoices) {
+      // Fallback: Return top 3 highest ROI improvements in Sem 3
+      const fallbackList: CourseSuggestion[] = [];
+      courseOptions.forEach((opts: CourseSuggestion[]) => {
+        if (opts.length > 0) {
+          const best = opts[opts.length - 1]; // Max gain
+          fallbackList.push(best);
+        }
+      });
+
+      return fallbackList
+        .sort((a, b) => (b.cgpaImpact / Math.max(1, b.marksNeeded)) - (a.cgpaImpact / Math.max(1, a.marksNeeded)))
+        .slice(0, 3);
+    }
+    
+    return Object.values(bestChoices)
+      .sort((a, b) => (b.cgpaImpact / Math.max(1, b.marksNeeded)) - (a.cgpaImpact / Math.max(1, a.marksNeeded)))
+      .slice(0, 4);
+  }, [targetVal, currentVal, allGrades, excludedCourses]);
+
 
   const projectedCgpa = useMemo(() => {
     if (suggestions.length === 0) return currentVal;
@@ -413,7 +405,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                   <div className="flex items-center gap-2">
                     <Sparkles size={16} className="text-yellow-500" />
                     <h4 className="text-xs sm:text-sm font-black text-black uppercase tracking-wider">
-                      Optimal Improvement Path ({suggestions.length} Subjects Recommended)
+                      Strategic Focus ({suggestions.length} Courses Recommended)
                     </h4>
                   </div>
                   {isTargetAchievable && (
@@ -423,14 +415,31 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                   )}
                 </div>
 
+                <div className="text-[11px] text-gray-600 font-bold bg-amber-50 border border-amber-300 rounded-lg p-2.5 flex items-center justify-between gap-2">
+                  <span>ℹ️ Semesters 1 & 2 are finalized records. Recommendations target ongoing Semester 3.</span>
+                  <button 
+                    onClick={() => setMode('future')} 
+                    className="underline text-black font-black shrink-0 hover:text-yellow-700"
+                  >
+                    View Future Roadmap →
+                  </button>
+                </div>
+
                 {suggestions.length === 0 ? (
-                  <div className="p-4 bg-red-50 border-2 border-red-400 rounded-xl text-xs sm:text-sm text-red-800 space-y-1">
+                  <div className="p-4 bg-red-50 border-2 border-red-400 rounded-xl text-xs sm:text-sm text-red-800 space-y-2">
                     <p className="font-bold flex items-center gap-1.5">
-                      <AlertCircle size={15} /> Target cannot be reached via existing courses alone.
+                      <AlertCircle size={15} /> Target cannot be met with Semester 3 alone.
                     </p>
-                    <p>Try enabling excluded subjects or switch to <strong>Future Semesters</strong> mode to see requirements across upcoming terms.</p>
+                    <p>Since Sem 1 & 2 are closed, switch to <strong>Future Semesters (Sem 4–8)</strong> to see the required semester GPA targets.</p>
+                    <button
+                      onClick={() => setMode('future')}
+                      className="px-3 py-1.5 bg-black text-yellow-400 rounded-lg font-black text-xs border border-black shadow-[2px_2px_0px_0px_#000] active:scale-95"
+                    >
+                      Calculate Future Semesters Target
+                    </button>
                   </div>
                 ) : (
+
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {suggestions.map((s) => {

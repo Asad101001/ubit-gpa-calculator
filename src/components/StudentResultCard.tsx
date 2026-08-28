@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Calculator, CheckCircle, XCircle, AlertTriangle, Send, Loader2 } from 'lucide-react';
+import { Download, Calculator, AlertTriangle, Send, Loader2, Edit3, Save, X, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+
+
 import { getGradePoint, getLetterGrade as getLetterGradeUtil, getMarkColor } from '../lib/utils';
 import { generateTranscriptPDF } from '../lib/transcriptGenerator';
 import { SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 import { TentativeCGPA } from './TentativeCGPA';
 import { triggerConfetti } from '../lib/confetti';
-
+import { useAuthStore } from '../store/useAuthStore';
+import { supabase } from '../lib/supabase';
 
 // Build subjects meta from canonical course lists in utils.ts
 const SUBJECTS_META = [
@@ -20,23 +23,97 @@ const SEM3_META = SEM3_COURSES.map(c => ({ ...c, sem: 3 }));
 const getLetterGrade = getLetterGradeUtil;
 export { getMarkColor };
 
-
 interface Props {
   student: Record<string, any>;
   onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>) => void;
   autoOpenReport?: boolean;
 }
 
-export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }: Props) => {
+export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpenReport = false }: Props) => {
+  const { user, profile, openAuthModal } = useAuthStore();
+  const [student, setStudent] = useState<Record<string, any>>(initialStudent);
+  
   const [isReportModalOpen, setIsReportModalOpen] = useState(autoOpenReport);
   const [reportMessage, setReportMessage] = useState('');
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const [reportSuccess, setReportSuccess] = useState(false);
 
+  // Inline editing states
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedMarks, setEditedMarks] = useState<Record<string, number | ''>>({});
+  const [isSavingMarks, setIsSavingMarks] = useState(false);
+
+  const isOwner = !!profile?.seat_no && profile.seat_no.toUpperCase() === String(student['Seat No']).toUpperCase();
+  const isAdmin = profile?.is_admin ?? false;
+  const canEdit = isOwner || isAdmin;
+
   const sem1Subs = SUBJECTS_META.filter(s => s.sem === 1);
   const sem2Subs = SUBJECTS_META.filter(s => s.sem === 2);
   const sem3Subs = SEM3_META;
 
+  const startEditing = () => {
+    if (!user) {
+      toast('Sign in to your student account to edit your official marks.', { icon: '🔒' });
+      openAuthModal('signin');
+      return;
+    }
+    if (!canEdit) {
+      toast.error(`You can only edit marks for your own seat number (${profile?.seat_no || 'Unassigned'}).`, { id: 'auth-err-edit' });
+      return;
+    }
+
+    const initial: Record<string, number | ''> = {};
+    [...SUBJECTS_META, ...SEM3_META].forEach(s => {
+      const val = student[s.id];
+      initial[s.id] = (val !== undefined && val !== null && !isNaN(Number(val))) ? Number(val) : '';
+    });
+    setEditedMarks(initial);
+    setIsEditing(true);
+  };
+
+  const handleSaveAllMarks = async () => {
+    if (!canEdit) return;
+    setIsSavingMarks(true);
+
+    try {
+      const targetSeatNo = student['Seat No'];
+      const updates: Record<string, any> = { seat_no: targetSeatNo, updated_at: new Date().toISOString() };
+      
+      Object.entries(editedMarks).forEach(([subId, markVal]) => {
+        if (markVal !== '') {
+          updates[subId] = Number(markVal);
+        }
+      });
+
+      // Try updating via supabase directly if user is logged in
+      const { error } = await supabase
+        .from('results')
+        .upsert(updates, { onConflict: 'seat_no' });
+
+      if (error) {
+        // Try fallback via API
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch('/api/update-marks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ seat_no: targetSeatNo, marks_payload: updates }),
+        });
+        if (!res.ok) throw new Error('Failed to save marks');
+      }
+
+      setStudent(prev => ({ ...prev, ...editedMarks }));
+      setIsEditing(false);
+      triggerConfetti();
+      toast.success('Official marks updated successfully!', { icon: '✅' });
+    } catch (err: any) {
+      // Local optimistic update if backend fails in offline/demo mode
+      setStudent(prev => ({ ...prev, ...editedMarks }));
+      setIsEditing(false);
+      toast.success('Marks updated locally in session!', { icon: '💾' });
+    } finally {
+      setIsSavingMarks(false);
+    }
+  };
 
   const handleReportSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,8 +158,8 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
     let qp = 0, cr = 0;
     let missing = false;
     subs.forEach(s => {
-      const raw = student[s.id];
-      const m = raw !== undefined && !isNaN(Number(raw)) ? Number(raw) : null;
+      const raw = isEditing ? editedMarks[s.id] : student[s.id];
+      const m = raw !== undefined && raw !== '' && !isNaN(Number(raw)) ? Number(raw) : null;
       if (m !== null) { qp += getGradePoint(m) * s.credits; cr += s.credits; }
       else { missing = true; }
     });
@@ -91,7 +168,6 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
 
   const s1Stats = calcSemStats(sem1Subs);
   const s2Stats = calcSemStats(sem2Subs);
-  // Sem 3 is always tentative
   const s3Stats = calcSemStats(sem3Subs);
   const hasMissing = s1Stats.missing || s2Stats.missing;
   const allQP = s1Stats.qp + s2Stats.qp;
@@ -99,8 +175,8 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
   const cgpa = allCr > 0 && !hasMissing ? (allQP / allCr).toFixed(3) : '—';
   const tentativeCgpa = allCr > 0 ? (allQP / allCr).toFixed(3) : '0.000';
   const missingCount = SUBJECTS_META.filter(s => {
-    const raw = student[s.id];
-    return raw === undefined || raw === null || isNaN(Number(raw));
+    const raw = isEditing ? editedMarks[s.id] : student[s.id];
+    return raw === undefined || raw === null || raw === '' || isNaN(Number(raw));
   }).length;
 
   const handlePrefill = () => {
@@ -127,8 +203,8 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
   };
 
   const SubjectRow = ({ sub, delay }: { sub: typeof SUBJECTS_META[0], delay: number }) => {
-    const raw = student[sub.id];
-    const marks = raw !== undefined && raw !== null && !isNaN(Number(raw)) ? Number(raw) : null;
+    const raw = isEditing ? editedMarks[sub.id] : student[sub.id];
+    const marks = raw !== undefined && raw !== '' && raw !== null && !isNaN(Number(raw)) ? Number(raw) : null;
     const isMissing = marks === null;
     const gp = marks !== null ? getGradePoint(marks) : null;
 
@@ -149,12 +225,30 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
         
         <span className="hidden sm:block text-[10px] text-textMuted shrink-0 w-24 text-center">{sub.credits} Credit Hours</span>
         
-        {isMissing ? (
+        {isEditing ? (
+          <div className="shrink-0 flex items-center gap-2">
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={editedMarks[sub.id] ?? ''}
+              onChange={(e) => {
+                const val = e.target.value === '' ? '' : Math.min(100, Math.max(0, Number(e.target.value)));
+                setEditedMarks(prev => ({ ...prev, [sub.id]: val }));
+              }}
+              placeholder="0-100"
+              className="w-20 px-2 py-1 bg-white border-2 border-black rounded font-mono font-bold text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-[1.5px_1.5px_0px_0px_#000]"
+            />
+            <span className="text-xs font-bold text-gray-500 w-10 text-right">
+              {marks !== null ? `${getLetterGrade(marks)} (${getGradePoint(marks)})` : '—'}
+            </span>
+          </div>
+        ) : isMissing ? (
           <span className="shrink-0 sm:w-32 text-left sm:text-right text-[10px] text-textMuted/50 italic pr-2 mt-1 sm:mt-0">— Missing Marks</span>
         ) : (
           <div className="shrink-0 flex items-center justify-between sm:justify-end gap-3 sm:gap-1.5 w-full sm:w-32 mt-2 sm:mt-0 bg-surfaceHighlight/30 sm:bg-transparent p-2.5 sm:p-0 rounded-lg sm:rounded-none">
             <div className="flex items-center gap-3 sm:gap-1.5">
-              <span className={`text-sm ${getMarkColor(marks!)} w-6 text-center sm:text-right`}>{marks}</span>
+              <span className={`text-sm ${getMarkColor(marks!)} w-6 text-center sm:text-right font-bold`}>{marks}</span>
               <span className="text-[10px] bg-surfaceHighlight border border-border px-1.5 py-0.5 rounded font-bold text-textMuted w-6 text-center">{getLetterGrade(marks!)}</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -175,74 +269,115 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
       className="space-y-4"
     >
       {/* Header Card */}
-      <div className="glass rounded-2xl p-5 sm:p-8 border-border">
+      <div className="glass rounded-2xl p-5 sm:p-8 border-2 border-black shadow-[4px_4px_0px_0px_#000]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-bold text-textMuted uppercase tracking-widest mb-1">Search Result</p>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-yellow-400 text-black border border-black shadow-[1px_1px_0px_0px_#000]">
+                Verified Student Record
+              </span>
+              {canEdit && (
+                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-green-100 text-green-800 border border-green-400">
+                  {isAdmin ? 'Admin Mode' : 'Your Account'}
+                </span>
+              )}
+            </div>
             <h2 className="text-lg sm:text-2xl font-black text-textMain tracking-tight line-clamp-2">{student['Name']}</h2>
-            <p className="text-sm text-textMuted font-mono mt-1">Seat No: <span className="font-bold text-textMain">{student['Seat No']}</span></p>
+            <p className="text-sm text-textMuted font-mono mt-0.5">Seat No: <span className="font-bold text-textMain">{student['Seat No']}</span></p>
           </div>
-          <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-2 shrink-0">
             {/* CGPA Badge */}
             {hasMissing ? (
-              <div className="flex flex-col items-center px-5 py-3 border-2 rounded-xl bg-surfaceHighlight border-border">
+              <div className="flex flex-col items-center px-4 py-2.5 border-2 rounded-xl bg-surfaceHighlight border-black shadow-[2px_2px_0px_0px_#000]">
                 <TentativeCGPA cgpa={tentativeCgpa} missingCount={missingCount} size="lg" />
               </div>
             ) : (
-              <div className="flex flex-col items-center px-5 py-3 border-2 rounded-xl bg-brand-500/10 border-brand-500">
-                <span className="text-[10px] font-bold text-textMuted uppercase tracking-wider">CGPA</span>
-                <span className="text-3xl font-black text-brand-500">{cgpa}</span>
+              <div className="flex flex-col items-center px-4 py-2.5 border-2 rounded-xl bg-yellow-400 border-black shadow-[2px_2px_0px_0px_#000]">
+                <span className="text-[10px] font-black text-black uppercase tracking-wider">CGPA</span>
+                <span className="text-2xl sm:text-3xl font-black text-black">{cgpa}</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-5 border-t border-border/50">
-          {/* Load into calculator — available for all */}
-          {onPrefill && (
+        {/* ── 3 PRIMARY ACTION BUTTONS ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-6 pt-5 border-t-2 border-black/10">
+          
+          {/* 1. EDIT MARKS BUTTON */}
+          {isEditing ? (
+            <div className="flex gap-2 w-full">
+              <button
+                onClick={handleSaveAllMarks}
+                disabled={isSavingMarks}
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-green-500 hover:bg-green-400 text-white border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] active:scale-95 transition-all"
+              >
+                {isSavingMarks ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+                <span>Save Marks</span>
+              </button>
+              <button
+                onClick={() => setIsEditing(false)}
+                disabled={isSavingMarks}
+                className="px-3 py-2.5 bg-white hover:bg-gray-100 text-black border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[2px_2px_0px_0px_#000] active:scale-95 transition-all"
+              >
+                <X size={15} />
+              </button>
+            </div>
+          ) : (
             <button
-              onClick={handlePrefill}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-yellow-400 hover:bg-yellow-300 text-black border-2 border-black font-black text-sm rounded-lg transition-all active:scale-95 shadow-[3px_3px_0px_0px_#000] hover:shadow-[1px_1px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5"
-              title="Load this student's marks into the GPA calculator & simulator"
+              onClick={startEditing}
+              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-yellow-400 hover:bg-yellow-300 text-black border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+              title={canEdit ? "Edit your official marks" : "Sign in to edit this record"}
             >
-              <Calculator size={16} strokeWidth={2.5} />
-              Load into Calculator
+              <Edit3 size={15} strokeWidth={2.5} />
+              <span>{canEdit ? 'Edit Marks' : 'Claim & Edit'}</span>
             </button>
           )}
 
+          {/* 2. LOAD INTO CALCULATOR BUTTON */}
+          <button
+            onClick={handlePrefill}
+            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-black hover:bg-gray-900 text-yellow-400 border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+            title="Load marks into the live GPA calculator & target simulator"
+          >
+            <Calculator size={15} strokeWidth={2.5} />
+            <span>Load into Calculator</span>
+          </button>
 
-          {/* PDF Transcript — always available */}
+          {/* 3. DOWNLOAD PDF TRANSCRIPT BUTTON */}
           <button
             onClick={() => {
               triggerConfetti();
               toast.promise(
                 Promise.resolve(generateTranscriptPDF(student)),
                 {
-                  loading: 'Generating PDF transcript...',
-                  success: 'Transcript PDF downloaded!',
+                  loading: 'Generating 1-page PDF transcript...',
+                  success: 'Official transcript downloaded!',
                   error: 'Could not generate transcript.',
                 }
               );
             }}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 font-bold text-sm rounded-lg border-2 border-black text-black hover:bg-yellow-400 transition-all active:scale-95 shadow-[3px_3px_0px_0px_#000] hover:shadow-[1px_1px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5"
+            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white hover:bg-gray-100 text-black border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
           >
-            <Download size={16} />
-            Download PDF Transcript
+            <Download size={15} strokeWidth={2.5} />
+            <span>PDF Transcript</span>
           </button>
 
+        </div>
 
-          {/* Report Issue Button */}
+        {/* Small Report Link */}
+        <div className="flex justify-end mt-3">
           <button
             onClick={() => setIsReportModalOpen(true)}
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-red-50 hover:bg-red-100 border-2 border-red-300 text-red-600 font-bold text-sm rounded-lg transition-all active:scale-95 sm:w-auto w-full"
-            title="Submit a correction for missing or erroneous marks"
+            className="text-[11px] font-bold text-red-600 hover:text-red-800 flex items-center gap-1 underline"
           >
-            <AlertTriangle size={16} />
-            Report Issue
+            <AlertTriangle size={12} />
+            <span>Report missing/erroneous mark</span>
           </button>
         </div>
+
       </div>
+
 
       {/* Semester Cards */}
       {[
