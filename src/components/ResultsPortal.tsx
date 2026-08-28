@@ -1,13 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, ChevronDown, ChevronUp, FileText, Filter, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, FileText, Filter, ArrowLeft, AlertTriangle, Pencil } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { toast } from 'react-hot-toast';
 
 import { StudentResultCard, getMarkColor } from './StudentResultCard';
 import { useAuthStore } from '../store/useAuthStore';
 import { supabase } from '../lib/supabase';
-
-// Format name helper removed in favor of smart truncation logic in component
-
 
 const SUBJECTS_DATA = [
   // 1st Semester
@@ -96,8 +94,10 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
               };
               
               SUBJECTS_DATA.forEach(sub => {
-                if (row[sub.id] !== undefined) {
+                if (row[sub.id] !== undefined && row[sub.id] !== null && row[sub.id] !== '') {
                   mappedRow[sub.id] = row[sub.id];
+                } else {
+                  mappedRow[sub.id] = 'Results Unannounced';
                 }
               });
               
@@ -117,7 +117,13 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
             if (Array.isArray(json) && json.length > 0) {
               const formatted = json.map((row: any) => {
                 const mappedRow: any = { 'Seat No': row.seat_no, 'Name': row.name };
-                SUBJECTS_DATA.forEach(sub => { if (row[sub.id] !== undefined) mappedRow[sub.id] = row[sub.id]; });
+                SUBJECTS_DATA.forEach(sub => {
+                  if (row[sub.id] !== undefined && row[sub.id] !== null && row[sub.id] !== '') {
+                    mappedRow[sub.id] = row[sub.id];
+                  } else {
+                    mappedRow[sub.id] = 'Results Unannounced';
+                  }
+                });
                 return mappedRow;
               });
               setData(formatted);
@@ -139,6 +145,32 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
 
     fetchResults();
   }, []);
+
+  const handleEditClick = (student: any) => {
+    const isOwner = !!profile?.seat_no && profile.seat_no === String(student['Seat No']);
+    const isAdmin = !!profile?.is_admin;
+
+    if ((isOwner || isAdmin) && onPrefill) {
+      const s1: Record<string, number | ''> = {};
+      const s2: Record<string, number | ''> = {};
+      const s3: Record<string, number | ''> = {};
+
+      SUBJECTS_DATA.forEach(sub => {
+        const val = student[sub.id];
+        const num = val !== undefined && val !== null && !isNaN(Number(val)) ? Number(val) : '';
+        if (sub.semester === 1) s1[sub.code] = num;
+        else if (sub.semester === 2) s2[sub.code] = num;
+        else if (sub.semester === 3) s3[sub.code] = num;
+      });
+
+      onPrefill(s1, s2, s3);
+      toast.success(`Loaded ${student['Name']}'s marks into calculator!`, { icon: '✏️' });
+    } else {
+      setSearchQuery(student['Seat No']);
+      toast(`Showing full result card for ${student['Name']}`, { icon: '📄' });
+    }
+  };
+
 
   const handleSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -524,25 +556,38 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                         <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[210px] max-w-[210px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border/50">
                           <div className="flex items-center justify-between gap-1 w-full h-full">
                             <div className="flex flex-col min-w-0 flex-1">
-                              <span className="truncate leading-tight" title={student['Name']}>
+                              <span className="truncate leading-tight font-bold" title={student['Name']}>
                                 {isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}
                               </span>
                               <span className="sm:hidden font-mono text-[9px] text-textMuted mt-0.5 leading-tight">
                                 {student['Seat No']}
                               </span>
                             </div>
+                            {!isScrolled && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditClick(student);
+                                }}
+                                title={`Edit or calculate marks for ${student['Name']}`}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-yellow-100 hover:bg-yellow-400 text-black border border-black/20 hover:border-black shrink-0 ml-1 shadow-sm active:scale-95"
+                              >
+                                <Pencil size={11} />
+                              </button>
+                            )}
                           </div>
                         </td>
                         
                         {effectiveSubject === ALL_SUBJECTS ? (
                           SUBJECTS_DATA.map(sub => {
                             const mark = student[sub.id];
-                            const isMissing = typeof mark === 'string' && isNaN(Number(mark));
+                            const isMissing = mark === undefined || mark === null || mark === '' || (typeof mark === 'string' && isNaN(Number(mark)));
+                            const unannounced = mark === "Results Unannounced" || mark === undefined || mark === null || mark === '';
                             return (
                               <td key={sub.id} className="p-1 px-1.5 sm:p-4 text-right border-l border-b border-border/30 snap-start">
                                 {isMissing ? (
-                                  <span className="inline-flex items-center px-1 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-surfaceHighlight text-textMuted">
-                                    {mark === "Marks Missing" ? "Missing" : "Unannounced"}
+                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8.5px] sm:text-[10px] font-bold bg-surfaceHighlight text-gray-500 border border-border/40">
+                                    {unannounced ? "Unannounced" : "Missing"}
                                   </span>
                                 ) : (
                                   <span className={`inline-flex items-center text-xs sm:text-sm ${getMarkColor(Number(mark))}`}>
@@ -556,10 +601,11 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                           <td className="p-1 px-1.5 sm:p-4 text-right bg-brand-500/5 group-hover:bg-brand-500/10 transition-colors snap-start border-b border-border/30">
                             {(() => {
                               const mark = student[effectiveSubject];
-                              const isMissing = typeof mark === 'string' && isNaN(Number(mark));
+                              const isMissing = mark === undefined || mark === null || mark === '' || (typeof mark === 'string' && isNaN(Number(mark)));
+                              const unannounced = mark === "Results Unannounced" || mark === undefined || mark === null || mark === '';
                               return isMissing ? (
-                                <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-surfaceHighlight text-textMuted border border-border">
-                                  {mark}
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-surfaceHighlight text-gray-500 border border-border">
+                                  {unannounced ? "Results Unannounced" : mark}
                                 </span>
                               ) : (
                                 <span className={`inline-flex items-center px-3.5 py-1.5 rounded-lg text-sm border shadow-sm ${getMarkColor(Number(mark))} ${Number(mark) >= 80 ? 'bg-green-500/10 border-green-500/30' : Number(mark) < 25 ? 'bg-red-500/10 border-red-500/30' : 'bg-surfaceHighlight border-border'}`}>
@@ -569,6 +615,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                             })()}
                           </td>
                         )}
+
                       </motion.tr>
                     )
                   })

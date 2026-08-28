@@ -97,3 +97,13 @@ END $$;
 -- 6. Set your admin account (run AFTER you sign up)
 -- Replace 'YOUR_EMAIL@gmail.com' with your actual email
 -- UPDATE profiles SET is_admin = true, is_verified = true WHERE email = 'YOUR_EMAIL@gmail.com';
+
+-- 7. Add Semester 3 columns to student_results table with default 'Results Unannounced'
+ALTER TABLE student_results 
+  ADD COLUMN IF NOT EXISTS cs451 TEXT DEFAULT 'Results Unannounced',
+  ADD COLUMN IF NOT EXISTS cs453 TEXT DEFAULT 'Results Unannounced',
+  ADD COLUMN IF NOT EXISTS cs455 TEXT DEFAULT 'Results Unannounced',
+  ADD COLUMN IF NOT EXISTS cs457 TEXT DEFAULT 'Results Unannounced',
+  ADD COLUMN IF NOT EXISTS cs459 TEXT DEFAULT 'Results Unannounced',
+  ADD COLUMN IF NOT EXISTS cs461 TEXT DEFAULT 'Results Unannounced';
+

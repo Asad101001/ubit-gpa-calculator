@@ -74,13 +74,18 @@ export default async function handler(req: Request) {
       });
     }
 
-    // Valid subject IDs
-    const validSubjects = ['cs351','cs353','cs355','cs357','cs359','cs361','cs352','cs354','cs356','cs358','cs360','cs362'];
+    // Valid subject IDs (Semesters 1, 2, and 3)
+    const validSubjects = [
+      'cs351','cs353','cs355','cs357','cs359','cs361',
+      'cs352','cs354','cs356','cs358','cs360','cs362',
+      'cs451','cs453','cs455','cs457','cs459','cs461'
+    ];
     if (!validSubjects.includes(subject_id)) {
       return new Response(JSON.stringify({ error: 'Invalid subject' }), {
         status: 400, headers: { 'Content-Type': 'application/json' },
       });
     }
+
 
     // Update the mark
     const updateRes = await fetch(

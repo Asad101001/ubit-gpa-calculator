@@ -31,19 +31,19 @@ export const getLetterGrade = (marks: number): string => {
 
 /**
  * Dynamic mark styling:
- * - 85+: High achiever (bold emerald with soft glow)
+ * - 85+: High achiever (bold emerald with glow)
  * - 80-84: Solid A- (vibrant green)
- * - 70-79: Strong pass (blue)
- * - 50-69: Pass (amber/orange)
- * - Below 50: Transitions from deep burgundy (45-49) down to glowing/pulsing neon crimson red (0-15)
+ * - 70-79 (70s): Blue
+ * - 60-69 (60s): Grey
+ * - 50-59 (50s): Yellow
+ * - Below 50: Transitions from deep burgundy (45-49) down to glowing/pulsing neon crimson red (0-14)
  */
 export function getMarkColor(m: number): string {
   if (m >= 85) return 'text-emerald-600 font-black drop-shadow-[0_0_6px_rgba(16,185,129,0.35)]';
   if (m >= 80) return 'text-green-600 font-bold';
-  if (m >= 75) return 'text-teal-700 font-bold';
-  if (m >= 71) return 'text-blue-700 font-semibold';
-  if (m >= 60) return 'text-sky-700 font-medium';
-  if (m >= 50) return 'text-amber-600 font-semibold';
+  if (m >= 70) return 'text-blue-600 font-bold'; // 70s -> Blue
+  if (m >= 60) return 'text-gray-500 font-bold'; // 60s -> Grey
+  if (m >= 50) return 'text-amber-500 font-bold'; // 50s -> Yellow
   
   // Dynamic Red Gradient for Fails (< 50)
   if (m >= 45) return 'text-[#881337] font-bold'; // Deep Rose/Burgundy (near pass)
@@ -57,18 +57,20 @@ export function getMarkColor(m: number): string {
  * RGB tuple helper for PDF generation (jsPDF)
  */
 export function getMarkPdfColor(m: number): [number, number, number] {
-  if (m >= 85) return [16, 185, 129]; // Emerald
-  if (m >= 80) return [22, 163, 74];  // Green
-  if (m >= 71) return [2, 132, 199];  // Sky Blue
-  if (m >= 50) return [217, 119, 6];  // Amber
+  if (m >= 85) return [16, 185, 129]; // Emerald (85+)
+  if (m >= 80) return [22, 163, 74];  // Green (80-84)
+  if (m >= 70) return [2, 132, 199];  // Blue (70s)
+  if (m >= 60) return [107, 114, 128]; // Grey (60s)
+  if (m >= 50) return [217, 119, 6];   // Yellow/Amber (50s)
   
-  // Failing gradient in PDF
+  // Failing gradient in PDF (<50)
   if (m >= 45) return [136, 19, 55];  // Deep Burgundy
   if (m >= 35) return [153, 27, 27];  // Crimson
   if (m >= 25) return [220, 38, 38];  // Bright Red
   if (m >= 15) return [239, 68, 68];  // Hot Red
   return [255, 0, 51];                // Glowing Neon Red
 }
+
 
 export const SEM1_COURSES = [
   { code: "CS-351", id: "cs351", name: "Programming Fundamentals", credits: 4, type: "Programming", instructor: "Mr. Badr Sami" },
