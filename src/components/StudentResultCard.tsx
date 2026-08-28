@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Calculator, CheckCircle, XCircle, AlertTriangle, Send, Loader2, Lock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { getGradePoint, getLetterGrade as getLetterGradeUtil } from '../lib/utils';
+import { getGradePoint, getLetterGrade as getLetterGradeUtil, getMarkColor } from '../lib/utils';
 import { generateTranscriptPDF } from '../lib/transcriptGenerator';
 import { SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 import { TentativeCGPA } from './TentativeCGPA';
@@ -17,15 +17,8 @@ const SEM3_META = SEM3_COURSES.map(c => ({ ...c, sem: 3 }));
 
 // Use canonical grade helper
 const getLetterGrade = getLetterGradeUtil;
+export { getMarkColor };
 
-export function getMarkColor(m: number) {
-  if (m >= 80) return 'text-green-600 font-black drop-shadow-[0_0_8px_rgba(22,163,74,0.4)]';
-  if (m >= 75) return 'text-green-700 font-bold';
-  if (m >= 60) return 'text-blue-700 font-semibold';
-  if (m >= 50) return 'text-orange-600 font-semibold';
-  if (m >= 25) return 'text-textMuted font-bold';
-  return 'text-red-700 font-black drop-shadow-[0_0_8px_rgba(185,28,28,0.4)]';
-}
 
 interface Props {
   student: Record<string, any>;

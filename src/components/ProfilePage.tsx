@@ -4,9 +4,8 @@ import { User, Shield, ShieldCheck, LogOut, Edit3, Check, X, Loader2, Users, Che
 import { toast } from 'react-hot-toast';
 import { useAuthStore, type Profile } from '../store/useAuthStore';
 import { supabase } from '../lib/supabase';
-import { getGradePoint } from '../lib/utils';
+import { getGradePoint, getLetterGrade, getMarkColor } from '../lib/utils';
 import { TentativeCGPA } from './TentativeCGPA';
-import { getMarkColor } from './StudentResultCard';
 
 const SUBJECTS_META = [
   { id: 'cs351', code: 'CS-351', name: 'Programming Fundamentals', credits: 4, sem: 1 },
@@ -23,11 +22,6 @@ const SUBJECTS_META = [
   { id: 'cs362', code: 'CS-362', name: 'Ideology of Pakistan', credits: 2, sem: 2 },
 ];
 
-function getLetterGrade(m: number) {
-  if (m >= 85) return 'A'; if (m >= 80) return 'A-'; if (m >= 75) return 'B+';
-  if (m >= 71) return 'B'; if (m >= 68) return 'B-'; if (m >= 64) return 'C+';
-  if (m >= 61) return 'C'; if (m >= 57) return 'D+'; if (m >= 50) return 'D'; return 'F';
-}
 
 export const ProfilePage = () => {
   const { profile, user, signOut, updateProfile } = useAuthStore();

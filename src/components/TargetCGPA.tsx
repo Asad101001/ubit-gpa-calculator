@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Target, TrendingUp, ChevronDown, ChevronUp, Lightbulb, CheckCircle2, Lock, Sparkles, Filter, Calculator, RefreshCw } from 'lucide-react';
-import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
+import { Target, ChevronDown, ChevronUp, Lightbulb, CheckCircle2, Sparkles, Calculator, RefreshCw, AlertCircle, Award } from 'lucide-react';
+import { getGradePoint, getMarkColor, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 import { useAuthStore } from '../store/useAuthStore';
 import { validateTargetCgpa } from '../lib/validation';
 
@@ -17,6 +17,7 @@ interface TargetCGPAProps {
 
 interface CourseItem {
   code: string;
+  id?: string;
   name: string;
   credits: number;
   type: string;
@@ -78,8 +79,8 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
     ...sem1Grades, ...sem2Grades, ...sem3Grades
   }), [sem1Grades, sem2Grades, sem3Grades]);
 
-  const currentVal = parseFloat(currentCgpa);
-  const targetVal = validateTargetCgpa(targetCgpa).parsed;
+  const currentVal = parseFloat(currentCgpa) || 0;
+  const targetVal = validateTargetCgpa(targetCgpa).parsed || 0;
 
   const completedCredits = useMemo(() => {
     let credits = 0;
@@ -92,6 +93,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
     return credits;
   }, [allGrades]);
 
+  // Optimization knapsack algorithm for course improvement
   const suggestions = useMemo<CourseSuggestion[]>(() => {
     if (!targetVal || isNaN(targetVal) || targetVal <= 0 || targetVal > 4) return [];
     if (currentVal >= targetVal) return [];
@@ -222,14 +224,12 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
     const requiredAvgGpa = requiredFutureQP / totalFutureCredits;
 
     const isPossible = requiredAvgGpa <= 4.0;
-    const isChallenging = requiredAvgGpa > 3.7;
 
     return {
       requiredAvgGpa: Math.max(0, requiredAvgGpa),
       totalProgramCredits,
       totalFutureCredits,
       isPossible,
-      isChallenging
     };
   }, [currentVal, completedCredits, remainingSemesters, targetVal]);
 
@@ -242,56 +242,44 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
     setExcludedCourses(prev => ({ ...prev, [code]: !prev[code] }));
   };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      className="glass rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden border border-border/80 relative"
-    >
-      <div 
-        className="absolute inset-0 opacity-10 bg-cover bg-center pointer-events-none mix-blend-overlay"
-        style={{ backgroundImage: 'url(/images/analytics_target_bg.jpg)' }}
-      />
+  const getDifficultyBadge = (marksNeeded: number) => {
+    if (marksNeeded <= 5) return { label: 'Quick Gain', color: 'bg-green-100 text-green-800 border-green-300' };
+    if (marksNeeded <= 12) return { label: 'Moderate', color: 'bg-blue-100 text-blue-800 border-blue-300' };
+    return { label: 'High Effort', color: 'bg-amber-100 text-amber-800 border-amber-300' };
+  };
 
-      <button
+  return (
+    <div className="glass rounded-2xl sm:rounded-3xl border-2 border-black p-4 sm:p-6 md:p-8 space-y-6 shadow-[4px_4px_0px_0px_#000]">
+      {/* Header Toggle */}
+      <div 
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-5 sm:p-8 flex items-center justify-between group relative z-10 text-left"
+        className="flex items-center justify-between cursor-pointer group select-none"
       >
-        <div className="flex items-center gap-3 sm:gap-5">
-          <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-500/20 to-brand-500/20 border border-emerald-500/30 flex items-center justify-center shadow-[0_0_25px_rgba(16,185,129,0.2)] group-hover:scale-105 transition-transform shrink-0">
-            <Target className="text-emerald-400 w-5 h-5 sm:w-7 sm:h-7" />
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_#000] shrink-0">
+            <Target className="text-black w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base sm:text-2xl font-black text-textMain tracking-tight">Target CGPA Advisor</h3>
-              <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/20">
-                PRO 2.0
+              <h3 className="text-lg sm:text-2xl font-black text-black tracking-tight">Target CGPA Advisor</h3>
+              <span className="bg-black text-yellow-400 text-[10px] font-black px-2 py-0.5 rounded border border-black uppercase tracking-wider">
+                Smart Engine
               </span>
             </div>
-            <p className="text-[11px] sm:text-sm text-textMuted font-medium mt-0.5">
-              {currentVal > 0 ? `Current CGPA: ${currentCgpa} • ${completedCredits} Credits Completed` : 'Enter course marks to calculate target paths'}
+            <p className="text-xs sm:text-sm text-gray-600 font-medium">
+              {currentVal > 0 
+                ? `Current: ${currentCgpa} CGPA (${completedCredits} Credits Completed)` 
+                : 'Enter course marks above to simulate targets and grade roadmaps'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          {targetVal > 0 && currentVal > 0 && (
-            <div className={`hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border ${
-              alreadyMet ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' :
-              isTargetAchievable ? 'bg-brand-500/10 text-brand-400 border-brand-500/30' :
-              'bg-amber-500/10 text-amber-400 border-amber-500/30'
-            }`}>
-              {alreadyMet ? <CheckCircle2 size={13} /> : <TrendingUp size={13} />}
-              {alreadyMet ? 'Target Met!' : isTargetAchievable ? `Achievable (${projectedCgpa.toFixed(3)})` : 'Needs Work'}
-            </div>
-          )}
-          <div className="w-8 h-8 rounded-lg bg-surfaceHighlight flex items-center justify-center text-textMuted group-hover:text-textMain transition-colors border border-border">
-            {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gray-100 border-2 border-black flex items-center justify-center text-black group-hover:bg-yellow-400 transition-colors">
+            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </div>
         </div>
-      </button>
+      </div>
 
       <AnimatePresence initial={false}>
         {isExpanded && (
@@ -299,279 +287,288 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden relative z-10"
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden space-y-6 pt-2"
           >
-            <div className="px-5 sm:px-8 pb-8 space-y-6 border-t border-border/50 pt-6">
-              
-              <div className="bg-surfaceHighlight/40 p-4 sm:p-5 rounded-2xl border border-border/60 space-y-4">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  
-                  <div className="flex flex-col space-y-1.5">
-                    <label className="text-[11px] font-bold text-textMuted uppercase tracking-widest flex items-center gap-2">
-                      Target CGPA Goal
-                      {Object.keys(officialMarks).length > 0 && (
-                        <span className="flex items-center gap-1 text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full text-[10px] font-medium lowercase border border-amber-500/20">
-                          <Lock size={10} /> {Object.keys(officialMarks).length} locked
+            {/* Control Panel: Goal Input + Presets + Modes */}
+            <div className="p-4 sm:p-5 bg-yellow-50 rounded-xl border-2 border-black space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                
+                {/* 1. Target Input */}
+                <div className="lg:col-span-4 space-y-1.5">
+                  <label className="text-[11px] font-black text-black uppercase tracking-wider block">
+                    Target CGPA Goal
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min="1.00"
+                      max="4.00"
+                      step="0.05"
+                      value={targetCgpa}
+                      onChange={e => setTargetCgpa(e.target.value)}
+                      className="w-28 sm:w-32 px-3 py-2 bg-white text-black font-black text-lg sm:text-xl rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-[2px_2px_0px_0px_#000]"
+                    />
+                    {currentVal > 0 && targetVal > 0 && (
+                      <div className="px-2.5 py-1.5 bg-white border-2 border-black rounded-lg text-xs font-bold text-black">
+                        Gap: <span className={targetVal <= currentVal ? 'text-green-600' : 'text-amber-600'}>
+                          {targetVal <= currentVal ? '0.00 (Met)' : `+${(targetVal - currentVal).toFixed(3)}`}
                         </span>
-                      )}
-                    </label>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="number"
-                        min="0.01"
-                        max="4.00"
-                        step="0.05"
-                        value={targetCgpa}
-                        onChange={e => setTargetCgpa(e.target.value)}
-                        placeholder="e.g. 3.50"
-                        className="w-32 sm:w-36 px-4 py-2.5 glass-input text-textMain font-black text-xl rounded-xl border border-border focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all shadow-inner"
-                      />
-                      {currentVal > 0 && targetVal > 0 && (
-                        <div className="flex items-center gap-2 text-xs font-semibold text-textMuted">
-                          <span>Gap:</span>
-                          <span className={`font-bold ${targetVal <= currentVal ? 'text-emerald-400' : 'text-brand-400'}`}>
-                            {(targetVal - currentVal > 0 ? `+${(targetVal - currentVal).toFixed(3)}` : '0.00')}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
+                </div>
 
-                  <div className="flex flex-col space-y-1.5">
-                    <span className="text-[10px] font-bold text-textMuted uppercase tracking-widest">Quick Goal Presets</span>
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {[
-                        { label: '3.00 First Div', val: '3.00' },
-                        { label: '3.50 Honors', val: '3.50' },
-                        { label: '3.80 Gold Medal', val: '3.80' },
-                        { label: '4.00 Perfect', val: '4.00' },
-                      ].map((preset) => (
-                        <button
-                          key={preset.val}
-                          onClick={() => setTargetCgpa(preset.val)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-                            targetCgpa === preset.val
-                              ? 'bg-emerald-500 text-white border-emerald-400 shadow-md shadow-emerald-500/20'
-                              : 'bg-surface/60 text-textMuted hover:text-textMain border-border hover:bg-surfaceHighlight'
-                          }`}
-                        >
-                          {preset.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col space-y-1.5">
-                    <span className="text-[10px] font-bold text-textMuted uppercase tracking-widest">Advisor Mode</span>
-                    <div className="flex items-center bg-surface p-1 rounded-xl border border-border">
+                {/* 2. Quick Presets */}
+                <div className="lg:col-span-4 space-y-1.5">
+                  <span className="text-[11px] font-black text-black uppercase tracking-wider block">
+                    Quick Presets
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { label: '3.00 First Div', val: '3.00' },
+                      { label: '3.50 Honors', val: '3.50' },
+                      { label: '3.75 High', val: '3.75' },
+                      { label: '4.00 Max', val: '4.00' },
+                    ].map((preset) => (
                       <button
-                        onClick={() => setMode('improvement')}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                          mode === 'improvement' ? 'bg-brand-500 text-white shadow-sm' : 'text-textMuted hover:text-textMain'
+                        key={preset.val}
+                        onClick={() => setTargetCgpa(preset.val)}
+                        className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border-2 transition-all ${
+                          targetCgpa === preset.val
+                            ? 'bg-black text-yellow-400 border-black shadow-[2px_2px_0px_0px_#E6B400]'
+                            : 'bg-white text-black border-black hover:bg-yellow-100'
                         }`}
                       >
-                        <RefreshCw size={12} /> Existing Subjects
+                        {preset.label}
                       </button>
-                      <button
-                        onClick={() => setMode('future')}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                          mode === 'future' ? 'bg-brand-500 text-white shadow-sm' : 'text-textMuted hover:text-textMain'
-                        }`}
-                      >
-                        <Calculator size={12} /> Future Semesters
-                      </button>
-                    </div>
+                    ))}
                   </div>
+                </div>
 
+                {/* 3. Mode Toggle */}
+                <div className="lg:col-span-4 space-y-1.5">
+                  <span className="text-[11px] font-black text-black uppercase tracking-wider block">
+                    Advisor Mode
+                  </span>
+                  <div className="grid grid-cols-2 gap-1.5 p-1 bg-white rounded-lg border-2 border-black">
+                    <button
+                      onClick={() => setMode('improvement')}
+                      className={`flex items-center justify-center gap-1 py-1.5 px-2 rounded-md text-[11px] font-black transition-all ${
+                        mode === 'improvement'
+                          ? 'bg-yellow-400 text-black border border-black'
+                          : 'text-gray-600 hover:text-black'
+                      }`}
+                    >
+                      <RefreshCw size={12} /> Existing Marks
+                    </button>
+                    <button
+                      onClick={() => setMode('future')}
+                      className={`flex items-center justify-center gap-1 py-1.5 px-2 rounded-md text-[11px] font-black transition-all ${
+                        mode === 'future'
+                          ? 'bg-yellow-400 text-black border border-black'
+                          : 'text-gray-600 hover:text-black'
+                      }`}
+                    >
+                      <Calculator size={12} /> Future Sems
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Empty state when no marks entered */}
+            {!hasGrades && (
+              <div className="p-4 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl flex items-center gap-3 text-xs sm:text-sm text-gray-700">
+                <Lightbulb size={18} className="text-yellow-600 shrink-0" />
+                <span>Fill in your subject marks in the calculator above to get custom target recommendations and roadmaps.</span>
+              </div>
+            )}
+
+            {/* Goal Achieved State */}
+            {hasGrades && targetVal > 0 && alreadyMet && (
+              <div className="p-4 sm:p-5 bg-green-50 rounded-xl border-2 border-green-500 flex items-center gap-3.5 shadow-[2px_2px_0px_0px_#22c55e]">
+                <CheckCircle2 size={24} className="text-green-600 shrink-0" />
+                <div>
+                  <h4 className="text-sm sm:text-base font-black text-green-900">Target Already Achieved! 🎉</h4>
+                  <p className="text-xs sm:text-sm text-green-700 mt-0.5">
+                    Your current CGPA of <strong>{currentCgpa}</strong> already meets or exceeds your goal of <strong>{targetVal.toFixed(2)}</strong>.
+                  </p>
                 </div>
               </div>
+            )}
 
-              {!hasGrades && (
-                <div className="flex items-center gap-3 p-4 bg-surfaceHighlight rounded-xl border border-border text-xs sm:text-sm text-textMuted">
-                  <Lightbulb size={16} className="text-brand-400 shrink-0" />
-                  Enter your course marks in the calculator above to generate optimal target CGPA advice.
-                </div>
-              )}
-
-              {hasGrades && targetVal > 0 && alreadyMet && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center gap-3 p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/30"
-                >
-                  <CheckCircle2 size={22} className="text-emerald-400 shrink-0" />
-                  <div>
-                    <p className="font-bold text-emerald-400 text-sm">Goal Achieved! 🎉</p>
-                    <p className="text-textMuted text-xs mt-0.5">Your current CGPA of <span className="font-bold text-textMain">{currentCgpa}</span> already meets or exceeds target {targetVal.toFixed(2)}.</p>
+            {/* MODE 1: EXISTING SUBJECT IMPROVEMENTS */}
+            {mode === 'improvement' && hasGrades && targetVal > 0 && !alreadyMet && (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b-2 border-black">
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={16} className="text-yellow-500" />
+                    <h4 className="text-xs sm:text-sm font-black text-black uppercase tracking-wider">
+                      Optimal Improvement Path ({suggestions.length} Subjects Recommended)
+                    </h4>
                   </div>
-                </motion.div>
-              )}
-
-              {mode === 'improvement' && hasGrades && targetVal > 0 && !alreadyMet && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-border/40 pb-2">
-                    <p className="text-xs font-bold text-textMuted uppercase tracking-widest flex items-center gap-2">
-                      <Sparkles size={14} className="text-emerald-400" />
-                      Optimum Course Mark Improvements ({suggestions.length} Required)
-                    </p>
-                    {isTargetAchievable && (
-                      <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                        Projected CGPA: {projectedCgpa.toFixed(3)}
-                      </span>
-                    )}
-                  </div>
-
-                  {suggestions.length === 0 ? (
-                    <div className="p-4 bg-red-500/10 rounded-xl border border-red-500/30 text-xs sm:text-sm text-red-400">
-                      Target CGPA {targetVal.toFixed(2)} cannot be reached by improving existing non-locked courses alone. Try reducing excluded courses or switch to the <strong>Future Semesters</strong> mode!
-                    </div>
-                  ) : (
-                    <>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {suggestions.map((s) => {
-                          const isExcluded = excludedCourses[s.course.code];
-                          return (
-                            <motion.div
-                              key={s.course.code}
-                              whileHover={{ y: -2 }}
-                              className={`p-3 rounded-xl border transition-all flex flex-col justify-between ${
-                                isExcluded
-                                  ? 'bg-surface/30 border-border/40 opacity-50'
-                                  : 'bg-surface/70 border-border hover:border-emerald-500/40 hover:bg-emerald-500/5'
-                              }`}
-                            >
-                              <div>
-                                <div className="flex items-center justify-between mb-1.5">
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-[10px] font-black text-brand-400 bg-brand-500/10 px-1.5 py-0.5 rounded border border-brand-500/20">
-                                      {s.course.code}
-                                    </span>
-                                    <span className="text-[10px] text-textMuted">{s.course.credits} Cr</span>
-                                  </div>
-                                  <button
-                                    onClick={() => toggleCourseExclusion(s.course.code)}
-                                    title={isExcluded ? "Include in calculation" : "Opt out this subject"}
-                                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors ${
-                                      isExcluded ? 'bg-surfaceHighlight text-textMuted' : 'bg-surfaceHighlight text-textMuted hover:text-red-400'
-                                    }`}
-                                  >
-                                    <Filter size={10} className="inline mr-1" />
-                                    {isExcluded ? 'Disabled' : 'Opt Out'}
-                                  </button>
-                                </div>
-
-                                <p className="text-xs font-bold text-textMain truncate mb-2" title={s.course.name}>
-                                  {s.course.name}
-                                </p>
-
-                                <div className="grid grid-cols-2 gap-2 text-[11px] bg-surfaceHighlight/50 p-2 rounded-lg border border-border/50 mb-2 font-mono">
-                                  <div>
-                                    <span className="text-[9px] text-textMuted block">Marks</span>
-                                    <span className="text-textMuted">{s.currentMark}</span> → <span className="font-bold text-emerald-400">{s.suggestedMark}</span>
-                                  </div>
-                                  <div>
-                                    <span className="text-[9px] text-textMuted block">GP Gain</span>
-                                    <span className="text-textMuted">{s.currentGP.toFixed(1)}</span> → <span className="font-bold text-emerald-400">{s.suggestedGP.toFixed(1)}</span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center justify-between pt-1 border-t border-border/40 text-[10px]">
-                                <span className="font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                                  +{s.marksNeeded} marks
-                                </span>
-                                <span className="text-textMuted font-medium">
-                                  +{(s.cgpaImpact).toFixed(3)} CGPA
-                                </span>
-                              </div>
-                            </motion.div>
-                          );
-                        })}
-                      </div>
-
-                      {isTargetAchievable && (
-                        <div className="p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/30 flex items-start gap-3 text-xs sm:text-sm text-emerald-400">
-                          <CheckCircle2 size={18} className="shrink-0 mt-0.5" />
-                          <div>
-                            Target CGPA <strong className="text-emerald-300">{targetVal.toFixed(2)}</strong> is achievable by securing <strong className="text-emerald-300">+{totalMarksToImprove} total additional marks</strong> across {suggestions.length} courses above!
-                          </div>
-                        </div>
-                      )}
-                    </>
+                  {isTargetAchievable && (
+                    <span className="text-xs font-black bg-yellow-400 text-black px-2.5 py-1 rounded border border-black self-start sm:self-auto">
+                      Projected CGPA: {projectedCgpa.toFixed(3)}
+                    </span>
                   )}
                 </div>
-              )}
 
-              {mode === 'future' && hasGrades && targetVal > 0 && (
-                <div className="space-y-5">
-                  <div className="p-5 bg-surfaceHighlight/60 rounded-2xl border border-border space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div>
-                        <h4 className="text-sm font-bold text-textMain flex items-center gap-2">
-                          <Calculator size={16} className="text-brand-400" />
-                          Future Semester Target Simulator
-                        </h4>
-                        <p className="text-xs text-textMuted mt-0.5">
-                          Calculates the exact average GPA required in upcoming semesters to achieve your target.
-                        </p>
-                      </div>
+                {suggestions.length === 0 ? (
+                  <div className="p-4 bg-red-50 border-2 border-red-400 rounded-xl text-xs sm:text-sm text-red-800 space-y-1">
+                    <p className="font-bold flex items-center gap-1.5">
+                      <AlertCircle size={15} /> Target cannot be reached via existing courses alone.
+                    </p>
+                    <p>Try enabling excluded subjects or switch to <strong>Future Semesters</strong> mode to see requirements across upcoming terms.</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {suggestions.map((s) => {
+                        const isExcluded = excludedCourses[s.course.code];
+                        const diffBadge = getDifficultyBadge(s.marksNeeded);
+                        return (
+                          <div
+                            key={s.course.code}
+                            className={`p-3.5 rounded-xl border-2 transition-all flex flex-col justify-between ${
+                              isExcluded
+                                ? 'bg-gray-100 border-gray-300 opacity-60'
+                                : 'bg-white border-black shadow-[2px_2px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5'
+                            }`}
+                          >
+                            <div>
+                              <div className="flex items-center justify-between gap-1 mb-1.5">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[10px] font-black bg-yellow-400 text-black px-1.5 py-0.5 rounded border border-black">
+                                    {s.course.code}
+                                  </span>
+                                  <span className="text-[10px] font-bold text-gray-600">{s.course.credits} Cr</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${diffBadge.color}`}>
+                                    {diffBadge.label}
+                                  </span>
+                                  <button
+                                    onClick={() => toggleCourseExclusion(s.course.code)}
+                                    className="text-[9px] font-bold text-gray-500 hover:text-black underline pl-1"
+                                  >
+                                    {isExcluded ? 'Enable' : 'Opt Out'}
+                                  </button>
+                                </div>
+                              </div>
 
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-textMuted whitespace-nowrap">Semesters Left:</span>
-                        <select
-                          value={remainingSemesters}
-                          onChange={e => setRemainingSemesters(Number(e.target.value))}
-                          className="bg-surface text-textMain font-bold text-xs px-3 py-1.5 rounded-lg border border-border outline-none focus:border-brand-500"
-                        >
-                          {[1, 2, 3, 4, 5, 6, 7].map(n => (
-                            <option key={n} value={n}>{n} Semester{n > 1 ? 's' : ''} ({n * 18} Cr)</option>
-                          ))}
-                        </select>
-                      </div>
+                              <p className="text-xs font-bold text-black truncate mb-2" title={s.course.name}>
+                                {s.course.name}
+                              </p>
+
+                              <div className="grid grid-cols-2 gap-2 text-xs bg-gray-50 p-2 rounded-lg border border-gray-200 mb-2 font-mono">
+                                <div>
+                                  <span className="text-[9px] text-gray-500 block uppercase font-sans">Marks</span>
+                                  <span className={getMarkColor(s.currentMark)}>{s.currentMark}</span> → <span className="font-black text-green-700">{s.suggestedMark}</span>
+                                </div>
+                                <div>
+                                  <span className="text-[9px] text-gray-500 block uppercase font-sans">Grade Point</span>
+                                  <span className="text-gray-600">{s.currentGP.toFixed(1)}</span> → <span className="font-black text-green-700">{s.suggestedGP.toFixed(1)}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-1 border-t border-gray-200 text-[10px] font-bold">
+                              <span className="bg-green-100 text-green-800 px-1.5 py-0.5 rounded border border-green-300">
+                                +{s.marksNeeded} marks needed
+                              </span>
+                              <span className="text-gray-700">
+                                +{s.cgpaImpact.toFixed(3)} CGPA
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
 
-                    {futureSemesterAnalysis && (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                        
-                        <div className="p-4 bg-surface rounded-xl border border-border space-y-1">
-                          <span className="text-[10px] font-bold uppercase text-textMuted tracking-wider">Completed Credits</span>
-                          <p className="text-xl font-black text-textMain">{completedCredits} / {futureSemesterAnalysis.totalProgramCredits} Cr</p>
-                          <p className="text-[11px] text-textMuted">Current CGPA: {currentCgpa}</p>
-                        </div>
-
-                        <div className={`p-4 rounded-xl border space-y-1 ${
-                          futureSemesterAnalysis.isPossible
-                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                            : 'bg-red-500/10 border-red-500/30 text-red-400'
-                        }`}>
-                          <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">Required Upcoming GPA</span>
-                          <p className="text-2xl font-black">
-                            {futureSemesterAnalysis.isPossible ? futureSemesterAnalysis.requiredAvgGpa.toFixed(2) : '4.00+ (Impossible)'}
-                          </p>
-                          <p className="text-[11px] opacity-80">Average across next {remainingSemesters} semesters</p>
-                        </div>
-
-                        <div className="p-4 bg-surface rounded-xl border border-border space-y-1">
-                          <span className="text-[10px] font-bold uppercase text-textMuted tracking-wider">Target Feasibility</span>
-                          <p className="text-base font-bold text-textMain">
-                            {!futureSemesterAnalysis.isPossible ? 'Unreachable' :
-                              futureSemesterAnalysis.requiredAvgGpa <= currentVal ? 'High (Comfortable Zone)' :
-                              futureSemesterAnalysis.requiredAvgGpa <= 3.6 ? 'Moderate (Hard Work)' : 'Challenging (3.7+ Needed)'}
-                          </p>
-                          <p className="text-[11px] text-textMuted">Target: {targetVal.toFixed(2)} CGPA</p>
-                        </div>
-
+                    {isTargetAchievable && (
+                      <div className="p-3.5 bg-yellow-400 text-black rounded-xl border-2 border-black font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-[2px_2px_0px_0px_#000]">
+                        <Award size={18} className="shrink-0" />
+                        <span>
+                          Target <strong>{targetVal.toFixed(2)} CGPA</strong> is achievable by securing a combined <strong>+{totalMarksToImprove} marks</strong> across the {suggestions.length} subjects above!
+                        </span>
                       </div>
                     )}
-                  </div>
-                </div>
-              )}
+                  </>
+                )}
+              </div>
+            )}
 
-            </div>
+            {/* MODE 2: FUTURE SEMESTER TARGET SIMULATOR */}
+            {mode === 'future' && hasGrades && targetVal > 0 && (
+              <div className="space-y-4">
+                <div className="p-4 sm:p-5 bg-white rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000] space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200">
+                    <div>
+                      <h4 className="text-sm font-black text-black uppercase tracking-wider flex items-center gap-1.5">
+                        <Calculator size={15} /> Future Semester GPA Requirements
+                      </h4>
+                      <p className="text-xs text-gray-600 mt-0.5">
+                        Calculates required average GPA across remaining semesters to hit {targetVal.toFixed(2)} CGPA.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-black whitespace-nowrap">Remaining Semesters:</span>
+                      <select
+                        value={remainingSemesters}
+                        onChange={e => setRemainingSemesters(Number(e.target.value))}
+                        className="bg-yellow-50 text-black font-bold text-xs px-2.5 py-1.5 rounded-lg border-2 border-black outline-none focus:bg-yellow-200"
+                      >
+                        {[1, 2, 3, 4, 5, 6].map(n => (
+                          <option key={n} value={n}>{n} Sem ({n * 18} Cr)</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {futureSemesterAnalysis && (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                      
+                      <div className="p-3.5 bg-gray-50 rounded-xl border-2 border-black">
+                        <span className="text-[10px] font-black uppercase text-gray-600 tracking-wider block mb-1">Completed</span>
+                        <p className="text-lg font-black text-black">{completedCredits} / {futureSemesterAnalysis.totalProgramCredits} Cr</p>
+                        <p className="text-[11px] text-gray-600">Current CGPA: {currentCgpa}</p>
+                      </div>
+
+                      <div className={`p-3.5 rounded-xl border-2 ${
+                        futureSemesterAnalysis.isPossible
+                          ? 'bg-yellow-100 border-black text-black'
+                          : 'bg-red-100 border-red-500 text-red-900'
+                      }`}>
+                        <span className="text-[10px] font-black uppercase tracking-wider block mb-1">Required Avg GPA</span>
+                        <p className="text-2xl font-black">
+                          {futureSemesterAnalysis.isPossible ? futureSemesterAnalysis.requiredAvgGpa.toFixed(2) : '4.00+ (Impossible)'}
+                        </p>
+                        <p className="text-[11px] font-medium">Per semester across next {remainingSemesters} semesters</p>
+                      </div>
+
+                      <div className="p-3.5 bg-gray-50 rounded-xl border-2 border-black">
+                        <span className="text-[10px] font-black uppercase text-gray-600 tracking-wider block mb-1">Feasibility</span>
+                        <p className="text-base font-black text-black">
+                          {!futureSemesterAnalysis.isPossible ? '❌ Mathematically Unreachable' :
+                            futureSemesterAnalysis.requiredAvgGpa <= currentVal ? '🟢 Very Comfortable' :
+                            futureSemesterAnalysis.requiredAvgGpa <= 3.5 ? '🟡 Moderate (Achievable)' : '🔴 High Effort (3.7+ Needed)'}
+                        </p>
+                        <p className="text-[11px] text-gray-600">Target Goal: {targetVal.toFixed(2)} CGPA</p>
+                      </div>
+
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 };

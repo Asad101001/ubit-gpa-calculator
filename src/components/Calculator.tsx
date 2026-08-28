@@ -50,14 +50,15 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="relative flex-1 sm:w-28 flex items-center justify-center">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center">
             <button
               onClick={() => {
                 const val = typeof value === 'number' ? value : 0;
                 if (val > 0) onChange(val - 1);
               }}
-              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-l-lg sm:rounded-l-xl bg-surface/70 hover:bg-surfaceHighlight border border-border border-r-0 text-textMuted font-bold active:scale-95 transition-all"
+              aria-label="Decrease marks"
+              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-l-lg bg-gray-100 hover:bg-yellow-400 border-2 border-black border-r-0 text-black font-black text-sm active:bg-yellow-300 transition-colors select-none"
             >-</button>
             <input
               type="number"
@@ -67,32 +68,35 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
               onChange={(e) => handleDirectChange(e.target.value)}
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="0"
-              className="w-12 sm:w-16 h-7 sm:h-8 glass-input text-textMain py-0 px-1 rounded-none border-y border-border font-bold text-xs sm:text-sm focus:ring-0 focus:outline-none placeholder:text-textMuted/50 text-center"
+              className="w-12 sm:w-14 h-8 sm:h-9 bg-white text-black py-0 px-1 border-y-2 border-black font-black text-xs sm:text-sm focus:outline-none placeholder:text-gray-400 text-center"
             />
             <button
               onClick={() => {
                 const val = typeof value === 'number' ? value : 0;
                 if (val < 100) onChange(val + 1);
               }}
-              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-r-lg sm:rounded-r-xl bg-surface/70 hover:bg-surfaceHighlight border border-border border-l-0 text-textMuted font-bold active:scale-95 transition-all"
+              aria-label="Increase marks"
+              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-r-lg bg-gray-100 hover:bg-yellow-400 border-2 border-black border-l-0 text-black font-black text-sm active:bg-yellow-300 transition-colors select-none"
             >+</button>
           </div>
-          <div className="w-12 sm:w-16 text-center py-1 px-1 sm:py-2 sm:px-2 rounded-lg sm:rounded-xl bg-surface/70 border border-border font-mono font-bold text-brand-400 flex flex-col justify-center">
-            <span className="text-[8px] sm:text-[9px] text-textMuted leading-none mb-0.5 sm:mb-1">GP</span>
-            <span className="text-sm sm:text-base leading-none">{value === '' ? '-' : gp.toFixed(1)}</span>
+          <div className="w-11 sm:w-14 h-8 sm:h-9 text-center rounded-lg bg-yellow-50 border-2 border-black font-mono font-black text-black flex flex-col justify-center shadow-[1px_1px_0px_0px_#000]">
+            <span className="text-[7px] sm:text-[8px] text-gray-600 leading-none mb-0.5">GP</span>
+            <span className="text-xs sm:text-sm leading-none">{value === '' ? '-' : gp.toFixed(1)}</span>
           </div>
         </div>
       </div>
 
-      <div className="w-full px-1 mt-1 sm:mt-2">
-        <div className="w-full h-1.5 sm:h-2 bg-border/40 rounded-full overflow-hidden relative opacity-70 group-hover:opacity-100 transition-opacity">
+      <div className="w-full px-0.5 mt-1">
+        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden relative">
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${value === '' ? 0 : Math.min(100, Math.max(0, Number(value)))}%` }}
             transition={{ type: 'spring', stiffness: 120, damping: 20, delay: 0.05 }}
             className={`absolute top-0 left-0 h-full rounded-full ${
-              typeof value === 'number' && value >= 80 ? 'bg-emerald-500' : 
-              typeof value === 'number' && value >= 50 ? 'bg-brand-500' : 'bg-red-500'
+              typeof value === 'number' && value >= 85 ? 'bg-emerald-500' : 
+              typeof value === 'number' && value >= 75 ? 'bg-green-600' :
+              typeof value === 'number' && value >= 50 ? 'bg-yellow-500' :
+              typeof value === 'number' && value >= 35 ? 'bg-red-700' : 'bg-[#ff0033]'
             }`}
           />
         </div>

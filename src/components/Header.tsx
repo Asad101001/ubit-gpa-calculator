@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogIn, User, LogOut, Shield, ChevronDown, ShieldCheck } from 'lucide-react';
+import { User, LogOut, Shield, ChevronDown, Menu, X, Calculator, LineChart, Trophy, Table } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
-
 import type { ViewType } from '../App';
 
 export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }: { currentView: ViewType, navigateTo: (v: ViewType) => void, activeSection?: string }) => {
   const { user, profile, openAuthModal, signOut } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,15 +22,16 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
 
   const handleSignOut = async () => {
     setIsDropdownOpen(false);
+    setIsMobileMenuOpen(false);
     await signOut();
     navigateTo('main');
   };
 
   const navItems = [
-    { id: 'calculator', label: 'Calculator', section: 'calculator', view: 'main' as const },
-    { id: 'analytics', label: 'Analytics', section: 'analytics', view: 'main' as const },
-    { id: 'leaderboard', label: 'Leaderboard', section: 'leaderboard', view: 'main' as const },
-    { id: 'results', label: 'Results', section: '', view: 'results' as const },
+    { id: 'calculator', label: 'Calculator', section: 'calculator', view: 'main' as const, icon: Calculator },
+    { id: 'analytics', label: 'Analytics', section: 'analytics', view: 'main' as const, icon: LineChart },
+    { id: 'leaderboard', label: 'Leaderboard', section: 'leaderboard', view: 'main' as const, icon: Trophy },
+    { id: 'results', label: 'Results', section: '', view: 'results' as const, icon: Table },
   ];
 
   const isActive = (item: typeof navItems[0]) => {
@@ -38,55 +39,50 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
     return currentView === 'main' && activeSection === item.section;
   };
 
+  const handleNav = (item: typeof navItems[0]) => {
+    setIsMobileMenuOpen(false);
+    navigateTo(item.view);
+    if (item.section) {
+      setTimeout(() => document.getElementById(item.section)?.scrollIntoView({ behavior: 'smooth' }), 100);
+    }
+  };
+
   return (
-    <motion.header
-      initial={{ y: -60, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="sticky top-0 z-50 w-full glass border-b border-border"
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-14 sm:h-16">
+    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b-2 border-black">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex justify-between items-center h-14 sm:h-16">
         {/* Logo & Branding */}
-        <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+        <div className="flex items-center gap-2.5 sm:gap-4 flex-shrink-0">
           <button
-            onClick={() => navigateTo('main')}
-            className="flex items-center gap-2.5 group"
+            onClick={() => { setIsMobileMenuOpen(false); navigateTo('main'); }}
+            className="flex items-center gap-2 group text-left"
           >
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden border border-border/60 shadow-md flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border-2 border-black shadow-[2px_2px_0px_0px_#000] flex-shrink-0 group-hover:translate-x-0.5 group-hover:translate-y-0.5 transition-transform">
               <img
                 src="/images/ubit_logo.jpg"
                 alt="UBIT Logo"
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="hidden sm:flex flex-col items-start leading-none">
-              <span className="font-black text-sm tracking-tight text-textMain">
-                UBIT <span className="text-brand-400">GPA</span>
+            <div className="flex flex-col items-start leading-none">
+              <span className="font-black text-xs sm:text-sm tracking-tight text-black">
+                UBIT <span className="bg-yellow-400 px-1 py-0.2 rounded border border-black text-[10px] sm:text-xs">RESULTS</span>
               </span>
-              <span className="text-[9px] font-medium text-textMuted tracking-wide uppercase mt-0.5">
-                Batch '28 · BSCS
+              <span className="text-[8px] sm:text-[9px] font-bold text-gray-600 tracking-wide uppercase mt-0.5">
+                BSCS Batch 2024–28
               </span>
             </div>
           </button>
 
-          {/* Separator */}
-          <div className="hidden md:block h-6 w-px bg-border" />
-
-          {/* Slim nav — desktop */}
-          <nav className="hidden md:flex items-center gap-1 text-sm font-medium">
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1.5 ml-4">
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => {
-                  navigateTo(item.view);
-                  if (item.section) {
-                    setTimeout(() => document.getElementById(item.section)?.scrollIntoView({ behavior: 'smooth' }), 100);
-                  }
-                }}
-                className={`px-3 py-1.5 rounded-lg transition-all duration-150 whitespace-nowrap text-[13px] ${
+                onClick={() => handleNav(item)}
+                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${
                   isActive(item)
-                    ? 'bg-brand-500/15 text-brand-400 font-semibold'
-                    : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/60'
+                    ? 'bg-yellow-400 text-black border-black shadow-[2px_2px_0px_0px_#000]'
+                    : 'text-gray-700 hover:text-black border-transparent hover:border-black/30 hover:bg-gray-100'
                 }`}
               >
                 {item.label}
@@ -95,85 +91,75 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
           </nav>
         </div>
 
-        {/* Right side */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Mobile nav pill */}
-          <nav className="flex md:hidden items-center gap-0.5 text-[11px] font-medium bg-surfaceHighlight/50 p-1 rounded-xl border border-border overflow-x-auto max-w-[calc(100vw-160px)] scrollbar-none">
+        {/* Right side controls */}
+        <div className="flex items-center gap-1.5 sm:gap-3">
+          {/* Quick Nav on Tablet */}
+          <div className="hidden sm:flex md:hidden items-center gap-1 bg-gray-100 p-1 rounded-lg border border-black">
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => {
-                  navigateTo(item.view);
-                  if (item.section) {
-                    setTimeout(() => document.getElementById(item.section)?.scrollIntoView({ behavior: 'smooth' }), 100);
-                  }
-                }}
-                className={`shrink-0 px-2.5 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                onClick={() => handleNav(item)}
+                className={`px-2 py-1 rounded text-[11px] font-bold transition-all ${
                   isActive(item)
-                    ? 'text-brand-400 font-bold bg-brand-500/10'
-                    : 'text-textMuted hover:text-textMain hover:bg-surfaceHighlight/50'
+                    ? 'bg-yellow-400 text-black border border-black'
+                    : 'text-gray-600 hover:text-black'
                 }`}
               >
                 {item.label}
               </button>
             ))}
-          </nav>
+          </div>
 
           {/* Auth Controls */}
           {user && profile ? (
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 bg-surfaceHighlight/70 hover:bg-surfaceHighlight text-textMain rounded-full font-bold text-xs border border-border hover:border-brand-500/30 transition-all shadow-sm group"
+                className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-yellow-400 hover:bg-yellow-300 text-black rounded-lg font-bold text-xs border-2 border-black shadow-[2px_2px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
               >
-                <div className="w-7 h-7 bg-brand-500/20 text-brand-400 rounded-full flex items-center justify-center text-[11px] font-black border border-brand-500/30">
+                <div className="w-5 h-5 bg-black text-yellow-400 rounded-full flex items-center justify-center text-[10px] font-black">
                   {profile.full_name.charAt(0)}
                 </div>
-                <span className="hidden sm:inline max-w-[80px] truncate text-[12px]">{profile.full_name.split(' ')[0]}</span>
-                {profile.is_admin && <Shield size={11} className="text-yellow-400" />}
-                <ChevronDown size={13} className={`transition-transform text-textMuted ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <span className="max-w-[70px] sm:max-w-[100px] truncate text-[11px] sm:text-xs">
+                  {profile.full_name.split(' ')[0]}
+                </span>
+                {profile.is_admin && <Shield size={11} className="text-black" />}
+                <ChevronDown size={12} className={`transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
               <AnimatePresence>
                 {isDropdownOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 6, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                    transition={{ duration: 0.18, ease: 'easeOut' }}
-                    className="absolute right-0 mt-2 w-52 bg-surface/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl overflow-hidden z-50"
+                    exit={{ opacity: 0, y: 6, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-52 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] overflow-hidden z-50"
                   >
-                    <div className="px-4 py-3 border-b border-border/50 bg-surfaceHighlight/20">
-                      <p className="text-sm font-bold text-textMain truncate">{profile.full_name}</p>
-                      <p className="text-[11px] text-textMuted mt-0.5 truncate">{profile.email}</p>
-                      <div className="mt-2">
-                        {profile.is_admin ? (
-                          <span className="inline-flex items-center gap-1 text-[9px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                            <Shield size={9} /> Admin
-                          </span>
-                        ) : profile.is_verified ? (
-                          <span className="inline-flex items-center gap-1 text-[9px] bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                            <ShieldCheck size={9} /> Verified
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[9px] bg-surfaceHighlight text-textMuted border border-border px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                            Unverified
-                          </span>
-                        )}
-                      </div>
+                    <div className="px-3.5 py-2.5 border-b border-gray-200 bg-yellow-50">
+                      <p className="text-xs font-black text-black truncate">{profile.full_name}</p>
+                      <p className="text-[10px] text-gray-600 mt-0.5 truncate">{profile.seat_no ? `Seat No: ${profile.seat_no}` : profile.email}</p>
+                      {profile.is_admin && (
+                        <span className="mt-1 inline-flex items-center gap-1 text-[9px] font-extrabold bg-black text-yellow-400 px-1.5 py-0.5 rounded">
+                          ADMIN
+                        </span>
+                      )}
                     </div>
+
                     <div className="p-1.5 space-y-0.5">
                       <button
-                        onClick={() => { setIsDropdownOpen(false); navigateTo('profile'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-textMain hover:bg-brand-500/10 hover:text-brand-400 rounded-xl transition-colors text-left"
+                        onClick={() => { setIsDropdownOpen(false); navigateTo('profile'); }}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-gray-800 hover:bg-yellow-400 hover:text-black transition-colors text-left"
                       >
-                        <User size={15} /> My Profile
+                        <User size={13} />
+                        My Profile & Marks
                       </button>
                       <button
                         onClick={handleSignOut}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-red-400 hover:bg-red-500/10 rounded-xl transition-colors text-left"
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-red-600 hover:bg-red-50 transition-colors text-left"
                       >
-                        <LogOut size={15} /> Sign Out
+                        <LogOut size={13} />
+                        Sign Out
                       </button>
                     </div>
                   </motion.div>
@@ -183,14 +169,57 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
           ) : (
             <button
               onClick={() => openAuthModal('signin')}
-              className="flex items-center gap-2 px-4 py-2 bg-brand-500 hover:bg-brand-400 text-white rounded-full font-semibold text-xs transition-all hover:scale-105 shadow-md shadow-brand-500/20"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-black hover:bg-gray-800 text-yellow-400 rounded-lg font-bold text-xs border-2 border-black shadow-[2px_2px_0px_0px_#E6B400] active:translate-x-0.5 active:translate-y-0.5 transition-all"
             >
-              <LogIn size={13} />
-              <span className="hidden sm:inline">Sign In</span>
+              <User size={13} />
+              <span>Sign In</span>
             </button>
           )}
+
+          {/* Mobile Menu Toggle Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-1.5 bg-gray-100 hover:bg-gray-200 border-2 border-black rounded-lg text-black transition-colors"
+            aria-label="Toggle navigation menu"
+          >
+            {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
       </div>
-    </motion.header>
+
+      {/* Mobile Drawer Navigation */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden border-t-2 border-black bg-white px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.1)] overflow-hidden"
+          >
+            <div className="grid grid-cols-2 gap-2">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item);
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNav(item)}
+                    className={`flex items-center gap-2 p-2.5 rounded-lg text-xs font-bold border-2 transition-all text-left ${
+                      active
+                        ? 'bg-yellow-400 text-black border-black shadow-[2px_2px_0px_0px_#000]'
+                        : 'bg-gray-50 text-gray-800 border-gray-200 hover:border-black'
+                    }`}
+                  >
+                    <Icon size={14} className={active ? 'text-black' : 'text-gray-500'} />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   );
 };

@@ -17,7 +17,6 @@ export const getGradePoint = (marks: number): number => {
 };
 
 export const getLetterGrade = (marks: number): string => {
-  if (marks >= 90) return 'A+';
   if (marks >= 85) return 'A+';
   if (marks >= 80) return 'A-';
   if (marks >= 75) return 'B+';
@@ -29,6 +28,47 @@ export const getLetterGrade = (marks: number): string => {
   if (marks >= 50) return 'D';
   return 'F';
 };
+
+/**
+ * Dynamic mark styling:
+ * - 85+: High achiever (bold emerald with soft glow)
+ * - 80-84: Solid A- (vibrant green)
+ * - 70-79: Strong pass (blue)
+ * - 50-69: Pass (amber/orange)
+ * - Below 50: Transitions from deep burgundy (45-49) down to glowing/pulsing neon crimson red (0-15)
+ */
+export function getMarkColor(m: number): string {
+  if (m >= 85) return 'text-emerald-600 font-black drop-shadow-[0_0_6px_rgba(16,185,129,0.35)]';
+  if (m >= 80) return 'text-green-600 font-bold';
+  if (m >= 75) return 'text-teal-700 font-bold';
+  if (m >= 71) return 'text-blue-700 font-semibold';
+  if (m >= 60) return 'text-sky-700 font-medium';
+  if (m >= 50) return 'text-amber-600 font-semibold';
+  
+  // Dynamic Red Gradient for Fails (< 50)
+  if (m >= 45) return 'text-[#881337] font-bold'; // Deep Rose/Burgundy (near pass)
+  if (m >= 35) return 'text-[#991b1b] font-extrabold'; // Deep Crimson
+  if (m >= 25) return 'text-[#dc2626] font-black'; // Bright Red
+  if (m >= 15) return 'text-[#ef4444] font-black drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]'; // Hot Red with Glow
+  return 'text-[#ff0033] font-black drop-shadow-[0_0_12px_rgba(255,0,51,0.9)] animate-pulse'; // Ultra Glowing Neon Red (0-14)
+}
+
+/**
+ * RGB tuple helper for PDF generation (jsPDF)
+ */
+export function getMarkPdfColor(m: number): [number, number, number] {
+  if (m >= 85) return [16, 185, 129]; // Emerald
+  if (m >= 80) return [22, 163, 74];  // Green
+  if (m >= 71) return [2, 132, 199];  // Sky Blue
+  if (m >= 50) return [217, 119, 6];  // Amber
+  
+  // Failing gradient in PDF
+  if (m >= 45) return [136, 19, 55];  // Deep Burgundy
+  if (m >= 35) return [153, 27, 27];  // Crimson
+  if (m >= 25) return [220, 38, 38];  // Bright Red
+  if (m >= 15) return [239, 68, 68];  // Hot Red
+  return [255, 0, 51];                // Glowing Neon Red
+}
 
 export const SEM1_COURSES = [
   { code: "CS-351", id: "cs351", name: "Programming Fundamentals", credits: 4, type: "Programming", instructor: "Mr. Badr Sami" },
