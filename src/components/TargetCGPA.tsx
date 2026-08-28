@@ -251,7 +251,8 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
   };
 
   return (
-    <div className="glass rounded-2xl sm:rounded-3xl border-2 border-black p-4 sm:p-6 md:p-8 space-y-6 shadow-[4px_4px_0px_0px_#000]">
+    <div id="target-advisor" className="glass rounded-2xl sm:rounded-3xl border-2 border-black p-4 sm:p-6 md:p-8 space-y-6 shadow-[4px_4px_0px_0px_#000]">
+
       {/* Header Toggle */}
       <div 
         onClick={() => setIsExpanded(!isExpanded)}

@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, LogOut, Shield, ChevronDown, Menu, X, Calculator, LineChart, Trophy, Table } from 'lucide-react';
+import { Home, User, LogOut, Shield, ChevronDown, Menu, X, Calculator, Table } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import type { ViewType } from '../App';
 
-export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }: { currentView: ViewType, navigateTo: (v: ViewType) => void, activeSection?: string }) => {
+export const Header = ({ currentView, navigateTo }: { currentView: ViewType, navigateTo: (v: ViewType) => void, activeSection?: string }) => {
   const { user, profile, openAuthModal, signOut } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -24,28 +24,29 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
     setIsDropdownOpen(false);
     setIsMobileMenuOpen(false);
     await signOut();
-    navigateTo('main');
+    navigateTo('home');
   };
 
   const navItems = [
-    { id: 'calculator', label: 'Calculator', section: 'calculator', view: 'main' as const, icon: Calculator },
-    { id: 'analytics', label: 'Analytics', section: 'analytics', view: 'main' as const, icon: LineChart },
-    { id: 'leaderboard', label: 'Leaderboard', section: 'leaderboard', view: 'main' as const, icon: Trophy },
-    { id: 'results', label: 'Results', section: '', view: 'results' as const, icon: Table },
+    { id: 'home', label: 'Home', view: 'home' as const, icon: Home },
+    { id: 'calculator', label: 'Calculator', view: 'calculator' as const, icon: Calculator },
+    { id: 'results', label: 'Results', view: 'results' as const, icon: Table },
+    { id: 'profile', label: 'Profile', view: 'profile' as const, icon: User },
   ];
 
   const isActive = (item: typeof navItems[0]) => {
-    if (item.view === 'results') return currentView === 'results';
-    return currentView === 'main' && activeSection === item.section;
+    return currentView === item.view;
   };
 
   const handleNav = (item: typeof navItems[0]) => {
     setIsMobileMenuOpen(false);
-    navigateTo(item.view);
-    if (item.section) {
-      setTimeout(() => document.getElementById(item.section)?.scrollIntoView({ behavior: 'smooth' }), 100);
+    if (item.view === 'profile' && !user) {
+      openAuthModal('signin');
+      return;
     }
+    navigateTo(item.view);
   };
+
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b-2 border-black">
@@ -53,9 +54,10 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
         {/* Logo & Branding */}
         <div className="flex items-center gap-2.5 sm:gap-4 flex-shrink-0">
           <button
-            onClick={() => { setIsMobileMenuOpen(false); navigateTo('main'); }}
+            onClick={() => { setIsMobileMenuOpen(false); navigateTo('home'); }}
             className="flex items-center gap-2 group text-left"
           >
+
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border-2 border-black shadow-[2px_2px_0px_0px_#000] flex-shrink-0 group-hover:translate-x-0.5 group-hover:translate-y-0.5 transition-transform">
               <img
                 src="/images/ubit_logo.jpg"

@@ -49,32 +49,38 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
               </h4>
               <ul className="space-y-2 text-xs font-medium text-textMuted">
                 <li>
-                  <a 
-                    href="#calculator" 
-                    onClick={(e) => { e.preventDefault(); navigateTo?.('main'); setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-                    className="hover:text-brand-400 transition-colors flex items-center gap-2"
+                  <button 
+                    onClick={() => { navigateTo?.('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    className="hover:text-brand-400 transition-colors text-left flex items-center gap-2"
+                  >
+                    <span className="text-border">›</span> Home & Overview
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => { navigateTo?.('calculator'); setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+                    className="hover:text-brand-400 transition-colors text-left flex items-center gap-2"
                   >
                     <span className="text-border">›</span> GPA Calculator
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a 
-                    href="#analytics" 
-                    onClick={(e) => { e.preventDefault(); navigateTo?.('main'); setTimeout(() => document.getElementById('analytics')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-                    className="hover:text-brand-400 transition-colors flex items-center gap-2"
+                  <button 
+                    onClick={() => { navigateTo?.('calculator'); setTimeout(() => document.getElementById('target-advisor')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+                    className="hover:text-brand-400 transition-colors text-left flex items-center gap-2"
                   >
-                    <span className="text-border">›</span> Analytics & Target Advisor
-                  </a>
+                    <span className="text-border">›</span> Target CGPA Advisor
+                  </button>
                 </li>
                 <li>
-                  <a 
-                    href="#leaderboard" 
-                    onClick={(e) => { e.preventDefault(); navigateTo?.('main'); setTimeout(() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-                    className="hover:text-brand-400 transition-colors flex items-center gap-2"
+                  <button 
+                    onClick={() => { navigateTo?.('calculator'); setTimeout(() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+                    className="hover:text-brand-400 transition-colors text-left flex items-center gap-2"
                   >
                     <span className="text-border">›</span> Class Leaderboard
-                  </a>
+                  </button>
                 </li>
+
                 <li>
                   <button 
                     onClick={() => navigateTo?.('results')}

@@ -1,7 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-import { RotateCcw, BookOpen, Trophy, Zap } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
+
+
+
 
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from './lib/utils';
 import { generateTranscriptPDF } from './lib/transcriptGenerator';
@@ -14,8 +17,10 @@ import { TargetCGPA } from './components/TargetCGPA';
 import { Leaderboard, SubmitModal } from './components/Leaderboard';
 import { BoycottModal } from './components/BoycottModal';
 import { SplashScreen } from './components/SplashScreen';
+import { HomePage } from './components/HomePage';
 import { ResultsPortal } from './components/ResultsPortal';
 import { AuthModal } from './components/AuthModal';
+
 import { AuthGate } from './components/AuthGate';
 import { ProfilePage } from './components/ProfilePage';
 import { MobileBottomNav } from './components/MobileBottomNav';
@@ -26,8 +31,7 @@ import { PrivacyPage } from './pages/PrivacyPage';
 import { GradingPage } from './pages/GradingPage';
 import { LegalPage } from './pages/LegalPage';
 
-
-export type ViewType = 'main' | 'results' | 'profile' | 'terms' | 'privacy' | 'grading' | 'legal';
+export type ViewType = 'home' | 'calculator' | 'results' | 'profile' | 'terms' | 'privacy' | 'grading' | 'legal';
 
 function App() {
   const { user, profile, initialize: initAuth } = useAuthStore();
@@ -43,14 +47,16 @@ function App() {
   
   const [currentView, setCurrentView] = useState<ViewType>(() => {
     const hash = window.location.hash;
+    if (hash === '#calculator') return 'calculator';
     if (hash === '#results') return 'results';
     if (hash === '#profile') return 'profile';
     if (hash === '#terms') return 'terms';
     if (hash === '#privacy') return 'privacy';
     if (hash === '#grading') return 'grading';
     if (hash === '#legal') return 'legal';
-    return 'main';
+    return 'home';
   });
+
 
   // Initialize auth on mount
   useEffect(() => {
@@ -60,13 +66,14 @@ function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
-      if (hash === '#results') setCurrentView('results');
+      if (hash === '#calculator') setCurrentView('calculator');
+      else if (hash === '#results') setCurrentView('results');
       else if (hash === '#profile') setCurrentView('profile');
       else if (hash === '#terms') setCurrentView('terms');
       else if (hash === '#privacy') setCurrentView('privacy');
       else if (hash === '#grading') setCurrentView('grading');
       else if (hash === '#legal') setCurrentView('legal');
-      else setCurrentView('main');
+      else setCurrentView('home');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     window.addEventListener('hashchange', handleHashChange);
@@ -76,7 +83,7 @@ function App() {
   const [activeSection, setActiveSection] = useState<string>('calculator');
 
   useEffect(() => {
-    if (currentView !== 'main') return;
+    if (currentView !== 'calculator') return;
     const observer = new IntersectionObserver(
       (entries) => {
         let maxRatio = 0;
@@ -92,15 +99,16 @@ function App() {
       { rootMargin: '-20% 0px -40% 0px', threshold: [0.1, 0.5] }
     );
 
-    const sections = ['calculator', 'analytics', 'leaderboard'].map(id => document.getElementById(id));
+    const sections = ['calculator', 'target-advisor', 'analytics', 'leaderboard'].map(id => document.getElementById(id));
     sections.forEach(s => s && observer.observe(s));
     return () => observer.disconnect();
   }, [currentView, activeSection]);
 
   const navigateTo = (view: ViewType) => {
-    if (view === 'main') window.location.hash = '';
+    if (view === 'home') window.location.hash = '';
     else window.location.hash = view;
   };
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
   const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(true);
@@ -356,12 +364,13 @@ function App() {
         {isLegalView ? (
           <main className="min-h-[calc(100vh-64px)] pb-16 bg-white">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
-              {currentView === 'terms' && <TermsPage onBack={() => navigateTo('main')} />}
-              {currentView === 'privacy' && <PrivacyPage onBack={() => navigateTo('main')} />}
-              {currentView === 'grading' && <GradingPage onBack={() => navigateTo('main')} />}
-              {currentView === 'legal' && <LegalPage onBack={() => navigateTo('main')} />}
+              {currentView === 'terms' && <TermsPage onBack={() => navigateTo('home')} />}
+              {currentView === 'privacy' && <PrivacyPage onBack={() => navigateTo('home')} />}
+              {currentView === 'grading' && <GradingPage onBack={() => navigateTo('home')} />}
+              {currentView === 'legal' && <LegalPage onBack={() => navigateTo('home')} />}
             </div>
           </main>
+
         ) : (
           <>
             {/* Fixed page background */}
@@ -378,91 +387,25 @@ function App() {
               />
             </div>
 
-            <main className="pb-24 md:pb-16">
-
-              {/* ── HERO — only shows on main/results ── */}
-              {(currentView === 'main' || currentView === 'results') && (
-                <motion.section
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="relative overflow-hidden pt-4 pb-2"
-                >
-                  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Live Brutalist Ticker Marquee */}
-                    <div className="w-full bg-yellow-400 border-2 border-black rounded-lg py-1 px-3 mb-3 overflow-hidden shadow-[2px_2px_0px_0px_#000] flex items-center">
-                      <div className="flex items-center gap-2 text-[10px] sm:text-xs font-black font-mono uppercase tracking-wider text-black shrink-0 pr-3 border-r-2 border-black">
-                        <span className="w-2 h-2 rounded-full bg-red-600 animate-ping inline-block" />
-                        LIVE
-                      </div>
-                      <div className="overflow-hidden whitespace-nowrap w-full pl-3">
-                        <div className="inline-block animate-tape-scroll text-[10px] sm:text-xs font-black font-mono uppercase tracking-wider text-black">
-                          🔥 UBIT BSCS BATCH 2024–28 PORTAL &nbsp;•&nbsp; ⚡ REAL-TIME GPA & TARGET SIMULATOR &nbsp;•&nbsp; 📄 1-PAGE OFFICIAL TRANSCRIPT PDF &nbsp;•&nbsp; 🏆 CLASS LEADERBOARDS &nbsp;•&nbsp; 📊 SEMESTER BREAKDOWNS &nbsp;•&nbsp;
-                        </div>
-                      </div>
-                    </div>
-
-                    <motion.div
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                      <div className="relative rounded-2xl overflow-hidden mb-5 border-2 border-black shadow-[6px_6px_0px_0px_#000000] group">
-                        <img
-                          src="/images/ubit_building_day.jpg"
-                          alt="UBIT Building"
-                          className="w-full h-44 sm:h-60 object-cover group-hover:scale-105 transition-transform duration-700"
-                          loading="eager"
-                        />
-
-                        {/* Floating Dynamic Badges */}
-                        <div className="absolute top-3 right-3 hidden sm:flex items-center gap-2">
-                          <motion.div
-                            animate={{ y: [0, -5, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                            className="px-3 py-1.5 bg-white/95 backdrop-blur-md rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5 text-xs font-black text-black"
-                          >
-                            <Trophy size={13} className="text-yellow-500" />
-                            <span>4.00 Max Potential</span>
-                          </motion.div>
-                          <motion.div
-                            animate={{ y: [0, 5, 0] }}
-                            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                            className="px-3 py-1.5 bg-yellow-400 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5 text-xs font-black text-black"
-                          >
-                            <Zap size={13} className="text-black" />
-                            <span>Live GPA Engine</span>
-                          </motion.div>
-                        </div>
-
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent flex items-end p-4 sm:p-6">
-                          <div className="text-left">
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-yellow-400 text-black border-2 border-black font-black text-[10px] sm:text-xs tracking-wider uppercase mb-2 shadow-[1.5px_1.5px_0px_0px_#000]">
-                              <BookOpen size={11} strokeWidth={2.5} />
-                              Umaer Basha Institute of Information Technology
-                            </span>
-                            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-                              {currentView === 'results' ? 'Department Results Portal' : 'Academic Results & GPA Hub'}
-                            </h1>
-                            <p className="text-xs sm:text-sm text-gray-200 font-bold mt-1">
-                              Department of Computer Science (DCS) · University of Karachi · Batch 2024–28
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </div>
-                </motion.section>
-              )}
-
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-10">
+            <main className="pb-24 md:pb-16 pt-4 sm:pt-6">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <AnimatePresence mode="wait">
-                  {currentView === 'profile' ? (
+                  {currentView === 'home' ? (
+                    <motion.div key="home" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+                      <HomePage
+                        navigateTo={navigateTo}
+                        gpa1={gpa1}
+                        gpa2={gpa2}
+                        cgpa={cgpa}
+                        hasGrades={Object.values(sem1Grades).some(v => v !== '') || Object.values(sem2Grades).some(v => v !== '')}
+                      />
+                    </motion.div>
+                  ) : currentView === 'profile' ? (
                     <motion.div key="profile" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
                       {user && profile ? <ProfilePage /> : <AuthGate />}
                     </motion.div>
-                  ) : currentView === 'main' ? (
-                    <motion.div key="main" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="space-y-6 sm:space-y-10">
+                  ) : currentView === 'calculator' ? (
+                    <motion.div key="calculator" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="space-y-6 sm:space-y-10">
                       <section id="calculator" className="space-y-4">
                         <div className="flex justify-between items-center pb-2 border-b-2 border-black/10">
                           <div className="flex items-center gap-2">
@@ -516,7 +459,7 @@ function App() {
                           setSem1Grades(s1);
                           setSem2Grades(s2);
                           setSem3Grades(s3 || SEM3_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
-                          navigateTo('main');
+                          navigateTo('calculator');
                           setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100);
                         }}
                       />
@@ -525,6 +468,7 @@ function App() {
                 </AnimatePresence>
               </div>
             </main>
+
 
           </>
         )}
@@ -535,8 +479,8 @@ function App() {
         <MobileBottomNav
           currentView={currentView}
           navigateTo={navigateTo}
-          activeSection={activeSection}
           onGeneratePdf={() => {
+
             const hasMissingMarks = Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === '');
             if (hasMissingMarks) {
               toast.error("Cannot generate transcript: Marks are missing for one or more subjects.", { id: 'pdf-err-mobile-nav' });
