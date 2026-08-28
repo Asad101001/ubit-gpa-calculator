@@ -39,9 +39,10 @@ interface CourseSuggestion {
 }
 
 export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: TargetCGPAProps) => {
-  const [targetCgpa, setTargetCgpa] = useState('3.50');
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [targetCgpa, setTargetCgpa] = useState('');
+  const [isExpanded, setIsExpanded] = useState(false);
   const [mode, setMode] = useState<'improvement' | 'future'>('improvement');
+
   
   const [excludedCourses, setExcludedCourses] = useState<Record<string, boolean>>({});
   const [remainingSemesters, setRemainingSemesters] = useState(5);
@@ -300,9 +301,10 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                       min="1.00"
                       max="4.00"
                       step="0.05"
+                      placeholder="e.g. 3.50"
                       value={targetCgpa}
                       onChange={e => setTargetCgpa(e.target.value)}
-                      className="w-28 sm:w-32 px-3 py-2 bg-white text-black font-black text-lg sm:text-xl rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-[2px_2px_0px_0px_#000]"
+                      className="w-28 sm:w-36 px-3 py-2 bg-white text-black font-black text-base sm:text-lg rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-[2px_2px_0px_0px_#000] placeholder:text-gray-400 placeholder:font-normal"
                     />
                     {currentVal > 0 && targetVal > 0 && (
                       <div className="px-2.5 py-1.5 bg-white border-2 border-black rounded-lg text-xs font-bold text-black">
@@ -348,14 +350,14 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                 {/* 3. Mode Toggle */}
                 <div className="lg:col-span-4 space-y-1.5">
                   <span className="text-[11px] font-black text-black uppercase tracking-wider block">
-                    Advisor Mode
+                    Advising Mode
                   </span>
-                  <div className="grid grid-cols-2 gap-1.5 p-1 bg-white rounded-lg border-2 border-black">
+                  <div className="grid grid-cols-2 gap-1.5 bg-white p-1 rounded-lg border-2 border-black">
                     <button
                       onClick={() => setMode('improvement')}
                       className={`flex items-center justify-center gap-1 py-1.5 px-2 rounded-md text-[11px] font-black transition-all ${
                         mode === 'improvement'
-                          ? 'bg-yellow-400 text-black border border-black'
+                          ? 'bg-yellow-400 text-black border border-black shadow-[1px_1px_0px_0px_#000]'
                           : 'text-gray-600 hover:text-black'
                       }`}
                     >
@@ -365,7 +367,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                       onClick={() => setMode('future')}
                       className={`flex items-center justify-center gap-1 py-1.5 px-2 rounded-md text-[11px] font-black transition-all ${
                         mode === 'future'
-                          ? 'bg-yellow-400 text-black border border-black'
+                          ? 'bg-yellow-400 text-black border border-black shadow-[1px_1px_0px_0px_#000]'
                           : 'text-gray-600 hover:text-black'
                       }`}
                     >
@@ -384,6 +386,20 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                 <span>Fill in your subject marks in the calculator above to get custom target recommendations and roadmaps.</span>
               </div>
             )}
+
+            {/* Target not entered state */}
+            {hasGrades && !targetVal && (
+              <div className="p-6 bg-white border-2 border-black rounded-xl text-center space-y-2 shadow-[2px_2px_0px_0px_#000]">
+                <div className="w-10 h-10 rounded-full bg-yellow-100 border-2 border-black flex items-center justify-center mx-auto text-black shadow-[1px_1px_0px_0px_#000]">
+                  <Target size={20} />
+                </div>
+                <h4 className="text-sm font-black text-black">Select or Enter a Target CGPA Above</h4>
+                <p className="text-xs text-gray-600 max-w-sm mx-auto">
+                  Choose one of the quick presets (e.g. 3.50 Honors) or type in your goal to calculate what GPA or marks you need.
+                </p>
+              </div>
+            )}
+
 
             {/* Goal Achieved State */}
             {hasGrades && targetVal > 0 && alreadyMet && (
