@@ -7,8 +7,8 @@ import { RotateCcw } from 'lucide-react';
 
 
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from './lib/utils';
-import { generateTranscriptPDF } from './lib/transcriptGenerator';
 import { triggerConfetti } from './lib/confetti';
+
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { Calculator } from './components/Calculator';
@@ -338,11 +338,62 @@ function App() {
 
       <Toaster
         position="top-center"
+        gutter={10}
+        containerStyle={{
+          top: 24,
+          zIndex: 99999
+        }}
         toastOptions={{
-          className: 'text-sm font-bold shadow-xl',
-          style: { background: '#000', color: '#fff', padding: '12px 20px', border: '2px solid #E6B400', borderRadius: '8px', zIndex: 99999 }
+          duration: 3500,
+          className: 'text-xs sm:text-sm font-bold tracking-tight',
+          style: {
+            background: '#ffffff',
+            color: '#000000',
+            border: '2px solid #000000',
+            borderRadius: '14px',
+            padding: '12px 18px',
+            boxShadow: '4px 4px 0px 0px #000000',
+            fontWeight: 800,
+            fontSize: '13px',
+            maxWidth: '92vw'
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#000000',
+              secondary: '#fbbf24'
+            },
+            style: {
+              background: '#ffffff',
+              border: '2px solid #000000',
+              boxShadow: '4px 4px 0px 0px #000000',
+              color: '#000000'
+            }
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#dc2626',
+              secondary: '#ffffff'
+            },
+            style: {
+              background: '#fef2f2',
+              border: '2px solid #dc2626',
+              boxShadow: '4px 4px 0px 0px #000000',
+              color: '#991b1b'
+            }
+          },
+          loading: {
+            style: {
+              background: '#ffffff',
+              border: '2px solid #000000',
+              boxShadow: '4px 4px 0px 0px #000000',
+              color: '#000000'
+            }
+          }
         }}
       />
+
 
       <AuthModal />
 
@@ -479,25 +530,8 @@ function App() {
         <MobileBottomNav
           currentView={currentView}
           navigateTo={navigateTo}
-          onGeneratePdf={() => {
-
-            const hasMissingMarks = Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === '');
-            if (hasMissingMarks) {
-              toast.error("Cannot generate transcript: Marks are missing for one or more subjects.", { id: 'pdf-err-mobile-nav' });
-              return;
-            }
-            const studentObj: Record<string, any> = {
-              'Name': profile?.full_name || localStorage.getItem('submitName') || 'Guest Student',
-              'Seat No': profile?.seat_no || 'Calculator Preview'
-            };
-            const mapCodeToId = (code: string) => code.toLowerCase().replace('-', '');
-            Object.entries(sem1Grades).forEach(([code, mark]) => { studentObj[mapCodeToId(code)] = mark; });
-            Object.entries(sem2Grades).forEach(([code, mark]) => { studentObj[mapCodeToId(code)] = mark; });
-            Object.entries(sem3Grades).forEach(([code, mark]) => { studentObj[mapCodeToId(code)] = mark; });
-            generateTranscriptPDF(studentObj);
-            toast.success('Generated official single-page transcript PDF!', { icon: '📄' });
-          }}
         />
+
       </div>
     </>
   );
