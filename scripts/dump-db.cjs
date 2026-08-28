@@ -13,11 +13,14 @@ let supabaseKey = '';
 try {
   const envFile = fs.readFileSync(path.join(__dirname, '..', '.env'), 'utf-8');
   envFile.split('\n').forEach(line => {
-    const [key, ...val] = line.split('=');
-    const value = val.join('=').replace(/^["']|["']$/g, '').trim();
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) return;
+    const [key, ...val] = trimmed.split('=');
+    const value = val.join('=').trim().replace(/^["']|["']$/g, '').trim();
     if (key?.trim() === 'VITE_SUPABASE_URL') supabaseUrl = value;
     if (key?.trim() === 'VITE_SUPABASE_ANON_KEY') supabaseKey = value;
   });
+
 } catch (e) {
   console.error('Could not read .env file:', e.message);
   process.exit(1);
@@ -45,13 +48,30 @@ const req = https.request(
           console.error('Unexpected response:', data.substring(0, 200));
           process.exit(1);
         }
-        fs.writeFileSync(outputPath, JSON.stringify(parsed, null, 2));
-        console.log(`✅ Dumped ${parsed.length} records to public/fallback-results.json`);
+        
+        // Ensure all semester 3 keys exist for each student
+        const sem3Keys = ['cs451', 'cs453', 'cs455', 'cs457', 'cs459', 'cs461'];
+        const normalized = parsed.map(row => {
+          const item = { ...row };
+          sem3Keys.forEach(k => {
+            if (item[k] === undefined || item[k] === null || item[k] === '') {
+              item[k] = 'Results Unannounced';
+            }
+          });
+          return item;
+        });
+
+        // Sort by seat_no
+        normalized.sort((a, b) => (a.seat_no || '').localeCompare(b.seat_no || ''));
+
+        fs.writeFileSync(outputPath, JSON.stringify(normalized, null, 2));
+        console.log(`✅ Dumped and normalized ${normalized.length} records to public/fallback-results.json`);
         console.log(`   Generated at: ${new Date().toISOString()}`);
       } catch (e) {
         console.error('Failed to parse response:', e.message);
         process.exit(1);
       }
+
     });
   }
 );
