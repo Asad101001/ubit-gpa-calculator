@@ -458,8 +458,10 @@ function App() {
                           sem1Grades={sem1Grades} setSem1Grades={setSem1Grades}
                           sem2Grades={sem2Grades} setSem2Grades={setSem2Grades}
                           sem3Grades={sem3Grades} setSem3Grades={setSem3Grades}
+                          cgpa={cgpa}
                         />
                       </section>
+
 
                       <TargetCGPA
                         sem1Grades={sem1Grades}

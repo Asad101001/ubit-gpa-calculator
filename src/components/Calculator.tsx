@@ -3,11 +3,12 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { 
   Code2, Cpu, Binary, BookOpen, MessageSquare, Sparkles, Plus, Minus, 
-  ChevronDown, GraduationCap, Award, BookMarked
+  ChevronDown, GraduationCap, Award, BookMarked, Trophy
 } from 'lucide-react';
 
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 import { validateMarks } from '../lib/validation';
+import { TentativeCGPA } from './TentativeCGPA';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 24, scale: 0.98 },
@@ -133,9 +134,41 @@ export const Calculator = ({
   sem1Grades, setSem1Grades, 
   sem2Grades, setSem2Grades,
   sem3Grades, setSem3Grades,
+  cgpa,
 }: any) => {
 
   const [isSem4Expanded, setIsSem4Expanded] = useState(false);
+
+  const getSemStats = (courses: any[], grades: Record<string, number | ''>) => {
+    let totalQP = 0;
+    let totalCredits = 0;
+    let filledCount = 0;
+    courses.forEach(c => {
+      const val = grades[c.code];
+      if (typeof val === 'number' && !isNaN(val)) {
+        totalQP += getGradePoint(val) * c.credits;
+        totalCredits += c.credits;
+        filledCount++;
+      }
+
+    });
+    const gpa = totalCredits > 0 ? (totalQP / totalCredits).toFixed(2) : '—';
+    const isComplete = filledCount === courses.length;
+    return { gpa, totalQP, totalCredits, filledCount, isComplete };
+  };
+
+  const s1Stats = getSemStats(SEM1_COURSES, sem1Grades);
+  const s2Stats = getSemStats(SEM2_COURSES, sem2Grades);
+  const s3Stats = getSemStats(SEM3_COURSES, sem3Grades);
+
+  const totalCompletedCr = s1Stats.totalCredits + s2Stats.totalCredits + s3Stats.totalCredits;
+  const totalCompletedCount = s1Stats.filledCount + s2Stats.filledCount + s3Stats.filledCount;
+
+  // Concrete CGPA: Sem 1 & 2 full with 0 Sem 3 OR all 18 complete
+  const isConcrete = (s1Stats.filledCount === 6 && s2Stats.filledCount === 6 && s3Stats.filledCount === 0) || 
+                     (s1Stats.filledCount === 6 && s2Stats.filledCount === 6 && s3Stats.filledCount === 6);
+  const isPartialSem3 = s1Stats.filledCount === 6 && s2Stats.filledCount === 6 && s3Stats.filledCount > 0 && s3Stats.filledCount < 6;
+  const missingCount = (s1Stats.filledCount < 6 ? 6 - s1Stats.filledCount : 0) + (s2Stats.filledCount < 6 ? 6 - s2Stats.filledCount : 0);
 
   return (
     <motion.div 
@@ -148,101 +181,154 @@ export const Calculator = ({
         show: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } }
       }}
     >
-      {/* Semester 1 */}
+      {/* ── SEMESTER 1 CARD ── */}
       <motion.div 
         variants={itemVariants}
         whileHover={{ y: -3 }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden"
+        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between"
       >
-        <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-black shadow-[2px_2px_0px_0px_#000]">
+        <div>
+          <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-black shadow-[2px_2px_0px_0px_#000]">
+                01
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester One</h2>
+                  <GraduationCap size={16} className="text-yellow-600 hidden sm:inline" />
+                </div>
+                <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2 sm:space-y-2.5 relative z-10">
+            {SEM1_COURSES.map((course) => (
+              <CourseSelect 
+                key={course.code} course={course} value={sem1Grades[course.code]}
+                onChange={(val: number | '') => setSem1Grades((prev: any) => ({ ...prev, [course.code]: val }))}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Semester 1 GPA Pill Directly Below Courses */}
+        <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-yellow-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-yellow-400 border-2 border-black flex items-center justify-center font-mono font-black text-xs text-black shadow-[1px_1px_0px_0px_#000]">
               01
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester One</h2>
-                <GraduationCap size={16} className="text-yellow-600 hidden sm:inline" />
-              </div>
-              <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
+              <span className="text-xs font-black uppercase text-black tracking-wide">Semester 1 GPA</span>
+              <p className="text-[10px] font-bold text-gray-600">{s1Stats.filledCount} of 6 courses ({s1Stats.totalCredits}/18 Cr)</p>
             </div>
           </div>
-        </div>
-        <div className="space-y-2 sm:space-y-2.5 relative z-10">
-          {SEM1_COURSES.map((course) => (
-            <CourseSelect 
-              key={course.code} course={course} value={sem1Grades[course.code]}
-              onChange={(val: number | '') => setSem1Grades((prev: any) => ({ ...prev, [course.code]: val }))}
-            />
-          ))}
+          <div className="px-3 py-1 rounded-xl bg-black text-yellow-400 border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#000]">
+            {s1Stats.filledCount > 0 ? (s1Stats.isComplete ? s1Stats.gpa : `${s1Stats.gpa}*`) : '—'}
+          </div>
         </div>
       </motion.div>
 
-      {/* Semester 2 */}
+      {/* ── SEMESTER 2 CARD ── */}
       <motion.div 
-
         variants={itemVariants}
         whileHover={{ y: -3 }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden"
+        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between"
       >
-        <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-black shadow-[2px_2px_0px_0px_#000]">
+        <div>
+          <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-black shadow-[2px_2px_0px_0px_#000]">
+                02
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Two</h2>
+                  <Award size={16} className="text-yellow-600 hidden sm:inline" />
+                </div>
+                <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2 sm:space-y-2.5 relative z-10">
+            {SEM2_COURSES.map((course) => (
+              <CourseSelect 
+                key={course.code} course={course} value={sem2Grades[course.code]}
+                onChange={(val: number | '') => setSem2Grades((prev: any) => ({ ...prev, [course.code]: val }))}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Semester 2 GPA Pill Directly Below Courses */}
+        <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-yellow-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-yellow-400 border-2 border-black flex items-center justify-center font-mono font-black text-xs text-black shadow-[1px_1px_0px_0px_#000]">
               02
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Two</h2>
-                <Award size={16} className="text-yellow-600 hidden sm:inline" />
-              </div>
-              <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
+              <span className="text-xs font-black uppercase text-black tracking-wide">Semester 2 GPA</span>
+              <p className="text-[10px] font-bold text-gray-600">{s2Stats.filledCount} of 6 courses ({s2Stats.totalCredits}/18 Cr)</p>
             </div>
           </div>
-        </div>
-        <div className="space-y-2 sm:space-y-2.5 relative z-10">
-          {SEM2_COURSES.map((course) => (
-            <CourseSelect 
-              key={course.code} course={course} value={sem2Grades[course.code]}
-              onChange={(val: number | '') => setSem2Grades((prev: any) => ({ ...prev, [course.code]: val }))}
-            />
-          ))}
+          <div className="px-3 py-1 rounded-xl bg-black text-yellow-400 border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#000]">
+            {s2Stats.filledCount > 0 ? (s2Stats.isComplete ? s2Stats.gpa : `${s2Stats.gpa}*`) : '—'}
+          </div>
         </div>
       </motion.div>
 
-      {/* Semester 3 */}
+      {/* ── SEMESTER 3 CARD ── */}
       <motion.div 
         variants={itemVariants}
         whileHover={{ y: -3 }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden xl:col-span-2 max-w-3xl mx-auto w-full"
+        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden xl:col-span-2 max-w-3xl mx-auto w-full flex flex-col justify-between"
       >
-        <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-black shadow-[2px_2px_0px_0px_#000]">
+        <div>
+          <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-black shadow-[2px_2px_0px_0px_#000]">
+                03
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Three</h2>
+                  <BookMarked size={16} className="text-yellow-600 hidden sm:inline" />
+                </div>
+                <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2 sm:space-y-2.5 relative z-10">
+            {SEM3_COURSES.map((course) => (
+              <CourseSelect 
+                key={course.code} course={course} value={sem3Grades[course.code]}
+                onChange={(val: number | '') => setSem3Grades((prev: any) => ({ ...prev, [course.code]: val }))}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Semester 3 GPA Pill Directly Below Courses */}
+        <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-yellow-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-yellow-400 border-2 border-black flex items-center justify-center font-mono font-black text-xs text-black shadow-[1px_1px_0px_0px_#000]">
               03
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Three</h2>
-                <BookMarked size={16} className="text-yellow-600 hidden sm:inline" />
-              </div>
-              <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
+              <span className="text-xs font-black uppercase text-black tracking-wide">Semester 3 GPA</span>
+              <p className="text-[10px] font-bold text-gray-600">{s3Stats.filledCount} of 6 courses ({s3Stats.totalCredits}/18 Cr)</p>
             </div>
           </div>
-        </div>
-        <div className="space-y-2 sm:space-y-2.5 relative z-10">
-          {SEM3_COURSES.map((course) => (
-            <CourseSelect 
-              key={course.code} course={course} value={sem3Grades[course.code]}
-              onChange={(val: number | '') => setSem3Grades((prev: any) => ({ ...prev, [course.code]: val }))}
-            />
-          ))}
+          <div className="px-3 py-1 rounded-xl bg-black text-yellow-400 border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#000]">
+            {s3Stats.filledCount > 0 ? (s3Stats.isComplete ? s3Stats.gpa : `${s3Stats.gpa}*`) : '—'}
+          </div>
         </div>
       </motion.div>
 
-      {/* Semester 4 — Expanding Pill */}
+      {/* ── SEMESTER 4 — EXPANDING PILL (Last Present Semester) ── */}
       <motion.div 
         variants={itemVariants}
         className="xl:col-span-2 max-w-3xl mx-auto w-full"
@@ -260,14 +346,13 @@ export const Calculator = ({
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-[9.5px] sm:text-xs font-mono font-bold text-black uppercase tracking-wider bg-yellow-400 px-2.5 sm:px-3 py-1 rounded-md border border-black shadow-[1px_1px_0px_0px_#000]">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
-              Ongoing
+              Upcoming
             </span>
             <div className={`text-black transition-transform duration-300 ${isSem4Expanded ? 'rotate-180' : ''}`}>
               <ChevronDown size={18} strokeWidth={2.5} />
             </div>
           </div>
         </div>
-
 
         <AnimatePresence>
           {isSem4Expanded && (
@@ -303,6 +388,46 @@ export const Calculator = ({
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* ── OVERALL CUMULATIVE CGPA PILL (Above Advisor) ── */}
+      <motion.div
+        variants={itemVariants}
+        className="xl:col-span-2 max-w-3xl mx-auto w-full p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-yellow-400 border-2 border-black shadow-[5px_5px_0px_0px_#000] flex flex-col sm:flex-row items-center justify-between gap-4"
+      >
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-black text-yellow-400 flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_0px_#000] flex-shrink-0">
+            <Trophy size={22} strokeWidth={2.5} />
+          </div>
+          <div className="text-center sm:text-left">
+            <div className="flex items-center gap-2 justify-center sm:justify-start">
+              <span className="text-sm sm:text-base font-black text-black uppercase tracking-tight">
+                Cumulative CGPA
+              </span>
+              {isConcrete && (
+                <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-black text-yellow-400 border border-black">
+                  Official
+                </span>
+              )}
+            </div>
+            <p className="text-xs font-bold text-black/80 mt-0.5">
+              {totalCompletedCr} of 54 Credit Hours Completed ({totalCompletedCount} Subjects Entered)
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {isConcrete ? (
+            <div className="px-5 py-2 rounded-xl bg-black text-yellow-400 border-2 border-black font-mono font-black text-2xl sm:text-3xl shadow-[3px_3px_0px_0px_#000] tracking-tight">
+              {cgpa}
+            </div>
+          ) : (
+            <div className="px-4 py-2 rounded-xl bg-white text-black border-2 border-black shadow-[3px_3px_0px_0px_#000]">
+              <TentativeCGPA cgpa={cgpa} isPartialSem3={isPartialSem3} missingCount={missingCount} size="sm" />
+            </div>
+          )}
+        </div>
+      </motion.div>
     </motion.div>
   );
 };
+
