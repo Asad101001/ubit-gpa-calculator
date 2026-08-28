@@ -72,27 +72,39 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        // Fetch hidden profiles (opted out of public visibility)
+        const hidden = new Set<string>();
+
+        // 1. If current logged-in user has hidden results, add immediately
+        if (profile?.seat_no && profile.show_results_publicly === false) {
+          hidden.add(String(profile.seat_no).toUpperCase());
+        }
+
+        // 2. Fetch hidden profiles from Supabase if possible
         try {
           const { data: profiles } = await supabase
             .from('profiles')
             .select('seat_no, show_results_publicly')
             .eq('show_results_publicly', false);
-          if (profiles) {
-            const hidden = new Set<string>();
-            profiles.forEach((p: any) => { if (p.seat_no) hidden.add(p.seat_no); });
-            setHiddenSeatNos(hidden);
+          if (profiles && Array.isArray(profiles)) {
+            profiles.forEach((p: any) => { 
+              if (p.seat_no) hidden.add(String(p.seat_no).toUpperCase()); 
+            });
           }
-        } catch { /* profiles table may not exist yet */ }
+        } catch { /* profiles table policy fallback */ }
 
         const res = await fetch('/api/results');
         if (res.ok) {
           const json = await res.json();
           if (json.length > 0) {
             const formatted = json.map((row: any) => {
+              const seatNo = row.seat_no;
+              if (row.is_hidden && seatNo) {
+                hidden.add(String(seatNo).toUpperCase());
+              }
               const mappedRow: any = {
-                'Seat No': row.seat_no,
+                'Seat No': seatNo,
                 'Name': row.name,
+                'is_hidden': !!row.is_hidden,
               };
               
               SUBJECTS_DATA.forEach(sub => {
@@ -105,6 +117,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
               
               return mappedRow;
             });
+            setHiddenSeatNos(hidden);
             setData(formatted);
             setIsLoading(false);
             return;
@@ -118,7 +131,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
             const json = await fallbackRes.json();
             if (Array.isArray(json) && json.length > 0) {
               const formatted = json.map((row: any) => {
-                const mappedRow: any = { 'Seat No': row.seat_no, 'Name': row.name };
+                const mappedRow: any = { 'Seat No': row.seat_no, 'Name': row.name, 'is_hidden': false };
                 SUBJECTS_DATA.forEach(sub => {
                   if (row[sub.id] !== undefined && row[sub.id] !== null && row[sub.id] !== '') {
                     mappedRow[sub.id] = row[sub.id];
@@ -128,6 +141,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                 });
                 return mappedRow;
               });
+              setHiddenSeatNos(hidden);
               setData(formatted);
               setIsLoading(false);
               return;
@@ -146,20 +160,17 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
     };
 
     fetchResults();
-  }, []);
+  }, [profile?.show_results_publicly, profile?.seat_no]);
 
   const handleEditClick = (student: any) => {
     setSelectedStudentModal(student);
   };
-
-
 
   const handleSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
     } else if (sortConfig && sortConfig.key === key && sortConfig.direction === 'desc') {
-      // Toggle back to asc or clear sort if needed, here we just toggle between asc/desc
       direction = 'asc';
     }
     setSortConfig({ key, direction });
@@ -170,13 +181,16 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
 
     // Filter out students who opted out of public visibility
     // (unless the viewer is that student or is admin)
-    const isAdmin = profile?.is_admin ?? false;
-    const mySeatNo = profile?.seat_no ?? '';
+    const isAdmin = !!profile?.is_admin;
+    const mySeatNo = String(profile?.seat_no || '').toUpperCase();
+    
     filtered = filtered.filter(item => {
-      const seatNo = item['Seat No'];
+      const seatNo = String(item['Seat No'] || '').toUpperCase();
+      const isHidden = (seatNo && hiddenSeatNos.has(seatNo)) || !!item.is_hidden || (seatNo === mySeatNo && profile?.show_results_publicly === false);
+      
       if (isAdmin) return true;
-      if (seatNo === mySeatNo) return true;
-      return !hiddenSeatNos.has(seatNo);
+      if (mySeatNo && seatNo === mySeatNo) return true;
+      return !isHidden;
     });
 
     // Filter by Search Query
@@ -187,6 +201,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
         (item['Name'] && String(item['Name']).toLowerCase().includes(q))
       );
     }
+
 
     // Sort Data
     if (sortConfig !== null) {

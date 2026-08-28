@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Shield, ShieldCheck, LogOut, Edit3, Check, X, Loader2, Users, ChevronDown, ArrowLeft, Search, Trash2 } from 'lucide-react';
+import { Shield, ShieldCheck, LogOut, Edit3, Check, X, Loader2, Users, ChevronDown, ArrowLeft, Search, Trash2 } from 'lucide-react';
+
 import { toast } from 'react-hot-toast';
 import { useAuthStore, type Profile } from '../store/useAuthStore';
 import { supabase } from '../lib/supabase';
@@ -241,30 +242,56 @@ export const ProfilePage = () => {
         </div>
       </motion.div>
 
-      {/* Settings */}
+      {/* Privacy & Visibility Settings */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="bg-surface border-[2.5px] border-black rounded-sm p-6 sm:p-8" style={brutalistBox}>
-        <h3 className="text-lg font-black text-textMain uppercase tracking-wider mb-4 flex items-center gap-2"><User size={18} /> Settings</h3>
-        <div className="flex items-center justify-between p-4 bg-surfaceHighlight rounded-sm border border-border">
-          <div>
-            <h4 className="font-bold text-textMain text-sm">Public Results Visibility</h4>
-            <p className="text-xs text-textMuted mt-0.5">{profile.show_results_publicly ? 'Your results are visible to all registered users.' : 'Your results are hidden from the public results page.'}</p>
+        className="bg-surface border-[2.5px] border-black rounded-xl p-5 sm:p-7 shadow-[4px_4px_0px_0px_#000]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-black text-textMain uppercase tracking-tight flex items-center gap-2">
+                <Shield size={16} /> Privacy & Results Visibility
+              </h3>
+              <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
+                profile.show_results_publicly 
+                  ? 'bg-green-100 text-green-800 border-green-300' 
+                  : 'bg-red-100 text-red-800 border-red-300'
+              }`}>
+                {profile.show_results_publicly ? 'Publicly Visible' : '🔒 Private & Hidden'}
+              </span>
+            </div>
+            <p className="text-xs text-textMuted font-medium leading-relaxed max-w-xl">
+              {profile.show_results_publicly 
+                ? 'Your student record and grades are visible in the batch class directory. You can toggle this off at any time to hide your results from public view.' 
+                : 'Your name and marks are redacted in the public results directory. Only you and verified admins can view your full transcript.'}
+            </p>
           </div>
           
           <button 
             onClick={toggleVisibility} 
             disabled={isSavingVisibility}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${profile.show_results_publicly ? 'bg-brand-500' : 'bg-surface border border-border/50'}`}
+            className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 border-black font-black text-xs transition-all active:scale-95 shadow-[2px_2px_0px_0px_#000] shrink-0 ${
+              profile.show_results_publicly 
+                ? 'bg-yellow-400 hover:bg-yellow-300 text-black' 
+                : 'bg-gray-800 hover:bg-black text-white'
+            }`}
           >
-            <span className="sr-only">Toggle visibility</span>
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                profile.show_results_publicly ? 'translate-x-6' : 'translate-x-1 border border-border'
-              }`}
-            />
+            {isSavingVisibility ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : profile.show_results_publicly ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-green-600 animate-pulse" />
+                <span>Visible Publicly</span>
+              </>
+            ) : (
+              <>
+                <span className="w-2 h-2 rounded-full bg-red-400" />
+                <span>Hidden (Private)</span>
+              </>
+            )}
           </button>
         </div>
       </motion.div>
+
 
       {/* Academic Data */}
       {isLoadingData ? (

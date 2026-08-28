@@ -175,6 +175,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         .eq('id', userId);
 
       if (error) {
+        // Fallback for visibility toggle
+        if (updates.show_results_publicly !== undefined) {
+          const { data: { session } } = await supabase.auth.getSession();
+          const res = await fetch('/api/update-visibility', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+            body: JSON.stringify({ show_results_publicly: updates.show_results_publicly }),
+          });
+          if (res.ok) {
+            await get().fetchProfile(userId);
+            return { error: null };
+          }
+        }
         if (previousProfile) set({ profile: previousProfile });
         return { error: error.message };
       }
@@ -185,6 +198,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return { error: e.message || 'Update failed' };
     }
   },
+
 
 
   openAuthModal: (mode = 'signin') => set({ isAuthModalOpen: true, authModalMode: mode }),

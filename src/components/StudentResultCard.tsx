@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Calculator, AlertTriangle, Send, Loader2, Edit3, Save, X, CheckCircle, XCircle } from 'lucide-react';
+import { Download, Calculator, AlertTriangle, Send, Loader2, Edit3, Save, X, CheckCircle, XCircle, Lock } from 'lucide-react';
+
 import { toast } from 'react-hot-toast';
 
 
@@ -311,12 +312,18 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
               <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-yellow-400 text-black border border-black shadow-[1px_1px_0px_0px_#000]">
                 Verified Student Record
               </span>
+              {student.is_hidden && (
+                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-red-100 text-red-800 border border-red-400 flex items-center gap-1">
+                  <Lock size={10} /> Private Profile
+                </span>
+              )}
               {canEdit && (
                 <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-green-100 text-green-800 border border-green-400">
                   {isAdmin ? 'Admin Mode' : 'Your Account'}
                 </span>
               )}
             </div>
+
             <h2 className="text-lg sm:text-2xl font-black text-textMain tracking-tight line-clamp-2">{student['Name']}</h2>
             <p className="text-sm text-textMuted font-mono mt-0.5">Seat No: <span className="font-bold text-textMain">{student['Seat No']}</span></p>
           </div>

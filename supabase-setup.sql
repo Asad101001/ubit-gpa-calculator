@@ -52,9 +52,12 @@ END $$;
 -- 3. Enable RLS on profiles
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
--- 4. RLS Policies for profiles
+CREATE POLICY "Public can view visibility settings" ON profiles
+  FOR SELECT USING (true);
+
 CREATE POLICY "Users can read own profile" ON profiles
   FOR SELECT USING (auth.uid() = id);
+
 
 CREATE POLICY "Admin can read all profiles" ON profiles
   FOR SELECT USING (is_admin());

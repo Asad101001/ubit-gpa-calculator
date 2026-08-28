@@ -11,31 +11,56 @@ export default async function handler(req: Request) {
   const supabaseKey = (globalThis as any).process?.env?.VITE_SUPABASE_ANON_KEY ?? '';
 
   try {
-    const res = await fetch(`${supabaseUrl}/rest/v1/student_results?select=*`, {
-      headers: {
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${supabaseKey}`,
-      },
-    });
+    const [resultsRes, profilesRes] = await Promise.all([
+      fetch(`${supabaseUrl}/rest/v1/student_results?select=*`, {
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+        },
+      }),
+      fetch(`${supabaseUrl}/rest/v1/profiles?select=seat_no,show_results_publicly&show_results_publicly=eq.false`, {
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+        },
+      }).catch(() => null),
+    ]);
 
-    if (!res.ok) {
-      throw new Error('Failed to fetch from Supabase');
+    if (!resultsRes.ok) {
+      throw new Error('Failed to fetch results from database');
     }
 
-    const data = await res.json();
+    const data = await resultsRes.json();
+    const hiddenSeatNos = new Set<string>();
 
-    return new Response(JSON.stringify(data), {
+    if (profilesRes && profilesRes.ok) {
+      const hiddenProfiles = await profilesRes.json().catch(() => []);
+      if (Array.isArray(hiddenProfiles)) {
+        hiddenProfiles.forEach((p: any) => {
+          if (p.seat_no) hiddenSeatNos.add(String(p.seat_no).toUpperCase());
+        });
+      }
+    }
+
+    // Attach is_hidden tag to records
+    const enrichedData = data.map((row: any) => ({
+      ...row,
+      is_hidden: row.seat_no ? hiddenSeatNos.has(String(row.seat_no).toUpperCase()) : false,
+    }));
+
+    return new Response(JSON.stringify(enrichedData), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 's-maxage=60, stale-while-revalidate=300',
+        'Cache-Control': 's-maxage=10, stale-while-revalidate=60',
         'Access-Control-Allow-Origin': '*',
       },
     });
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message }), {
+    return new Response(JSON.stringify({ error: e.message || 'Server error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 }
+
