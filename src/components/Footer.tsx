@@ -1,29 +1,14 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Code, Zap, Database, Activity, ArrowUp, ShieldCheck, FileText, Scale, ExternalLink, Heart } from 'lucide-react';
-import { LegalModal } from './LegalModal';
+import type { ViewType } from '../App';
 
-export const Footer = ({ navigateTo }: { navigateTo?: (view: 'main' | 'results' | 'profile') => void }) => {
-  const [legalModalOpen, setLegalModalOpen] = useState(false);
-  const [legalTab, setLegalTab] = useState<'terms' | 'privacy' | 'grading'>('terms');
-
-  const openLegalModal = (tab: 'terms' | 'privacy' | 'grading') => {
-    setLegalTab(tab);
-    setLegalModalOpen(true);
-  };
-
+export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <>
-      <LegalModal
-        isOpen={legalModalOpen}
-        initialTab={legalTab}
-        onClose={() => setLegalModalOpen(false)}
-      />
-
       <footer className="w-full border-t border-border mt-20 relative overflow-hidden bg-surface/90 backdrop-blur-xl">
         {/* Subtle HD Campus Background Overlay */}
         <div 
@@ -116,7 +101,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: 'main' | 'results' 
               <ul className="space-y-2 text-xs font-medium text-textMuted">
                 <li>
                   <button 
-                    onClick={() => openLegalModal('terms')}
+                    onClick={() => navigateTo?.('terms')}
                     className="hover:text-brand-400 transition-colors flex items-center gap-2 text-left"
                   >
                     <FileText size={13} className="text-brand-400" />
@@ -125,7 +110,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: 'main' | 'results' 
                 </li>
                 <li>
                   <button 
-                    onClick={() => openLegalModal('privacy')}
+                    onClick={() => navigateTo?.('privacy')}
                     className="hover:text-brand-400 transition-colors flex items-center gap-2 text-left"
                   >
                     <ShieldCheck size={13} className="text-emerald-400" />
@@ -134,11 +119,11 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: 'main' | 'results' 
                 </li>
                 <li>
                   <button 
-                    onClick={() => openLegalModal('grading')}
+                    onClick={() => navigateTo?.('grading')}
                     className="hover:text-brand-400 transition-colors flex items-center gap-2 text-left"
                   >
-                    <Scale size={13} className="text-accent-400" />
-                    UBIT Grading Policy Table
+                    <Scale size={13} className="text-amber-500" />
+                    UBIT Grading Scale Policy
                   </button>
                 </li>
                 <li>
@@ -216,11 +201,11 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: 'main' | 'results' 
             <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
               <span>© {new Date().getFullYear()} UBIT GPA Calculator. All rights reserved.</span>
               <span className="hidden sm:inline text-border">•</span>
-              <button onClick={() => openLegalModal('terms')} className="hover:text-textMain transition-colors">
+              <button onClick={() => navigateTo?.('terms')} className="hover:text-textMain transition-colors">
                 Terms of Use
               </button>
               <span className="hidden sm:inline text-border">•</span>
-              <button onClick={() => openLegalModal('privacy')} className="hover:text-textMain transition-colors">
+              <button onClick={() => navigateTo?.('privacy')} className="hover:text-textMain transition-colors">
                 Privacy Notice
               </button>
             </div>

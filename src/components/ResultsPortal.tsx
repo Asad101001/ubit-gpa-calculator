@@ -17,14 +17,22 @@ const SUBJECTS_DATA = [
   { id: "cs357", code: "CS-357", name: "Applied Physics", teacher: "Ms. Farheen Shafiq", semester: 1 },
   { id: "cs359", code: "CS-359", name: "Functional English", teacher: "Ms. Ayesha Khwaja", semester: 1 },
   { id: "cs361", code: "CS-361", name: "Islamic Studies", teacher: "Dr. Waqar Hussain", semester: 1 },
-  
+
   // 2nd Semester
   { id: "cs352", code: "CS-352", name: "Object Oriented Concepts", teacher: "Dr. Humera Tariq", semester: 2 },
   { id: "cs354", code: "CS-354", name: "Digital Logic Design", teacher: "Mr. Bari Ahmed", semester: 2 },
   { id: "cs356", code: "CS-356", name: "Linear Algebra", teacher: "Mr. Muhammad Huzaifa", semester: 2 },
   { id: "cs358", code: "CS-358", name: "Discrete Structures", teacher: "Ms. Maryam Feroze", semester: 2 },
   { id: "cs360", code: "CS-360", name: "Communication Skills", teacher: "Mr. Sami-ul-Huda", semester: 2 },
-  { id: "cs362", code: "CS-362", name: "Ideology of Pakistan", teacher: "Dr. Mehrunnissa", semester: 2 }
+  { id: "cs362", code: "CS-362", name: "Ideology of Pakistan", teacher: "Dr. Mehrunnissa", semester: 2 },
+
+  // 3rd Semester (In Progress)
+  { id: "cs451", code: "CS-451", name: "Data Structures", teacher: "Ms. Maryam Feroze", semester: 3 },
+  { id: "cs453", code: "CS-453", name: "Software Engineering", teacher: "Dr. Shaista Raees", semester: 3 },
+  { id: "cs455", code: "CS-455", name: "Computer Organization", teacher: "Mr. Taha Bin Niaz", semester: 3 },
+  { id: "cs457", code: "CS-457", name: "Multivariable Calculus", teacher: "Mr. Muhammad Aslam", semester: 3 },
+  { id: "cs459", code: "CS-459", name: "Probability & Statistics", teacher: "Dr. Humera Bashir", semester: 3 },
+  { id: "cs461", code: "CS-461", name: "Urdu", teacher: "Mr. M. Salman", semester: 3 },
 ];
 
 const ALL_SUBJECTS = "All Subjects Overview";
@@ -380,6 +388,11 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                   <option key={sub.id} value={sub.id}>{sub.code} - {sub.name}</option>
                 ))}
               </optgroup>
+              <optgroup label="3rd Semester (In Progress)">
+                {SUBJECTS_DATA.filter(s => s.semester === 3).map(sub => (
+                  <option key={sub.id} value={sub.id}>{sub.code} - {sub.name}</option>
+                ))}
+              </optgroup>
             </select>
             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-textMuted/50 w-5 h-5 pointer-events-none group-focus-within:text-brand-500 transition-colors" />
           </div>
@@ -427,24 +440,39 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                     </div>
                   </th>
                   {effectiveSubject === ALL_SUBJECTS ? (
-                    SUBJECTS_DATA.map(sub => (
-                      <th 
-                        key={sub.id}
-                        className={`p-1 px-1.5 sm:p-4 font-bold text-textMuted text-[10px] sm:text-sm cursor-pointer hover:bg-border/30 transition-colors border-l border-b border-border/50 bg-brand-500/5 sticky top-0 z-10 snap-start`}
-                        onClick={() => handleSort(sub.id)}
-                      >
-                        <div className="flex flex-col items-end gap-0.5 sm:gap-1">
-                          <span className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-600 uppercase tracking-wider">
-                            Sem {sub.semester}
-                          </span>
-                          <div className="flex items-center gap-1 text-[10px] sm:text-xs text-textMuted/70 font-semibold uppercase tracking-wider">
-                            {sub.code}
-                            {sortConfig?.key === sub.id && (sortConfig.direction === 'asc' ? <ChevronUp size={12} className="text-brand-500" /> : <ChevronDown size={12} className="text-brand-500" />)}
+                    SUBJECTS_DATA.map(sub => {
+                      // Color-code by semester: Sem1=blue, Sem2=green, Sem3=amber
+                      const semColors: Record<number, string> = {
+                        1: 'bg-blue-50 text-blue-700 border-blue-200',
+                        2: 'bg-green-50 text-green-700 border-green-200',
+                        3: 'bg-amber-50 text-amber-700 border-amber-200',
+                      };
+                      const semBadge: Record<number, string> = {
+                        1: 'bg-blue-100 text-blue-700',
+                        2: 'bg-green-100 text-green-700',
+                        3: 'bg-amber-100 text-amber-700',
+                      };
+                      const colClass = semColors[sub.semester] || 'bg-surface text-textMuted border-border';
+                      const badgeClass = semBadge[sub.semester] || 'bg-surface text-textMuted';
+                      return (
+                        <th
+                          key={sub.id}
+                          className={`p-1 px-1.5 sm:p-4 font-bold text-[10px] sm:text-sm cursor-pointer hover:opacity-80 transition-opacity border-l border-b ${colClass} sticky top-0 z-10 snap-start`}
+                          onClick={() => handleSort(sub.id)}
+                        >
+                          <div className="flex flex-col items-end gap-0.5 sm:gap-1">
+                            <span className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded ${badgeClass} uppercase tracking-wider`}>
+                              Sem {sub.semester}{sub.semester === 3 ? ' ⚠' : ''}
+                            </span>
+                            <div className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider">
+                              {sub.code}
+                              {sortConfig?.key === sub.id && (sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />)}
+                            </div>
+                            <div className="text-[10px] sm:text-xs max-w-[70px] sm:max-w-none truncate" title={sub.name}>{sub.name}</div>
                           </div>
-                          <div className="text-[10px] sm:text-xs max-w-[70px] sm:max-w-none truncate" title={sub.name}>{sub.name}</div>
-                        </div>
-                      </th>
-                    ))
+                        </th>
+                      );
+                    })
                   ) : (
                     <th 
                       className="p-2 sm:p-4 font-bold text-brand-600 text-xs sm:text-sm cursor-pointer hover:bg-brand-500/20 transition-colors bg-brand-500/10 sticky top-0 z-10 snap-start border-b border-brand-500/20"

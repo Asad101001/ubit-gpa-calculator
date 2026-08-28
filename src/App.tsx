@@ -16,6 +16,12 @@ import { AuthModal } from './components/AuthModal';
 import { AuthGate } from './components/AuthGate';
 import { ProfilePage } from './components/ProfilePage';
 import { useAuthStore } from './store/useAuthStore';
+import { TermsPage } from './pages/TermsPage';
+import { PrivacyPage } from './pages/PrivacyPage';
+import { GradingPage } from './pages/GradingPage';
+import { LegalPage } from './pages/LegalPage';
+
+export type ViewType = 'main' | 'results' | 'profile' | 'terms' | 'privacy' | 'grading' | 'legal';
 
 function App() {
   const { user, profile, initialize: initAuth } = useAuthStore();
@@ -29,10 +35,14 @@ function App() {
     return false;
   });
   
-  const [currentView, setCurrentView] = useState<'main' | 'results' | 'profile'>(() => {
+  const [currentView, setCurrentView] = useState<ViewType>(() => {
     const hash = window.location.hash;
     if (hash === '#results') return 'results';
     if (hash === '#profile') return 'profile';
+    if (hash === '#terms') return 'terms';
+    if (hash === '#privacy') return 'privacy';
+    if (hash === '#grading') return 'grading';
+    if (hash === '#legal') return 'legal';
     return 'main';
   });
 
@@ -46,7 +56,12 @@ function App() {
       const hash = window.location.hash;
       if (hash === '#results') setCurrentView('results');
       else if (hash === '#profile') setCurrentView('profile');
+      else if (hash === '#terms') setCurrentView('terms');
+      else if (hash === '#privacy') setCurrentView('privacy');
+      else if (hash === '#grading') setCurrentView('grading');
+      else if (hash === '#legal') setCurrentView('legal');
       else setCurrentView('main');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
@@ -76,10 +91,9 @@ function App() {
     return () => observer.disconnect();
   }, [currentView, activeSection]);
 
-  const navigateTo = (view: 'main' | 'results' | 'profile') => {
-    if (view === 'results') window.location.hash = 'results';
-    else if (view === 'profile') window.location.hash = 'profile';
-    else window.location.hash = '';
+  const navigateTo = (view: ViewType) => {
+    if (view === 'main') window.location.hash = '';
+    else window.location.hash = view;
   };
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
@@ -294,6 +308,9 @@ function App() {
     }
   };
 
+  // Legal views are "full page" — clean layout, no hero or calculator behind them
+  const isLegalView = currentView === 'terms' || currentView === 'privacy' || currentView === 'grading' || currentView === 'legal';
+
   return (
     <>
       <AnimatePresence>
@@ -303,23 +320,22 @@ function App() {
         }} />}
       </AnimatePresence>
 
-      <Toaster 
-        position="top-center" 
-        toastOptions={{ 
-          className: 'text-lg font-black shadow-2xl tracking-tight',
-          style: { background: '#09090b', color: '#fafafa', padding: '20px 30px', border: '2px solid #3f3f46', borderRadius: '24px', zIndex: 99999 }
-        }} 
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          className: 'text-sm font-bold shadow-xl',
+          style: { background: '#000', color: '#fff', padding: '12px 20px', border: '2px solid #E6B400', borderRadius: '8px', zIndex: 99999 }
+        }}
       />
 
-      {/* Auth Modal */}
       <AuthModal />
 
-      <div className={`min-h-screen relative selection:bg-brand-500/30 font-sans ${!appLoaded ? 'hidden' : ''}`}>
+      <div className={`min-h-screen relative selection:bg-yellow-400/30 font-sans ${!appLoaded ? 'hidden' : ''}`}>
         <Header currentView={currentView} navigateTo={navigateTo} activeSection={activeSection} />
         <BoycottModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-        <SubmitModal 
-          isOpen={isSubmitModalOpen} 
-          onClose={() => !isSubmitting && setIsSubmitModalOpen(false)} 
+        <SubmitModal
+          isOpen={isSubmitModalOpen}
+          onClose={() => !isSubmitting && setIsSubmitModalOpen(false)}
           onSubmit={handleLeaderboardSubmit}
           name={submitName}
           setName={setSubmitName}
@@ -328,126 +344,140 @@ function App() {
           currentCgpa={cgpa}
         />
 
-        {/* Fixed page background */}
-        <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-          <div className="absolute inset-0 bg-background" />
-          {/* Subtle building silhouette in the background */}
-          <div
-            className="absolute inset-0 opacity-[0.04]"
-            style={{
-              backgroundImage: 'url(/images/ubit_building_night.jpg)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center 40%',
-              filter: 'grayscale(100%) contrast(1.4)',
-            }}
-          />
-          {/* Subtle gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-500/[0.04] via-transparent to-accent-500/[0.03]" />
-          <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background/60 to-transparent" />
-        </div>
-
-        <main className="pb-6 sm:pb-20 space-y-6 sm:space-y-14">
-          {/* ── HERO SECTION ── */}
-          <section className="relative overflow-hidden pt-8 pb-4">
-            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="text-center relative z-10"
-              >
-                {/* UBIT Building Banner Card */}
-                <div className="relative rounded-2xl overflow-hidden mb-6 border-2 border-black shadow-[6px_6px_0px_0px_#000000]">
-                  <img
-                    src="/images/ubit_building_day.jpg"
-                    alt="UBIT Building"
-                    className="w-full h-48 sm:h-64 object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex items-end p-6">
-                    <div className="text-left">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-yellow-400 text-black border border-black font-extrabold text-xs tracking-wider uppercase mb-2">
-                        <BookOpen size={12} />
-                        Umaer Basha Institute of Information Technology
-                      </span>
-                      <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-                        Academic Results & GPA Hub
-                      </h1>
-                      <p className="text-xs sm:text-sm text-gray-200 font-medium mt-1">
-                        University of Karachi · BSCS Batch 2024–28
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+        {/* ── LEGAL PAGES: Clean full-page layout ── */}
+        {isLegalView ? (
+          <main className="min-h-[calc(100vh-64px)] pb-16 bg-white">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
+              {currentView === 'terms' && <TermsPage onBack={() => navigateTo('main')} />}
+              {currentView === 'privacy' && <PrivacyPage onBack={() => navigateTo('main')} />}
+              {currentView === 'grading' && <GradingPage onBack={() => navigateTo('main')} />}
+              {currentView === 'legal' && <LegalPage onBack={() => navigateTo('main')} />}
             </div>
-          </section>
+          </main>
+        ) : (
+          <>
+            {/* Fixed page background */}
+            <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
+              <div className="absolute inset-0 bg-background" />
+              <div
+                className="absolute inset-0 opacity-[0.03]"
+                style={{
+                  backgroundImage: 'url(/images/ubit_building_night.jpg)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center 40%',
+                  filter: 'grayscale(100%) contrast(1.2)',
+                }}
+              />
+            </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-12">
-            {currentView === 'profile' ? (
-              user && profile ? (
-                <ProfilePage />
-              ) : (
-                <AuthGate />
-              )
-            ) : currentView === 'main' ? (
-              <>
-                <section id="calculator" className="space-y-4 sm:space-y-6">
-                  <div className="flex justify-end">
-                    <button 
-                      onClick={clearGrades}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 text-red-400 hover:bg-red-500/15 border border-red-500/15 rounded-lg font-semibold text-xs transition-all active:scale-95"
+            <main className="pb-6 sm:pb-20">
+              {/* ── HERO — only shows on main/results/profile ── */}
+              {(currentView === 'main' || currentView === 'results') && (
+                <motion.section
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="relative overflow-hidden pt-6 pb-4"
+                >
+                  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <motion.div
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                     >
-                      <RotateCcw size={13} />
-                      Clear All
-                    </button>
+                      <div className="relative rounded-xl overflow-hidden mb-5 border-2 border-black shadow-[6px_6px_0px_0px_#000000]">
+                        <img
+                          src="/images/ubit_building_day.jpg"
+                          alt="UBIT Building"
+                          className="w-full h-40 sm:h-56 object-cover"
+                          loading="eager"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent flex items-end p-4 sm:p-6">
+                          <div className="text-left">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-yellow-400 text-black border border-black font-extrabold text-[10px] sm:text-xs tracking-wider uppercase mb-2">
+                              <BookOpen size={11} />
+                              Umaer Basha Institute of Information Technology
+                            </span>
+                            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+                              {currentView === 'results' ? 'Department Results Portal' : 'Academic Results & GPA Hub'}
+                            </h1>
+                            <p className="text-xs sm:text-sm text-gray-300 font-medium mt-1">
+                              University of Karachi · BSCS Batch 2024–28
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
                   </div>
-                  <Calculator 
-                    sem1Grades={sem1Grades} setSem1Grades={setSem1Grades}
-                    sem2Grades={sem2Grades} setSem2Grades={setSem2Grades}
-                    sem3Grades={sem3Grades} setSem3Grades={setSem3Grades}
-                  />
-                </section>
+                </motion.section>
+              )}
 
-                <TargetCGPA
-                  sem1Grades={sem1Grades}
-                  sem2Grades={sem2Grades}
-                  sem3Grades={sem3Grades}
-                  currentCgpa={cgpa}
-                />
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-10">
+                <AnimatePresence mode="wait">
+                  {currentView === 'profile' ? (
+                    <motion.div key="profile" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+                      {user && profile ? <ProfilePage /> : <AuthGate />}
+                    </motion.div>
+                  ) : currentView === 'main' ? (
+                    <motion.div key="main" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="space-y-6 sm:space-y-10">
+                      <section id="calculator" className="space-y-4">
+                        <div className="flex justify-end">
+                          <button
+                            onClick={clearGrades}
+                            className="flex items-center gap-2 px-3 py-1.5 text-red-600 hover:bg-red-50 border-2 border-red-300 rounded-lg font-bold text-xs transition-all active:scale-95"
+                          >
+                            <RotateCcw size={13} />
+                            Clear All
+                          </button>
+                        </div>
+                        <Calculator
+                          sem1Grades={sem1Grades} setSem1Grades={setSem1Grades}
+                          sem2Grades={sem2Grades} setSem2Grades={setSem2Grades}
+                          sem3Grades={sem3Grades} setSem3Grades={setSem3Grades}
+                        />
+                      </section>
 
-                <Analytics 
-                  gpa1={gpa1} gpa2={gpa2} gpa3={gpa3} cgpa={cgpa}
-                  bestCourse={bestCourse} worstCourse={worstCourse}
-                  radarData={radarData} chartData={chartData}
-                  sem1Grades={sem1Grades} sem2Grades={sem2Grades} sem3Grades={sem3Grades}
-                />
+                      <TargetCGPA
+                        sem1Grades={sem1Grades}
+                        sem2Grades={sem2Grades}
+                        sem3Grades={sem3Grades}
+                        currentCgpa={cgpa}
+                      />
 
-                <Leaderboard 
-                  leaderboardData={leaderboardData}
-                  isLeaderboardLoading={isLeaderboardLoading}
-                  setIsSubmitModalOpen={setIsSubmitModalOpen}
-                  cgpa={cgpa}
-                  hasSubmitted={hasSubmitted}
-                />
-              </>
-            ) : (
-              /* Results View — gated behind auth */
-              user ? (
-                <ResultsPortal 
-                  onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>) => {
-                    setSem1Grades(s1);
-                    setSem2Grades(s2);
-                    setSem3Grades(s3 || SEM3_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
-                    navigateTo('main');
-                    setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100);
-                  }}
-                />
-              ) : (
-                <AuthGate />
-              )
-            )}
-          </div>
-        </main>
+                      <Analytics
+                        gpa1={gpa1} gpa2={gpa2} gpa3={gpa3} cgpa={cgpa}
+                        bestCourse={bestCourse} worstCourse={worstCourse}
+                        radarData={radarData} chartData={chartData}
+                        sem1Grades={sem1Grades} sem2Grades={sem2Grades} sem3Grades={sem3Grades}
+                      />
+
+                      <Leaderboard
+                        leaderboardData={leaderboardData}
+                        isLeaderboardLoading={isLeaderboardLoading}
+                        setIsSubmitModalOpen={setIsSubmitModalOpen}
+                        cgpa={cgpa}
+                        hasSubmitted={hasSubmitted}
+                      />
+                    </motion.div>
+                  ) : (
+                    /* Results View — open to everyone, auth only needed to edit */
+                    <motion.div key="results" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+                      <ResultsPortal
+                        onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>) => {
+                          setSem1Grades(s1);
+                          setSem2Grades(s2);
+                          setSem3Grades(s3 || SEM3_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
+                          navigateTo('main');
+                          setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                        }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </main>
+          </>
+        )}
 
         <Footer navigateTo={navigateTo} />
       </div>
@@ -456,3 +486,4 @@ function App() {
 }
 
 export default App;
+

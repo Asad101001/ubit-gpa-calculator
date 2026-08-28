@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip, BarChart, Bar, XAxis, YAxis, ReferenceLine, Cell } from 'recharts';
 import { TrendingUp, TrendingDown, BookOpen, Calculator, Award } from 'lucide-react';
-import { generateTranscriptImage } from '../lib/transcriptGenerator';
+import { generateTranscriptPDF } from '../lib/transcriptGenerator';
 import { Download } from 'lucide-react';
 
 export const MetricCard = ({ title, value, subtitle, icon: Icon, highlight = false }: any) => (
@@ -86,7 +86,7 @@ export const Analytics = ({
             if (sem3Grades) Object.entries(sem3Grades).forEach(([code, mark]) => {
               if (mark !== '') studentObj[mapCodeToId(code)] = mark;
             });
-            generateTranscriptImage(studentObj);
+            generateTranscriptPDF(studentObj);
           }}
           className={`flex items-center gap-2 px-6 py-4 font-bold text-sm rounded-2xl transition-all shadow-lg active:scale-95 group ${
             (Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === ''))

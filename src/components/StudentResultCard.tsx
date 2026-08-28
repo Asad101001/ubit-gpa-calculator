@@ -1,39 +1,22 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Calculator, CheckCircle, XCircle, AlertTriangle, Send, Loader2 } from 'lucide-react';
+import { Download, Calculator, CheckCircle, XCircle, AlertTriangle, Send, Loader2, Lock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { getGradePoint } from '../lib/utils';
-import { generateTranscriptImage } from '../lib/transcriptGenerator';
-import { SEM1_COURSES, SEM2_COURSES } from '../lib/utils';
+import { getGradePoint, getLetterGrade as getLetterGradeUtil } from '../lib/utils';
+import { generateTranscriptPDF } from '../lib/transcriptGenerator';
+import { SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 import { TentativeCGPA } from './TentativeCGPA';
+import { useAuthStore } from '../store/useAuthStore';
 
+// Build subjects meta from canonical course lists in utils.ts
 const SUBJECTS_META = [
-  { id: 'cs351', code: 'CS-351', name: 'Programming Fundamentals', credits: 4, sem: 1 },
-  { id: 'cs353', code: 'CS-353', name: 'Intro to Information & Comm. Technologies', credits: 3, sem: 1 },
-  { id: 'cs355', code: 'CS-355', name: 'Calculus & Analytical Geometry', credits: 3, sem: 1 },
-  { id: 'cs357', code: 'CS-357', name: 'Applied Physics', credits: 3, sem: 1 },
-  { id: 'cs359', code: 'CS-359', name: 'Functional English', credits: 3, sem: 1 },
-  { id: 'cs361', code: 'CS-361', name: 'Islamic Studies / Ethics', credits: 2, sem: 1 },
-  { id: 'cs352', code: 'CS-352', name: 'Object Oriented Concepts & Programming', credits: 4, sem: 2 },
-  { id: 'cs354', code: 'CS-354', name: 'Digital Logic Design', credits: 3, sem: 2 },
-  { id: 'cs356', code: 'CS-356', name: 'Linear Algebra', credits: 3, sem: 2 },
-  { id: 'cs358', code: 'CS-358', name: 'Discrete Structures', credits: 3, sem: 2 },
-  { id: 'cs360', code: 'CS-360', name: 'Communication & Presentation Skills', credits: 3, sem: 2 },
-  { id: 'cs362', code: 'CS-362', name: 'Ideology & Constitution of Pakistan', credits: 2, sem: 2 },
+  ...SEM1_COURSES.map(c => ({ ...c, sem: 1 })),
+  ...SEM2_COURSES.map(c => ({ ...c, sem: 2 })),
 ];
+const SEM3_META = SEM3_COURSES.map(c => ({ ...c, sem: 3 }));
 
-function getLetterGrade(m: number) {
-  if (m >= 85) return 'A';
-  if (m >= 80) return 'A-';
-  if (m >= 75) return 'B+';
-  if (m >= 71) return 'B';
-  if (m >= 68) return 'B-';
-  if (m >= 64) return 'C+';
-  if (m >= 61) return 'C';
-  if (m >= 57) return 'D+';
-  if (m >= 50) return 'D';
-  return 'F';
-}
+// Use canonical grade helper
+const getLetterGrade = getLetterGradeUtil;
 
 export function getMarkColor(m: number) {
   if (m >= 80) return 'text-green-600 font-black drop-shadow-[0_0_8px_rgba(22,163,74,0.4)]';
@@ -46,11 +29,12 @@ export function getMarkColor(m: number) {
 
 interface Props {
   student: Record<string, any>;
-  onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>) => void;
+  onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>) => void;
   autoOpenReport?: boolean;
 }
 
 export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }: Props) => {
+  const { user, profile } = useAuthStore();
   const [isReportModalOpen, setIsReportModalOpen] = useState(autoOpenReport);
   const [reportMessage, setReportMessage] = useState('');
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
@@ -58,6 +42,11 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
 
   const sem1Subs = SUBJECTS_META.filter(s => s.sem === 1);
   const sem2Subs = SUBJECTS_META.filter(s => s.sem === 2);
+  const sem3Subs = SEM3_META;
+
+  // Auth: only the matching signed-in student can prefill (edit their own marks)
+  const isOwnRecord = !!user && !!profile?.seat_no && profile.seat_no === String(student['Seat No']);
+  const isAdmin = profile?.is_admin ?? false;
 
   const handleReportSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,6 +101,8 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
 
   const s1Stats = calcSemStats(sem1Subs);
   const s2Stats = calcSemStats(sem2Subs);
+  // Sem 3 is always tentative
+  const s3Stats = calcSemStats(sem3Subs);
   const hasMissing = s1Stats.missing || s2Stats.missing;
   const allQP = s1Stats.qp + s2Stats.qp;
   const allCr = s1Stats.cr + s2Stats.cr;
@@ -126,6 +117,7 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
     if (!onPrefill) return;
     const s1: Record<string, number | ''> = SEM1_COURSES.reduce((a, c) => ({ ...a, [c.code]: '' }), {});
     const s2: Record<string, number | ''> = SEM2_COURSES.reduce((a, c) => ({ ...a, [c.code]: '' }), {});
+    const s3: Record<string, number | ''> = SEM3_COURSES.reduce((a, c) => ({ ...a, [c.code]: '' }), {});
     sem1Subs.forEach((sub, i) => {
       const raw = student[sub.id];
       const m = raw !== undefined && !isNaN(Number(raw)) ? Number(raw) : null;
@@ -136,7 +128,12 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
       const m = raw !== undefined && !isNaN(Number(raw)) ? Number(raw) : null;
       if (m !== null) s2[SEM2_COURSES[i]?.code] = m;
     });
-    onPrefill(s1, s2);
+    sem3Subs.forEach((sub, i) => {
+      const raw = student[sub.id];
+      const m = raw !== undefined && !isNaN(Number(raw)) ? Number(raw) : null;
+      if (m !== null) s3[SEM3_COURSES[i]?.code] = m;
+    });
+    onPrefill(s1, s2, s3);
   };
 
   const SubjectRow = ({ sub, delay }: { sub: typeof SUBJECTS_META[0], delay: number }) => {
@@ -212,40 +209,47 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-5 border-t border-border/50">
-          {onPrefill && (
+          {/* Load into calculator — only for own record or admin */}
+          {onPrefill && (isOwnRecord || isAdmin) ? (
             <button
               onClick={handlePrefill}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm rounded-xl transition-all active:scale-95 shadow-lg shadow-brand-500/20"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-black text-yellow-400 border-2 border-black font-bold text-sm rounded-lg transition-all active:scale-95 shadow-[3px_3px_0px_0px_#E6B400] hover:shadow-[1px_1px_0px_0px_#E6B400] hover:translate-x-0.5 hover:translate-y-0.5"
             >
               <Calculator size={16} />
               Load into Calculator
             </button>
-          )}
+          ) : onPrefill ? (
+            <div
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-gray-200 text-gray-400 font-bold text-sm rounded-lg cursor-not-allowed"
+              title="Sign in as this student to edit marks"
+            >
+              <Lock size={14} />
+              Sign in to Edit
+            </div>
+          ) : null}
+
+          {/* PDF Transcript — always available */}
           <button
             onClick={() => {
-              if (hasMissing) {
-                toast.error("Cannot generate transcript: Marks are missing for one or more subjects.", { icon: '⚠️' });
-              } else {
-                toast.promise(
-                  Promise.resolve(generateTranscriptImage(student)),
-                  {
-                    loading: 'Generating transcript...',
-                    success: 'Transcript downloaded!',
-                    error: 'Could not generate transcript.',
-                  }
-                );
-              }
+              toast.promise(
+                Promise.resolve(generateTranscriptPDF(student)),
+                {
+                  loading: 'Generating PDF transcript...',
+                  success: 'Transcript PDF downloaded!',
+                  error: 'Could not generate transcript.',
+                }
+              );
             }}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 font-bold text-sm rounded-xl transition-all active:scale-95 ${hasMissing ? 'bg-surfaceHighlight text-textMuted border border-border cursor-not-allowed' : 'bg-accent-500/10 hover:bg-accent-500/20 border border-accent-500/40 text-accent-600'}`}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 font-bold text-sm rounded-lg border-2 border-black text-black hover:bg-yellow-400 transition-all active:scale-95 shadow-[3px_3px_0px_0px_#000] hover:shadow-[1px_1px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5"
           >
             <Download size={16} />
-            Download Transcript
+            Download PDF Transcript
           </button>
-          
+
           {/* Report Issue Button */}
           <button
             onClick={() => setIsReportModalOpen(true)}
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-600 font-bold text-sm rounded-xl transition-all active:scale-95 sm:w-auto w-full"
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-red-50 hover:bg-red-100 border-2 border-red-300 text-red-600 font-bold text-sm rounded-lg transition-all active:scale-95 sm:w-auto w-full"
             title="Submit a correction for missing or erroneous marks"
           >
             <AlertTriangle size={16} />
@@ -255,23 +259,26 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
       </div>
 
       {/* Semester Cards */}
-      {[{ subs: sem1Subs, stats: s1Stats, label: 'Semester 1' }, { subs: sem2Subs, stats: s2Stats, label: 'Semester 2' }].map(({ subs, stats, label }, si) => (
+      {[
+        { subs: sem1Subs, stats: s1Stats, label: 'Semester 1', accentColor: 'bg-blue-600', badgeClass: 'text-blue-700 bg-blue-50 border-blue-300' },
+        { subs: sem2Subs, stats: s2Stats, label: 'Semester 2', accentColor: 'bg-green-600', badgeClass: 'text-green-700 bg-green-50 border-green-300' },
+      ].map(({ subs, stats, label, accentColor, badgeClass }, si) => (
         <motion.div
           key={label}
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 + si * 0.1 }}
-          className="glass rounded-2xl border-border overflow-hidden"
+          className="glass rounded-xl border-border overflow-hidden"
         >
           {/* Sem header */}
           <div className="flex items-center justify-between px-5 py-3 bg-surfaceHighlight border-b border-border">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-brand-500" />
+              <div className={`w-3 h-3 rounded-sm ${accentColor}`} />
               <span className="text-sm font-black text-textMain uppercase tracking-wider">{label}</span>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-xs text-textMuted">{stats.cr} / {subs.reduce((a,s)=>a+s.credits,0)} Credit Hours</span>
-              <span className="text-sm font-black text-brand-500 bg-brand-500/10 px-3 py-1 rounded-lg border border-brand-500/30">
+              <span className={`text-sm font-black px-3 py-1 rounded-lg border-2 ${badgeClass}`}>
                 GPA {stats.gpa}
               </span>
             </div>
@@ -303,6 +310,68 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
           </div>
         </motion.div>
       ))}
+
+      {/* Semester 3 — In Progress */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+        className="glass rounded-xl border-border overflow-hidden opacity-80"
+      >
+        <div className="flex items-center justify-between px-5 py-3 bg-amber-50 border-b-2 border-amber-300">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-sm bg-amber-500" />
+            <span className="text-sm font-black text-amber-900 uppercase tracking-wider">Semester 3</span>
+            <span className="ml-2 px-2 py-0.5 text-[9px] font-bold bg-amber-200 text-amber-800 border border-amber-400 rounded uppercase tracking-wider">In Progress</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-amber-700">{s3Stats.cr} / {sem3Subs.reduce((a,s)=>a+s.credits,0)} Credit Hours</span>
+            <span className="text-sm font-black px-3 py-1 rounded-lg border-2 text-amber-700 bg-amber-50 border-amber-300">
+              {s3Stats.gpa === '—' || s3Stats.missing ? 'Tentative' : `GPA ${s3Stats.gpa}`}
+            </span>
+          </div>
+        </div>
+        <div className="hidden sm:flex items-center gap-3 px-5 py-2 bg-amber-50/50 border-b border-amber-200/50">
+          <span className="text-[9px] font-bold text-amber-700/60 uppercase w-14 shrink-0">Code</span>
+          <span className="flex-1 text-[9px] font-bold text-amber-700/60 uppercase">Course</span>
+          <span className="text-[9px] font-bold text-amber-700/60 uppercase w-24 text-center shrink-0">Credit Hours</span>
+          <span className="text-[9px] font-bold text-amber-700/60 uppercase w-32 text-right shrink-0">Marks / Grade / GP</span>
+        </div>
+        <div className="px-5">
+          {sem3Subs.map((sub) => {
+            const raw = student[sub.id];
+            const marks = raw !== undefined && raw !== null && !isNaN(Number(raw)) ? Number(raw) : null;
+            const gp = marks !== null ? getGradePoint(marks) : null;
+            return (
+              <div key={sub.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 py-3 border-b border-amber-100/70 last:border-0">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 flex-1">
+                  <span className="text-[10px] font-black text-amber-600/60 w-14 shrink-0 font-mono hidden sm:block">{sub.code}</span>
+                  <div className="flex flex-col">
+                    <span className="text-xs sm:text-sm text-textMain font-medium leading-tight">{sub.name} <span className="sm:hidden text-[10px] text-amber-600/60 font-mono ml-1">({sub.code})</span></span>
+                    <span className="sm:hidden text-[10px] text-textMuted mt-0.5">{sub.credits} Credit Hours</span>
+                  </div>
+                </div>
+                <span className="hidden sm:block text-[10px] text-textMuted shrink-0 w-24 text-center">{sub.credits} Credit Hours</span>
+                {marks === null ? (
+                  <span className="shrink-0 sm:w-32 text-left sm:text-right text-[10px] text-amber-500/70 italic pr-2">
+                    ⏳ Pending
+                  </span>
+                ) : (
+                  <div className="shrink-0 flex items-center justify-end gap-1.5 w-32">
+                    <span className={`text-sm ${getMarkColor(marks)} w-6 text-center`}>{marks}</span>
+                    <span className="text-[10px] bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold text-amber-700 w-6 text-center">{getLetterGrade(marks)}</span>
+                    <span className="text-xs font-bold text-amber-800 w-8 text-right">{gp?.toFixed(1)}</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div className="px-5 py-3 bg-amber-50/30 border-t border-amber-100 flex items-center gap-2">
+          <AlertTriangle size={13} className="text-amber-500" />
+          <span className="text-xs text-amber-700 italic">Results not yet finalized — marks shown are tentative</span>
+        </div>
+      </motion.div>
 
       {/* Report Issue Modal */}
       <AnimatePresence>

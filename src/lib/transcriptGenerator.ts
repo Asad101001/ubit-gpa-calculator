@@ -1,243 +1,260 @@
-import { getGradePoint } from './utils';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { getGradePoint, getLetterGrade, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from './utils';
 
-const SUBJECTS = [
-  { id: 'cs351', code: 'CS-351', name: 'Programming Fundamentals', credits: 4, sem: 1 },
-  { id: 'cs353', code: 'CS-353', name: 'Intro to ICT', credits: 3, sem: 1 },
-  { id: 'cs355', code: 'CS-355', name: 'Calculus & Analytical Geo', credits: 3, sem: 1 },
-  { id: 'cs357', code: 'CS-357', name: 'Applied Physics', credits: 3, sem: 1 },
-  { id: 'cs359', code: 'CS-359', name: 'Functional English', credits: 3, sem: 1 },
-  { id: 'cs361', code: 'CS-361', name: 'Islamic Studies / Ethics', credits: 2, sem: 1 },
-  { id: 'cs352', code: 'CS-352', name: 'Object Oriented Concepts', credits: 4, sem: 2 },
-  { id: 'cs354', code: 'CS-354', name: 'Digital Logic Design', credits: 3, sem: 2 },
-  { id: 'cs356', code: 'CS-356', name: 'Linear Algebra', credits: 3, sem: 2 },
-  { id: 'cs358', code: 'CS-358', name: 'Discrete Structures', credits: 3, sem: 2 },
-  { id: 'cs360', code: 'CS-360', name: 'Communication Skills', credits: 3, sem: 2 },
-  { id: 'cs362', code: 'CS-362', name: 'Ideology of Pakistan', credits: 2, sem: 2 },
-];
+const SITE_URL = 'ubit-results-28.vercel.app';
 
-function getLetterGrade(marks: number): string {
-  if (marks >= 85) return 'A';
-  if (marks >= 80) return 'A-';
-  if (marks >= 75) return 'B+';
-  if (marks >= 71) return 'B';
-  if (marks >= 68) return 'B-';
-  if (marks >= 64) return 'C+';
-  if (marks >= 61) return 'C';
-  if (marks >= 57) return 'D+';
-  if (marks >= 50) return 'D';
-  return 'F';
+interface CourseEntry {
+  code: string;
+  id: string;
+  name: string;
+  credits: number;
+  type: string;
+  instructor: string;
 }
 
-export function generateTranscriptImage(student: Record<string, any>): void {
-  const W = 900;
-  const canvas = document.createElement('canvas');
+function computeSemStats(courses: CourseEntry[], student: Record<string, any>) {
+  let totalQP = 0, totalCr = 0, hasAny = false, hasAll = true;
+  const rows = courses.map(sub => {
+    const raw = student[sub.id];
+    const marks = raw !== undefined && raw !== null && raw !== '' && !isNaN(Number(raw)) ? Number(raw) : null;
+    const gp = marks !== null ? getGradePoint(marks) : null;
+    const qp = marks !== null && gp !== null ? gp * sub.credits : null;
+    if (marks !== null && gp !== null && qp !== null) {
+      totalQP += qp;
+      totalCr += sub.credits;
+      hasAny = true;
+    } else {
+      hasAll = false;
+    }
+    return { sub, marks, gp, qp };
+  });
+  const gpa = totalCr > 0 ? totalQP / totalCr : null;
+  return { rows, totalQP, totalCr, gpa, hasAny, hasAll };
+}
 
-  // Calculate rows
-  const sem1 = SUBJECTS.filter(s => s.sem === 1);
-  const sem2 = SUBJECTS.filter(s => s.sem === 2);
+export function generateTranscriptPDF(student: Record<string, any>): void {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 15;
 
-  // Heights
-  const headerH = 180;
-  const tableHeaderH = 36;
-  const rowH = 34;
-  const semLabelH = 40;
-  const gpaRowH = 40;
-  const footerH = 80;
-  const sectionGap = 24;
+  // ── HEADER BLOCK ──────────────────────────────────────────
+  // Black top bar
+  doc.setFillColor(0, 0, 0);
+  doc.rect(0, 0, pageW, 42, 'F');
 
-  const totalH =
-    headerH +
-    semLabelH + tableHeaderH + sem1.length * rowH + gpaRowH +
-    sectionGap +
-    semLabelH + tableHeaderH + sem2.length * rowH + gpaRowH +
-    sectionGap + gpaRowH + // CGPA row
-    footerH + 40;
+  // Gold accent line
+  doc.setFillColor(230, 180, 0);
+  doc.rect(0, 42, pageW, 2.5, 'F');
 
-  canvas.width = W;
-  canvas.height = totalH;
-  const ctx = canvas.getContext('2d')!;
+  // Left gold sidebar strip
+  doc.setFillColor(230, 180, 0);
+  doc.rect(0, 0, 4, pageH, 'F');
 
-  // Background
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, W, totalH);
+  // Institution name — gold
+  doc.setTextColor(230, 180, 0);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.text('UNIVERSITY OF KARACHI  •  DEPARTMENT OF COMPUTER SCIENCE (UBIT)', margin + 2, 10);
 
-  // Gold sidebar
-  ctx.fillStyle = '#E6B400';
-  ctx.fillRect(0, 0, 8, totalH);
+  // Main title — white
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('BSCS Academic Transcript', margin + 2, 22);
 
-  // Header block
-  ctx.fillStyle = '#000000';
-  ctx.fillRect(0, 0, W, headerH);
+  // Sub label
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(180, 180, 180);
+  doc.text('Batch 2024–28  •  Umaer Basha Institute of Information Technology  •  UNOFFICIAL', margin + 2, 30);
 
-  // Gold accent line in header
-  ctx.fillStyle = '#E6B400';
-  ctx.fillRect(8, headerH - 5, W - 8, 5);
+  // Try embed UBIT logo (small, top-right corner)
+  try {
+    const img = new Image();
+    img.src = '/images/ubit_logo.jpg';
+    doc.addImage(img, 'JPEG', pageW - 36, 3, 30, 30);
+  } catch {
+    // skip if image unavailable
+  }
 
-  // Institution
-  ctx.fillStyle = '#E6B400';
-  ctx.font = 'bold 13px Inter, Arial, sans-serif';
-  ctx.fillText('UNIVERSITY OF KARACHI', 40, 40);
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 22px Inter, Arial, sans-serif';
-  ctx.fillText('Department of Computer Science', 40, 68);
-  ctx.font = '13px Inter, Arial, sans-serif';
-  ctx.fillStyle = '#cccccc';
-  ctx.fillText('BSCS — Batch 2028  |  Unofficial Academic Transcript', 40, 92);
+  // ── STUDENT INFO BLOCK ────────────────────────────────────
+  let y = 52;
+  doc.setFillColor(248, 248, 248);
+  doc.rect(margin, y, pageW - margin * 2, 20, 'F');
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.5);
+  doc.rect(margin, y, pageW - margin * 2, 20, 'S');
 
-  // Divider
-  ctx.strokeStyle = '#333333';
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(40, 108); ctx.lineTo(W - 40, 108); ctx.stroke();
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text(student['Name'] || 'Unknown Student', margin + 4, y + 8);
 
-  // Student info
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 18px Inter, Arial, sans-serif';
-  ctx.fillText(student['Name'] || 'Unknown Student', 40, 132);
-  ctx.fillStyle = '#aaaaaa';
-  ctx.font = '12px Inter, Arial, sans-serif';
-  ctx.fillText(`Seat No: ${student['Seat No'] || '—'}`, 40, 152);
-  ctx.fillText(`Generated: ${new Date().toLocaleDateString('en-PK', { year: 'numeric', month: 'long', day: 'numeric' })}`, 40, 168);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(80, 80, 80);
+  doc.text(`Seat No: ${student['Seat No'] || '—'}`, margin + 4, y + 15);
+  doc.text(`Generated: ${new Date().toLocaleDateString('en-PK', { year: 'numeric', month: 'long', day: 'numeric' })}`, pageW - margin - 60, y + 8);
+  doc.text(`Program: BSCS (4-Year Semester System)`, pageW - margin - 60, y + 15);
 
-  // Table columns: Code, Course Name, Credits, Marks, Grade, GPA, QP
-  const cols = [40, 130, 460, 560, 630, 700, 770];
-  const colHeaders = ['Code', 'Course Title', 'Credit Hours', 'Marks', 'Grade', 'GP', 'QP'];
+  y += 26;
 
-  let y = headerH;
+  // ── SEMESTER TABLE HELPER ─────────────────────────────────
+  const drawSemester = (
+    label: string,
+    courses: CourseEntry[],
+    headerColor: [number, number, number],
+    isTentative: boolean
+  ) => {
+    // Section label
+    doc.setFillColor(...headerColor);
+    doc.rect(margin, y, pageW - margin * 2, 7, 'F');
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 255, 255);
+    const tentLabel = isTentative ? '  ⚠ In Progress — Marks Tentative / Pending' : '';
+    doc.text(`${label}${tentLabel}`, margin + 3, y + 5);
+    y += 9;
 
-  const drawSemester = (subs: typeof SUBJECTS, semNum: number) => {
-    // Sem label
-    ctx.fillStyle = '#f5f5f5';
-    ctx.fillRect(8, y, W - 8, semLabelH);
-    ctx.fillStyle = '#E6B400';
-    ctx.fillRect(8, y, 4, semLabelH);
-    ctx.fillStyle = '#000000';
-    ctx.font = 'bold 13px Inter, Arial, sans-serif';
-    ctx.fillText(`SEMESTER ${semNum}`, 24, y + 25);
-    y += semLabelH;
+    const { rows, totalCr, gpa, hasAny } = computeSemStats(courses, student);
 
-    // Table header
-    ctx.fillStyle = '#111111';
-    ctx.fillRect(8, y, W - 8, tableHeaderH);
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 11px Inter, Arial, sans-serif';
-    colHeaders.forEach((h, i) => ctx.fillText(h, cols[i], y + 22));
-    y += tableHeaderH;
-
-    let totalQP = 0, totalCr = 0;
-
-    subs.forEach((sub, idx) => {
-      const raw = student[sub.id];
-      const marks = raw !== undefined && raw !== null && !isNaN(Number(raw)) ? Number(raw) : null;
-      const gp = marks !== null ? getGradePoint(marks) : null;
-      const qp = marks !== null && gp !== null ? gp * sub.credits : null;
-
-      if (marks !== null && gp !== null && qp !== null) {
-        totalQP += qp;
-        totalCr += sub.credits;
-      }
-
-      ctx.fillStyle = idx % 2 === 0 ? '#ffffff' : '#fafafa';
-      ctx.fillRect(8, y, W - 8, rowH);
-
-      ctx.fillStyle = idx % 2 === 0 ? '#eeeeee' : '#e8e8e8';
-      ctx.fillRect(8, y + rowH - 1, W - 8, 1);
-
-      ctx.fillStyle = '#000000';
-      ctx.font = 'bold 11px Inter, Arial, sans-serif';
-      ctx.fillText(sub.code, cols[0], y + 21);
-      ctx.font = '11px Inter, Arial, sans-serif';
-      ctx.fillText(sub.name.length > 38 ? sub.name.slice(0, 36) + '…' : sub.name, cols[1], y + 21);
-      ctx.fillText(String(sub.credits), cols[2], y + 21);
-
-      if (marks === null) {
-        ctx.fillStyle = '#999999';
-        ctx.font = 'italic 10px Inter, Arial, sans-serif';
-        ctx.fillText('—', cols[3], y + 21);
-        ctx.fillText('—', cols[4], y + 21);
-        ctx.fillText('—', cols[5], y + 21);
-        ctx.fillText('—', cols[6], y + 21);
-      } else {
-        // Highlight top marks
-        if (marks >= 85) {
-          ctx.fillStyle = '#E6B400';
-          ctx.font = 'bold 11px Inter, Arial, sans-serif';
-        } else {
-          ctx.fillStyle = '#000000';
-          ctx.font = '11px Inter, Arial, sans-serif';
-        }
-        ctx.fillText(String(marks), cols[3], y + 21);
-        ctx.fillStyle = '#000000';
-        ctx.fillText(getLetterGrade(marks), cols[4], y + 21);
-        ctx.fillText(gp!.toFixed(1), cols[5], y + 21);
-        ctx.fillText(qp!.toFixed(2), cols[6], y + 21);
-      }
-
-      y += rowH;
+    const tableBody = rows.map(({ sub, marks, gp, qp }) => {
+      const hasMarks = marks !== null;
+      return [
+        sub.code,
+        sub.name.length > 36 ? sub.name.slice(0, 34) + '…' : sub.name,
+        String(sub.credits),
+        hasMarks ? String(marks) : (isTentative ? '—' : '—'),
+        hasMarks ? getLetterGrade(marks!) : '—',
+        hasMarks ? gp!.toFixed(1) : '—',
+        hasMarks ? qp!.toFixed(2) : '—',
+        sub.instructor,
+      ];
     });
 
-    // GPA row
-    const semGpa = totalCr > 0 ? (totalQP / totalCr).toFixed(2) : '—';
-    ctx.fillStyle = '#111111';
-    ctx.fillRect(8, y, W - 8, gpaRowH);
-    ctx.fillStyle = '#E6B400';
-    ctx.font = 'bold 12px Inter, Arial, sans-serif';
-    ctx.fillText(`Semester ${semNum} GPA: ${semGpa}`, cols[0], y + 25);
-    ctx.fillStyle = '#aaaaaa';
-    ctx.font = '11px Inter, Arial, sans-serif';
-    ctx.fillText(`Total Quality Points: ${totalQP.toFixed(2)}   /   Credit Hours: ${totalCr}`, cols[3], y + 25);
-    y += gpaRowH;
+    autoTable(doc, {
+      startY: y,
+      head: [['Code', 'Course Title', 'Cr', 'Marks', 'Grade', 'GP', 'QP', 'Instructor']],
+      body: tableBody,
+      margin: { left: margin, right: margin },
+      styles: {
+        fontSize: 7.5,
+        cellPadding: 2,
+        font: 'helvetica',
+        textColor: [20, 20, 20],
+        lineColor: [200, 200, 200],
+        lineWidth: 0.2,
+      },
+      headStyles: {
+        fillColor: [30, 30, 30],
+        textColor: [230, 180, 0],
+        fontStyle: 'bold',
+        fontSize: 7.5,
+      },
+      alternateRowStyles: { fillColor: [250, 250, 250] },
+      columnStyles: {
+        0: { cellWidth: 18, fontStyle: 'bold' },
+        1: { cellWidth: 58 },
+        2: { cellWidth: 10, halign: 'center' },
+        3: { cellWidth: 14, halign: 'center', fontStyle: 'bold' },
+        4: { cellWidth: 14, halign: 'center' },
+        5: { cellWidth: 12, halign: 'center' },
+        6: { cellWidth: 14, halign: 'center' },
+        7: { cellWidth: 40, fontSize: 6.5, textColor: [100, 100, 100] },
+      },
+      didParseCell(data) {
+        // Colour marks by performance
+        if (data.column.index === 3 && data.section === 'body') {
+          const val = Number(data.cell.raw);
+          if (!isNaN(val)) {
+            if (val >= 85) data.cell.styles.textColor = [0, 130, 60];
+            else if (val >= 71) data.cell.styles.textColor = [0, 100, 200];
+            else if (val < 50) data.cell.styles.textColor = [200, 0, 0];
+          } else {
+            // pending / dash
+            data.cell.styles.textColor = isTentative ? [150, 100, 0] : [150, 150, 150];
+            data.cell.styles.fontStyle = 'italic';
+          }
+        }
+        // Highlight A+ grade
+        if (data.column.index === 4 && data.section === 'body' && data.cell.raw === 'A+') {
+          data.cell.styles.textColor = [0, 130, 60];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      },
+    });
+
+    y = (doc as any).lastAutoTable.finalY + 2;
+
+    // GPA summary row
+    const gpaStr = gpa !== null ? gpa.toFixed(3) : (hasAny ? 'Partial' : 'Pending');
+    doc.setFillColor(30, 30, 30);
+    doc.rect(margin, y, pageW - margin * 2, 7, 'F');
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(230, 180, 0);
+    const semGpaLabel = isTentative && !hasAny ? 'Semester GPA: Pending' : `Semester GPA: ${gpaStr}`;
+    doc.text(semGpaLabel, margin + 3, y + 5);
+    doc.setTextColor(180, 180, 180);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Quality Points: ${hasAny ? rows.reduce((a, r) => a + (r.qp ?? 0), 0).toFixed(2) : '—'}   Credits Earned: ${totalCr}`, pageW - margin - 75, y + 5);
+    y += 10;
   };
 
-  drawSemester(sem1, 1);
-  y += sectionGap;
-  drawSemester(sem2, 2);
+  // Draw each semester
+  drawSemester('SEMESTER 1', SEM1_COURSES, [0, 70, 160], false);
+  y += 3;
+  drawSemester('SEMESTER 2', SEM2_COURSES, [0, 120, 60], false);
+  y += 3;
+  drawSemester('SEMESTER 3  (In Progress)', SEM3_COURSES, [160, 100, 0], true);
 
-  // CGPA
-  y += sectionGap;
-  ctx.fillStyle = '#E6B400';
-  ctx.fillRect(8, y, W - 8, gpaRowH + 10);
-  ctx.fillStyle = '#000000';
-  ctx.font = 'bold 15px Inter, Arial, sans-serif';
-
-  // Compute overall CGPA
+  // ── CGPA SUMMARY ─────────────────────────────────────────
+  y += 4;
+  const allCourses = [...SEM1_COURSES, ...SEM2_COURSES, ...SEM3_COURSES];
   let allQP = 0, allCr = 0;
-  SUBJECTS.forEach(sub => {
+  allCourses.forEach(sub => {
     const raw = student[sub.id];
-    const marks = raw !== undefined && raw !== null && !isNaN(Number(raw)) ? Number(raw) : null;
+    const marks = raw !== undefined && raw !== null && raw !== '' && !isNaN(Number(raw)) ? Number(raw) : null;
     if (marks !== null) {
-      const gp = getGradePoint(marks);
-      allQP += gp * sub.credits;
+      allQP += getGradePoint(marks) * sub.credits;
       allCr += sub.credits;
     }
   });
   const cgpa = allCr > 0 ? (allQP / allCr).toFixed(3) : '—';
 
-  ctx.fillText(`CUMULATIVE CGPA: ${cgpa}`, cols[0], y + 30);
-  ctx.font = '11px Inter, Arial, sans-serif';
-  ctx.fillText(`Total Credits: ${allCr} / 36`, 600, y + 30);
-  y += gpaRowH + 10;
+  doc.setFillColor(230, 180, 0);
+  doc.rect(margin, y, pageW - margin * 2, 10, 'F');
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text(`CUMULATIVE CGPA: ${cgpa}`, margin + 4, y + 7);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Total Credits Earned: ${allCr} / 54`, pageW - margin - 60, y + 7);
+  y += 14;
 
-  // Footer
-  y += 16;
-  ctx.strokeStyle = '#cccccc';
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(W - 40, y); ctx.stroke();
-  y += 18;
-  ctx.fillStyle = '#999999';
-  ctx.font = '10px Inter, Arial, sans-serif';
-  ctx.fillText('⚠ This is an UNOFFICIAL transcript generated by the UBIT GPA Calculator. Always verify with official university records.', 40, y);
-  ctx.fillText('ubit-gpa.vercel.app  |  DCS UBIT Batch 2028', 40, y + 16);
+  // ── DISCLAIMER FOOTER ────────────────────────────────────
+  doc.setDrawColor(180, 180, 180);
+  doc.setLineWidth(0.3);
+  doc.line(margin, y, pageW - margin, y);
+  y += 5;
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(130, 130, 130);
+  doc.text(
+    '⚠ This is an UNOFFICIAL transcript generated by the UBIT GPA Calculator. Always verify with official university records.',
+    margin, y
+  );
+  y += 5;
+  doc.text(
+    `${SITE_URL}  •  Department of Computer Science (UBIT)  •  University of Karachi  •  BSCS Batch 2024–28`,
+    margin, y
+  );
 
-  // Download
-  canvas.toBlob(blob => {
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Transcript_${(student['Name'] || 'Student').replace(/\s+/g, '_')}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, 'image/png');
+  // ── DOWNLOAD ─────────────────────────────────────────────
+  const safeName = (student['Name'] || 'Student').replace(/\s+/g, '_');
+  const safeSeat = (student['Seat No'] || 'Unknown').replace(/\s+/g, '_');
+  doc.save(`Transcript_${safeName}_${safeSeat}.pdf`);
 }

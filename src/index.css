@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,86 +6,82 @@
 
 @layer base {
   :root {
-    /* Theme 1: Original Black & White Brutalist with Gold Accents */
-    --color-brand-400: 0 0 0;        /* pure black */
-    --color-brand-500: 0 0 0;        /* pure black */
-    --color-brand-600: 0 0 0;        /* pure black */
-    --color-background: 255 255 255; /* stark white background */
-    --color-surface: 255 255 255;    /* pure white surface */
-    --color-surface-highlight: 242 242 242; /* very light grey */
-    --color-text-main: 0 0 0;        /* stark black text */
-    --color-text-muted: 75 75 75;    /* dark grey for subtexts */
-    --color-border: 0 0 0;           /* solid black border */
-    --color-accent-400: 255 220 0;   /* shocking yellow gold */
-    --color-accent-500: 230 180 0;   /* gold */
-    --color-accent-600: 190 145 0;   /* deep gold */
+    /* Theme: Black & White Brutalist with Gold Accents */
+    --color-brand-400: 0 0 0;
+    --color-brand-500: 0 0 0;
+    --color-brand-600: 0 0 0;
+    --color-background: 255 255 255;
+    --color-surface: 255 255 255;
+    --color-surface-highlight: 242 242 242;
+    --color-text-main: 0 0 0;
+    --color-text-muted: 75 75 75;
+    --color-border: 0 0 0;
+    --color-accent-400: 255 220 0;
+    --color-accent-500: 230 180 0;
+    --color-accent-600: 190 145 0;
     --glass-reflection: 255 255 255;
     --glass-reflection-opacity: 0.1;
   }
 
+  /* ── 120fps Smooth Scrolling & Performance ── */
   html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* Promote to GPU layer for buttery compositing */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
   }
 
   body {
-    @apply bg-background text-textMain antialiased overflow-x-hidden transition-colors duration-500;
+    @apply bg-background text-textMain antialiased overflow-x-hidden;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    /* GPU acceleration for the whole page scroll */
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    /* Smoother paint on high-refresh displays */
+    transform: translateZ(0);
   }
 
+  /* Smooth scroll for all anchors */
   * {
     -webkit-overflow-scrolling: touch;
+    /* Prevent layout shifts from border-box */
+    box-sizing: border-box;
+  }
+
+  /* Mobile: prevent scroll jank */
+  @media (max-width: 768px) {
+    body {
+      touch-action: pan-y;
+      overscroll-behavior: contain;
+    }
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-surface/75 backdrop-blur-xl border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.1)];
-    box-shadow: inset 0 1px 1px rgba(var(--glass-reflection) / var(--glass-reflection-opacity)), inset 1px 0 1px rgba(var(--glass-reflection) / calc(var(--glass-reflection-opacity) * 0.6)), 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+    @apply bg-white/90 backdrop-blur-sm border border-black/10;
   }
   .glass-card {
-    @apply bg-surface/80 backdrop-blur-lg border border-border shadow-2xl;
-    box-shadow: inset 0 1px 1px rgba(var(--glass-reflection) / var(--glass-reflection-opacity)), inset 1px 0 1px rgba(var(--glass-reflection) / calc(var(--glass-reflection-opacity) * 0.65)), 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+    @apply bg-white border border-black;
   }
   .glass-input {
-    @apply bg-surface/80 backdrop-blur-md border border-border focus:border-brand-500/50 outline-none transition-all;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(var(--glass-reflection) / calc(var(--glass-reflection-opacity) * 0.6));
-  }
-  
-  /* Custom scrollbar for webkit */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full hover:bg-brand-500/50 transition-colors;
+    @apply bg-white border border-black focus:ring-2 focus:ring-yellow-400 outline-none transition-shadow duration-150;
   }
 
-  .scrollbar-none {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;
-  }
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-black/20 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-black/40; }
 
-  .pixel-hover {
-    transition: all 0.2s steps(5);
-  }
-  .pixel-hover:hover {
-    transform: scale(1.05);
-    box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.2), -4px -4px 0px rgba(20, 184, 166, 0.2);
-  }
+  .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
 
-  /* Brutalist Theme Overrides (Original Design Style) */
-  :root .glass-card, [data-theme="light"] .glass-card {
+  /* ── Brutalist Design Overrides ── */
+  .glass-card {
     border: 2.5px solid #000000 !important;
     border-radius: 4px !important;
     background-color: #ffffff !important;
@@ -93,30 +89,30 @@
     box-shadow: 5px 5px 0px 0px #000000, 9px 9px 0px 0px rgb(230, 180, 0) !important;
   }
 
-  :root .glass, [data-theme="light"] .glass {
-    border: 2.5px solid #000000 !important;
+  .glass {
+    border: 2px solid #000000 !important;
     border-radius: 4px !important;
     background-color: #ffffff !important;
     backdrop-filter: none !important;
-    box-shadow: 5px 5px 0px 0px #000000, 9px 9px 0px 0px rgb(230, 180, 0) !important;
+    box-shadow: 4px 4px 0px 0px #000000 !important;
   }
 
-  :root .glass-input, [data-theme="light"] .glass-input {
-    border: 2.5px solid #000000 !important;
+  .glass-input {
+    border: 2px solid #000000 !important;
     border-radius: 4px !important;
     background-color: #ffffff !important;
     color: #000000 !important;
     box-shadow: 3px 3px 0px 0px #000000 !important;
   }
 
-  :root .glass-input:focus, [data-theme="light"] .glass-input:focus {
+  .glass-input:focus {
     box-shadow: 3px 3px 0px 0px rgb(230, 180, 0) !important;
     background-color: #ffffff !important;
     border-color: #000000 !important;
   }
 
-  /* Override text gradients for true black & white brutalism */
-  :root .text-transparent, [data-theme="light"] .text-transparent {
+  /* Gradient text reset for brutalist style */
+  .text-transparent {
     background-image: none !important;
     background-clip: unset !important;
     -webkit-background-clip: unset !important;
@@ -124,37 +120,103 @@
     color: #000000 !important;
   }
 
-  /* Brutalist Button Overrides */
-  :root button.bg-gradient-to-r, [data-theme="light"] button.bg-gradient-to-r,
-  :root a.bg-gradient-to-r, [data-theme="light"] a.bg-gradient-to-r {
+  /* Gold buttons */
+  button.bg-gradient-to-r,
+  a.bg-gradient-to-r {
     background-image: none !important;
-    background-color: rgb(230, 180, 0) !important; /* Gold */
+    background-color: rgb(230, 180, 0) !important;
     color: #000000 !important;
     border: 2.5px solid #000000 !important;
     box-shadow: 3px 3px 0px 0px #000000 !important;
     border-radius: 4px !important;
     font-weight: 800 !important;
     text-shadow: none !important;
-    transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+    transition: transform 0.08s ease, box-shadow 0.08s ease !important;
   }
 
-  :root button.bg-gradient-to-r:hover, [data-theme="light"] button.bg-gradient-to-r:hover,
-  :root a.bg-gradient-to-r:hover, [data-theme="light"] a.bg-gradient-to-r:hover {
+  button.bg-gradient-to-r:hover,
+  a.bg-gradient-to-r:hover {
     background-color: #ffd700 !important;
     box-shadow: 1px 1px 0px 0px #000000 !important;
     transform: translate(2px, 2px) !important;
   }
 
-  :root .text-accent-500, [data-theme="light"] .text-accent-500 {
+  button.bg-gradient-to-r:active,
+  a.bg-gradient-to-r:active {
+    transform: translate(3px, 3px) !important;
+    box-shadow: 0px 0px 0px 0px #000000 !important;
+  }
+
+  .text-accent-500 {
     color: rgb(200, 150, 0) !important;
     font-weight: 700 !important;
   }
 
-  /* Graceful Tentative GPA Display */
+  /* ── GPU-Accelerated Interactive Elements ── */
+  /* Sticky header gets GPU layer */
+  header {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+
+  /* Smooth modal/overlay transitions */
+  .modal-overlay {
+    will-change: opacity;
+  }
+
+  /* Cards that animate */
+  .animate-card {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+  }
+
+  /* ── Tentative CGPA Styling ── */
   .tentative-cgpa-text {
     color: #888888;
     letter-spacing: -0.02em;
     font-style: italic;
     font-weight: 900;
+    animation: tentative-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes tentative-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+  }
+
+  /* ── Mobile-First Touch Improvements ── */
+  @media (max-width: 768px) {
+    /* Larger tap targets on mobile */
+    button, a, [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    /* Prevent rubber-band on iOS */
+    html, body {
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Smooth table scrolling on mobile */
+    .table-scroll {
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+    }
+  }
+
+  /* ── Page Transition ── */
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .page-enter {
+    animation: page-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* ── Focus ring that matches brutalist theme ── */
+  :focus-visible {
+    outline: 3px solid rgb(230, 180, 0) !important;
+    outline-offset: 2px !important;
   }
 }

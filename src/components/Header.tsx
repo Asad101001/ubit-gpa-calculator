@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LogIn, User, LogOut, Shield, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 
-export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }: { currentView: 'main' | 'results' | 'profile', navigateTo: (v: 'main' | 'results' | 'profile') => void, activeSection?: string }) => {
+import type { ViewType } from '../App';
+
+export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }: { currentView: ViewType, navigateTo: (v: ViewType) => void, activeSection?: string }) => {
   const { user, profile, openAuthModal, signOut } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
