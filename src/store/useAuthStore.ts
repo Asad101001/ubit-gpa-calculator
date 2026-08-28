@@ -163,15 +163,29 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const userId = get().user?.id;
     if (!userId) return { error: 'Not authenticated' };
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', userId);
+    const previousProfile = get().profile;
+    if (previousProfile) {
+      set({ profile: { ...previousProfile, ...updates } });
+    }
 
-    if (error) return { error: error.message };
-    await get().fetchProfile(userId);
-    return { error: null };
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', userId);
+
+      if (error) {
+        if (previousProfile) set({ profile: previousProfile });
+        return { error: error.message };
+      }
+      await get().fetchProfile(userId);
+      return { error: null };
+    } catch (e: any) {
+      if (previousProfile) set({ profile: previousProfile });
+      return { error: e.message || 'Update failed' };
+    }
   },
+
 
   openAuthModal: (mode = 'signin') => set({ isAuthModalOpen: true, authModalMode: mode }),
   closeAuthModal: () => set({ isAuthModalOpen: false }),

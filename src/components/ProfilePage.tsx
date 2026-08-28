@@ -4,23 +4,15 @@ import { User, Shield, ShieldCheck, LogOut, Edit3, Check, X, Loader2, Users, Che
 import { toast } from 'react-hot-toast';
 import { useAuthStore, type Profile } from '../store/useAuthStore';
 import { supabase } from '../lib/supabase';
-import { getGradePoint, getLetterGrade, getMarkColor } from '../lib/utils';
+import { getGradePoint, getLetterGrade, getMarkColor, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 import { TentativeCGPA } from './TentativeCGPA';
 
 const SUBJECTS_META = [
-  { id: 'cs351', code: 'CS-351', name: 'Programming Fundamentals', credits: 4, sem: 1 },
-  { id: 'cs353', code: 'CS-353', name: 'Intro to ICT', credits: 3, sem: 1 },
-  { id: 'cs355', code: 'CS-355', name: 'Calculus & Analytical Geometry', credits: 3, sem: 1 },
-  { id: 'cs357', code: 'CS-357', name: 'Applied Physics', credits: 3, sem: 1 },
-  { id: 'cs359', code: 'CS-359', name: 'Functional English', credits: 3, sem: 1 },
-  { id: 'cs361', code: 'CS-361', name: 'Islamic Studies / Ethics', credits: 2, sem: 1 },
-  { id: 'cs352', code: 'CS-352', name: 'OOP', credits: 4, sem: 2 },
-  { id: 'cs354', code: 'CS-354', name: 'Digital Logic Design', credits: 3, sem: 2 },
-  { id: 'cs356', code: 'CS-356', name: 'Linear Algebra', credits: 3, sem: 2 },
-  { id: 'cs358', code: 'CS-358', name: 'Discrete Structures', credits: 3, sem: 2 },
-  { id: 'cs360', code: 'CS-360', name: 'Communication Skills', credits: 3, sem: 2 },
-  { id: 'cs362', code: 'CS-362', name: 'Ideology of Pakistan', credits: 2, sem: 2 },
+  ...SEM1_COURSES.map(c => ({ id: c.code.toLowerCase().replace('-', ''), code: c.code, name: c.name, credits: c.credits, sem: 1 })),
+  ...SEM2_COURSES.map(c => ({ id: c.code.toLowerCase().replace('-', ''), code: c.code, name: c.name, credits: c.credits, sem: 2 })),
+  ...SEM3_COURSES.map(c => ({ id: c.code.toLowerCase().replace('-', ''), code: c.code, name: c.name, credits: c.credits, sem: 3 })),
 ];
+
 
 
 export const ProfilePage = () => {
@@ -79,24 +71,47 @@ export const ProfilePage = () => {
 
   const stats = useMemo(() => {
     if (!studentData) return null;
-    let totalQP = 0, totalCR = 0, missingCount = 0;
-    const semS: Record<number, { qp: number; cr: number }> = { 1: { qp: 0, cr: 0 }, 2: { qp: 0, cr: 0 } };
+    let totalQP = 0, totalCR = 0;
+    const semS: Record<number, { qp: number; cr: number; count: number; total: number }> = {
+      1: { qp: 0, cr: 0, count: 0, total: 6 },
+      2: { qp: 0, cr: 0, count: 0, total: 6 },
+      3: { qp: 0, cr: 0, count: 0, total: 6 },
+    };
+
     SUBJECTS_META.forEach(sub => {
       const raw = studentData[sub.id];
-      const m = raw !== undefined && raw !== null && !isNaN(Number(raw)) ? Number(raw) : null;
+      const m = raw !== undefined && raw !== null && raw !== '' && !isNaN(Number(raw)) ? Number(raw) : null;
       if (m !== null) {
         const gp = getGradePoint(m);
-        totalQP += gp * sub.credits; totalCR += sub.credits;
-        semS[sub.sem].qp += gp * sub.credits; semS[sub.sem].cr += sub.credits;
-      } else { missingCount++; }
+        totalQP += gp * sub.credits;
+        totalCR += sub.credits;
+        if (semS[sub.sem]) {
+          semS[sub.sem].qp += gp * sub.credits;
+          semS[sub.sem].cr += sub.credits;
+          semS[sub.sem].count += 1;
+        }
+      }
     });
+
+    const s1Count = semS[1].count;
+    const s2Count = semS[2].count;
+    const s3Count = semS[3].count;
+
+    const isConcrete = (s1Count === 6 && s2Count === 6 && s3Count === 0) || (s1Count === 6 && s2Count === 6 && s3Count === 6);
+    const isPartialSem3 = s1Count === 6 && s2Count === 6 && s3Count > 0 && s3Count < 6;
+    const missingCount = (s1Count < 6 ? 6 - s1Count : 0) + (s2Count < 6 ? 6 - s2Count : 0);
+
     return {
       cgpa: totalCR > 0 ? (totalQP / totalCR).toFixed(3) : '0.000',
-      hasMissing: missingCount > 0, missingCount,
-      gpa1: semS[1].cr > 0 ? (semS[1].qp / semS[1].cr).toFixed(2) : '—',
-      gpa2: semS[2].cr > 0 ? (semS[2].qp / semS[2].cr).toFixed(2) : '—',
+      isConcrete,
+      isPartialSem3,
+      missingCount,
+      gpa1: semS[1].cr > 0 && semS[1].count === 6 ? (semS[1].qp / semS[1].cr).toFixed(2) : semS[1].cr > 0 ? (semS[1].qp / semS[1].cr).toFixed(2) + '*' : '—',
+      gpa2: semS[2].cr > 0 && semS[2].count === 6 ? (semS[2].qp / semS[2].cr).toFixed(2) : semS[2].cr > 0 ? (semS[2].qp / semS[2].cr).toFixed(2) + '*' : '—',
+      gpa3: semS[3].cr > 0 && semS[3].count === 6 ? (semS[3].qp / semS[3].cr).toFixed(2) : semS[3].cr > 0 ? (semS[3].qp / semS[3].cr).toFixed(2) + '*' : '—',
     };
   }, [studentData]);
+
 
   const toggleVisibility = async () => {
     if (!profile) return;
@@ -260,20 +275,38 @@ export const ProfilePage = () => {
                 </button>
               )}
             </div>
-            {stats && (stats.hasMissing
-              ? <TentativeCGPA cgpa={stats.cgpa} missingCount={stats.missingCount} size="md" />
-              : <div className="flex flex-col items-center px-5 py-3 bg-black text-white rounded-sm border-2 border-black" style={smallBox}>
-                  <span className="text-[10px] font-bold uppercase tracking-wider opacity-70">CGPA</span>
-                  <span className="text-2xl font-black">{stats.cgpa}</span>
-                </div>)}
+            {stats && (stats.isConcrete ? (
+              <div className="flex flex-col items-center px-4 py-2.5 bg-yellow-400 text-black rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+                <span className="text-[10px] font-black uppercase tracking-wider">CGPA</span>
+                <span className="text-2xl font-black">{stats.cgpa}</span>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center px-4 py-2 border-2 border-dashed border-gray-400 rounded-xl bg-gray-50/80 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
+                <TentativeCGPA 
+                  cgpa={stats.cgpa} 
+                  missingCount={stats.missingCount} 
+                  isPartialSem3={stats.isPartialSem3} 
+                  size="md" 
+                />
+              </div>
+            ))}
           </div>
-          {[1, 2].map(sem => (
+
+          {[1, 2, 3].map(sem => (
             <div key={sem} className="mb-6 last:mb-0">
               <div className="flex items-center justify-between mb-3 pb-2 border-b-2 border-black">
-                <span className="text-sm font-black text-textMain uppercase tracking-wider">Semester {sem}</span>
-                <span className="text-sm font-black text-textMain">GPA: {sem === 1 ? stats?.gpa1 : stats?.gpa2}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-black text-textMain uppercase tracking-wider">Semester {sem}</span>
+                  {sem === 3 && (
+                    <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800 border border-yellow-300">
+                      Ongoing
+                    </span>
+                  )}
+                </div>
+                <span className="text-sm font-black text-textMain">GPA: {sem === 1 ? stats?.gpa1 : sem === 2 ? stats?.gpa2 : stats?.gpa3}</span>
               </div>
               <div className="space-y-1">
+
                 {SUBJECTS_META.filter(s => s.sem === sem).map(sub => {
                   const raw = studentData[sub.id];
                   const marks = raw !== undefined && raw !== null && !isNaN(Number(raw)) ? Number(raw) : null;

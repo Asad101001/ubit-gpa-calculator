@@ -1,55 +1,53 @@
-import { AlertCircle } from 'lucide-react';
-
 interface TentativeCGPAProps {
   cgpa: string;
-  missingCount: number;
+  missingCount?: number;
   size?: 'sm' | 'md' | 'lg';
   showBadge?: boolean;
+  isPartialSem3?: boolean;
 }
 
-export const TentativeCGPA = ({ cgpa, missingCount, size = 'md', showBadge = true }: TentativeCGPAProps) => {
+export const TentativeCGPA = ({ 
+  cgpa, 
+  missingCount = 0, 
+  size = 'md', 
+  showBadge = true,
+  isPartialSem3 = false 
+}: TentativeCGPAProps) => {
   const sizeMap = {
-    sm: { num: 'text-2xl', label: 'text-[9px]', badge: 'text-[8px]', gap: 'gap-1' },
-    md: { num: 'text-3xl', label: 'text-[9px]', badge: 'text-[9px]', gap: 'gap-1.5' },
-    lg: { num: 'text-4xl', label: 'text-[10px]', badge: 'text-[9px]', gap: 'gap-2' },
+    sm: { num: 'text-xl sm:text-2xl', label: 'text-[9px]', badge: 'text-[8px]', gap: 'gap-0.5' },
+    md: { num: 'text-2xl sm:text-3xl', label: 'text-[10px]', badge: 'text-[9px]', gap: 'gap-0.5' },
+    lg: { num: 'text-2xl sm:text-3xl', label: 'text-[10px]', badge: 'text-[9px]', gap: 'gap-0.5' },
   };
   const s = sizeMap[size];
 
   return (
-    <div className={`flex flex-col items-center ${s.gap}`}>
-      {/* Tentative label */}
-      <span className={`${s.label} font-bold uppercase tracking-[0.14em] text-textMuted/50 flex items-center gap-1`}>
-        <AlertCircle size={9} className="opacity-60" />
-        Tentative
+    <div className={`flex flex-col items-center justify-center ${s.gap}`} title="Calculated from in-progress / partial course marks">
+      {/* Pencilled / Sketched CGPA Label with Asterisk */}
+      <span className={`${s.label} font-black text-gray-500 uppercase tracking-wider`}>
+        CGPA*
       </span>
 
-      {/* The ghosted number */}
-      <div className="relative group">
-        <span
-          className={`${s.num} font-black italic leading-none select-none tentative-cgpa-pulse`}
-          style={{
-            color: 'transparent',
-            WebkitTextStroke: '1.5px rgba(120,135,165,0.35)',
-            letterSpacing: '-0.03em',
-          }}
+      {/* Sketched / Pencilled Number */}
+      <div className="flex items-baseline gap-0.5">
+        <span 
+          className={`${s.num} font-bold font-mono tracking-tight text-gray-500 border-b-2 border-dashed border-gray-400`}
         >
           {cgpa}
         </span>
-        {/* Dotted underline */}
-        <div
-          className="absolute -bottom-1 left-0 right-0 h-[1.5px]"
-          style={{
-            backgroundImage: 'repeating-linear-gradient(90deg, rgba(120,135,165,0.25) 0, rgba(120,135,165,0.25) 3px, transparent 3px, transparent 7px)',
-          }}
-        />
+        <span className="text-yellow-600 font-black text-sm sm:text-base leading-none select-none">*</span>
       </div>
 
-      {/* Missing subjects badge */}
+      {/* Subtle In-Progress / Pending Note */}
       {showBadge && (
-        <span className={`${s.badge} text-textMuted/40 font-medium italic mt-0.5`}>
-          {missingCount} result{missingCount !== 1 ? 's' : ''} pending
+        <span className={`${s.badge} text-gray-500 font-bold tracking-tight text-center mt-0.5 leading-tight`}>
+          {isPartialSem3 
+            ? '*Includes partial Sem 3' 
+            : missingCount > 0 
+            ? `*${missingCount} subject${missingCount !== 1 ? 's' : ''} pending` 
+            : '*In-progress'}
         </span>
       )}
     </div>
   );
 };
+

@@ -166,18 +166,34 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
     return { gpa: cr > 0 && !missing ? (qp / cr).toFixed(2) : '—', qp, cr, missing };
   };
 
+  const countValidMarks = (subs: typeof SUBJECTS_META) => {
+    return subs.filter(s => {
+      const raw = isEditing ? editedMarks[s.id] : student[s.id];
+      return raw !== undefined && raw !== null && raw !== '' && !isNaN(Number(raw));
+    }).length;
+  };
+
+  const s1Count = countValidMarks(sem1Subs);
+  const s2Count = countValidMarks(sem2Subs);
+  const s3Count = countValidMarks(sem3Subs);
+
   const s1Stats = calcSemStats(sem1Subs);
   const s2Stats = calcSemStats(sem2Subs);
   const s3Stats = calcSemStats(sem3Subs);
-  const hasMissing = s1Stats.missing || s2Stats.missing;
-  const allQP = s1Stats.qp + s2Stats.qp;
-  const allCr = s1Stats.cr + s2Stats.cr;
-  const cgpa = allCr > 0 && !hasMissing ? (allQP / allCr).toFixed(3) : '—';
-  const tentativeCgpa = allCr > 0 ? (allQP / allCr).toFixed(3) : '0.000';
-  const missingCount = SUBJECTS_META.filter(s => {
-    const raw = isEditing ? editedMarks[s.id] : student[s.id];
-    return raw === undefined || raw === null || raw === '' || isNaN(Number(raw));
-  }).length;
+
+  // Total credits and QP across all entered courses (Sem 1, Sem 2, Sem 3)
+  const totalEnteredQP = s1Stats.qp + s2Stats.qp + s3Stats.qp;
+  const totalEnteredCr = s1Stats.cr + s2Stats.cr + s3Stats.cr;
+  const currentCalculatedCgpa = totalEnteredCr > 0 ? (totalEnteredQP / totalEnteredCr).toFixed(3) : '—';
+
+  // Concrete condition:
+  // 1. Both Sem 1 (6) & Sem 2 (6) are full, and Sem 3 has 0 entries (solid historical 1st year complete)
+  // OR
+  // 2. All 3 Semesters are completely filled (6 + 6 + 6 = 18 courses)
+  const isConcrete = (s1Count === 6 && s2Count === 6 && s3Count === 0) || (s1Count === 6 && s2Count === 6 && s3Count === 6);
+  const isPartialSem3 = s1Count === 6 && s2Count === 6 && s3Count > 0 && s3Count < 6;
+  const missingCount = (s1Count < 6 ? 6 - s1Count : 0) + (s2Count < 6 ? 6 - s2Count : 0);
+
 
   const handlePrefill = () => {
     if (!onPrefill) return;
@@ -287,18 +303,24 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            {/* CGPA Badge */}
-            {hasMissing ? (
-              <div className="flex flex-col items-center px-4 py-2.5 border-2 rounded-xl bg-surfaceHighlight border-black shadow-[2px_2px_0px_0px_#000]">
-                <TentativeCGPA cgpa={tentativeCgpa} missingCount={missingCount} size="lg" />
-              </div>
-            ) : (
+            {/* CGPA Badge: Concrete vs Pencilled-in */}
+            {isConcrete ? (
               <div className="flex flex-col items-center px-4 py-2.5 border-2 rounded-xl bg-yellow-400 border-black shadow-[2px_2px_0px_0px_#000]">
                 <span className="text-[10px] font-black text-black uppercase tracking-wider">CGPA</span>
-                <span className="text-2xl sm:text-3xl font-black text-black">{cgpa}</span>
+                <span className="text-2xl sm:text-3xl font-black text-black">{currentCalculatedCgpa}</span>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center px-4 py-2 border-2 border-dashed border-gray-400 rounded-xl bg-gray-50/90 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
+                <TentativeCGPA 
+                  cgpa={currentCalculatedCgpa} 
+                  missingCount={missingCount} 
+                  isPartialSem3={isPartialSem3}
+                  size="lg" 
+                />
               </div>
             )}
           </div>
+
         </div>
 
         {/* ── 3 PRIMARY ACTION BUTTONS ── */}
