@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, ChevronDown, ChevronUp, FileText, Filter, ArrowLeft, AlertTriangle, Pencil, X } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, FileText, Filter, ArrowLeft, AlertTriangle, Pencil, X, Lock } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 
@@ -44,7 +44,9 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hiddenSeatNos, setHiddenSeatNos] = useState<Set<string>>(new Set());
+  const [showAdminPrivateRecords, setShowAdminPrivateRecords] = useState(false);
   const [error, setError] = useState('');
+
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState(ALL_SUBJECTS);
@@ -179,28 +181,38 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   const sortedAndFilteredData = useMemo(() => {
     let filtered = [...data];
 
-    // Filter out students who opted out of public visibility
-    // (unless the viewer is that student or is admin)
     const isAdmin = !!profile?.is_admin;
     const mySeatNo = String(profile?.seat_no || '').toUpperCase();
-    
+    const isMyProfileHidden = profile?.show_results_publicly === false;
+    const hasSearch = searchQuery.trim() !== '';
+
+    // Enforce Public Privacy Filtering
     filtered = filtered.filter(item => {
       const seatNo = String(item['Seat No'] || '').toUpperCase();
-      const isHidden = (seatNo && hiddenSeatNos.has(seatNo)) || !!item.is_hidden || (seatNo === mySeatNo && profile?.show_results_publicly === false);
+      const isThisHidden = (seatNo && hiddenSeatNos.has(seatNo)) || !!item.is_hidden || (seatNo === mySeatNo && isMyProfileHidden);
       
-      if (isAdmin) return true;
-      if (mySeatNo && seatNo === mySeatNo) return true;
-      return !isHidden;
+      // If student is not hidden, show normally
+      if (!isThisHidden) return true;
+
+      // If admin explicitly requested to view private records:
+      if (isAdmin && showAdminPrivateRecords) return true;
+
+      // If student themselves is searching for their own record while logged in:
+      if (hasSearch && mySeatNo && seatNo === mySeatNo) return true;
+
+      // By default, private records are 100% hidden from the public directory!
+      return false;
     });
 
     // Filter by Search Query
-    if (searchQuery.trim() !== '') {
+    if (hasSearch) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(item => 
         (item['Seat No'] && String(item['Seat No']).toLowerCase().includes(q)) || 
         (item['Name'] && String(item['Name']).toLowerCase().includes(q))
       );
     }
+
 
 
     // Sort Data
@@ -363,22 +375,40 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
             Back to Calculator
           </button>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500 tracking-tight flex items-center gap-3 mb-2 pb-1">
-            <div className="bg-gradient-to-br from-brand-500/20 to-accent-500/20 p-2 rounded-xl border border-brand-500/30 shadow-[0_0_15px_rgba(var(--color-brand-500),0.1)]">
-              <FileText className="text-brand-500 w-6 h-6 sm:w-8 sm:h-8" />
-            </div>
-            <span>Official Results Portal</span>
-            <button 
-              onClick={() => setShowDisclaimer(true)}
-              className="text-textMuted/40 hover:text-brand-500 transition-all p-1.5 rounded-xl hover:bg-brand-500/10 cursor-pointer flex items-center justify-center border border-transparent hover:border-brand-500/20 shadow-sm"
-              title="Show disclaimer regarding results data"
-            >
-              <AlertTriangle size={18} />
-            </button>
-          </h2>
-          <p className="text-textMuted font-medium max-w-xl text-sm sm:text-base">
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-accent-500 tracking-tight flex items-center gap-3 pb-1">
+              <div className="bg-gradient-to-br from-brand-500/20 to-accent-500/20 p-2 rounded-xl border border-brand-500/30 shadow-[0_0_15px_rgba(var(--color-brand-500),0.1)]">
+                <FileText className="text-brand-500 w-6 h-6 sm:w-8 sm:h-8" />
+              </div>
+              <span>Official Results Portal</span>
+              <button 
+                onClick={() => setShowDisclaimer(true)}
+                className="text-textMuted/40 hover:text-brand-500 transition-all p-1.5 rounded-xl hover:bg-brand-500/10 cursor-pointer flex items-center justify-center border border-transparent hover:border-brand-500/20 shadow-sm"
+                title="Show disclaimer regarding results data"
+              >
+                <AlertTriangle size={18} />
+              </button>
+            </h2>
+
+            {profile?.is_admin && (
+              <button
+                onClick={() => setShowAdminPrivateRecords(!showAdminPrivateRecords)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black border-2 transition-all shadow-[2px_2px_0px_0px_#000] active:scale-95 ${
+                  showAdminPrivateRecords 
+                    ? 'bg-red-500 text-white border-black' 
+                    : 'bg-white hover:bg-yellow-100 text-black border-black'
+                }`}
+                title="Admin mode: toggle to preview hidden private records"
+              >
+                <Lock size={12} />
+                <span>{showAdminPrivateRecords ? 'Admin: Showing Private Records' : 'Public View (Private Hidden)'}</span>
+              </button>
+            )}
+          </div>
+          <p className="text-textMuted font-medium max-w-xl text-sm sm:text-base mt-1">
             Browse and filter academic results
           </p>
+
           {error && <p className="text-red-500 text-sm mt-2 font-medium">{error}</p>}
         </div>
       </div>
@@ -557,9 +587,15 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                         <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[210px] max-w-[210px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border/50">
                           <div className="flex items-center justify-between gap-1 w-full h-full">
                             <div className="flex flex-col min-w-0 flex-1">
-                              <span className="truncate leading-tight font-bold group-hover:text-yellow-600 transition-colors" title={student['Name']}>
-                                {isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}
+                              <span className="truncate leading-tight font-bold group-hover:text-yellow-600 transition-colors flex items-center gap-1.5" title={student['Name']}>
+                                <span>{isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}</span>
+                                {student.is_hidden && (
+                                  <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-red-100 text-red-800 border border-red-400 shrink-0">
+                                    🔒 Private
+                                  </span>
+                                )}
                               </span>
+
                               <span className="sm:hidden font-mono text-[9px] text-textMuted mt-0.5 leading-tight">
                                 {student['Seat No']}
                               </span>

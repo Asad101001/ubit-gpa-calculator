@@ -9,6 +9,7 @@ export default async function handler(req: Request) {
 
   const supabaseUrl = (globalThis as any).process?.env?.VITE_SUPABASE_URL ?? '';
   const supabaseKey = (globalThis as any).process?.env?.VITE_SUPABASE_ANON_KEY ?? '';
+  const serviceKey = (globalThis as any).process?.env?.SUPABASE_SERVICE_ROLE_KEY ?? (globalThis as any).process?.env?.VITE_SUPABASE_SERVICE_ROLE_KEY ?? supabaseKey;
 
   try {
     const [resultsRes, profilesRes] = await Promise.all([
@@ -20,11 +21,12 @@ export default async function handler(req: Request) {
       }),
       fetch(`${supabaseUrl}/rest/v1/profiles?select=seat_no,show_results_publicly&show_results_publicly=eq.false`, {
         headers: {
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`,
+          'apikey': serviceKey,
+          'Authorization': `Bearer ${serviceKey}`,
         },
       }).catch(() => null),
     ]);
+
 
     if (!resultsRes.ok) {
       throw new Error('Failed to fetch results from database');
