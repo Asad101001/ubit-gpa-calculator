@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { 
   Calculator, Table, User, Target, 
-  BookOpen, Award, ArrowRight, ShieldCheck, Sparkles, CheckCircle2,
-  GraduationCap, FileText, ChevronRight
+  BookOpen, ArrowRight, ShieldCheck, Sparkles, CheckCircle2,
+  ChevronRight
 } from 'lucide-react';
 
 import type { ViewType } from '../App';
@@ -56,24 +56,22 @@ export const HomePage = ({ navigateTo }: HomePageProps) => {
             <div className="text-left max-w-3xl">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-yellow-400 text-black border-2 border-black font-black text-[10px] sm:text-xs tracking-wider uppercase mb-2 shadow-[1.5px_1.5px_0px_0px_#000]">
                 <BookOpen size={11} strokeWidth={2.5} />
-                Umaer Basha Institute of Information Technology
+                Department of Computer Science · University of Karachi
               </span>
-              <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
-                Academic Results & GPA Hub
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-none mb-2">
+                UBIT Academic Portal
               </h1>
-              <p className="text-xs sm:text-sm md:text-base text-gray-200 font-bold mt-1.5 leading-relaxed">
-                Official results portal, real-time GPA/CGPA simulator, target path advisor, and departmental analytics for Department of Computer Science (DCS), University of Karachi.
+              <p className="text-gray-300 text-xs sm:text-sm font-medium max-w-2xl mb-4 leading-relaxed line-clamp-2 sm:line-clamp-none">
+                The centralized academic result platform and GPA calculator for BSCS Batch 2024–28. Instant GPA calculations, official single-page transcripts, target simulators, and batch ranking.
               </p>
 
-              {/* Action Buttons in Hero */}
-              <div className="flex flex-wrap items-center gap-3 mt-4 sm:mt-6">
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
                 <button
                   onClick={() => navigateTo('calculator')}
                   className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-yellow-400 hover:bg-yellow-300 text-black rounded-xl border-2 border-black font-black text-xs sm:text-sm shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
                 >
                   <Calculator size={16} strokeWidth={2.5} />
                   <span>Launch GPA Calculator</span>
-                  <ArrowRight size={14} />
                 </button>
 
                 <button
@@ -89,36 +87,7 @@ export const HomePage = ({ navigateTo }: HomePageProps) => {
         </div>
       </motion.section>
 
-      {/* ── 2. QUICK STATS BANNER ── */}
-      <motion.section variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        {[
-          { label: 'Batch Enrollment', value: '75 Students', sub: 'BSCS Morning 2024–28', icon: GraduationCap, color: 'bg-yellow-400 text-black' },
-          { label: 'Active Curricula', value: '18 Courses', sub: 'Sem 1, Sem 2 & Sem 3', icon: BookOpen, color: 'bg-black text-yellow-400' },
-          { label: 'Grading Ceiling', value: '4.00 Max GP', sub: '85+ A+ Grade Benchmark', icon: Award, color: 'bg-yellow-400 text-black' },
-          { label: 'Transcripts', value: '1-Page PDF', sub: 'Instant Export & Print', icon: FileText, color: 'bg-black text-yellow-400' },
-        ].map((stat, idx) => {
-          const IconComp = stat.icon;
-          return (
-            <div
-              key={idx}
-              className="p-3.5 sm:p-4 rounded-2xl bg-surface border-2 border-black shadow-[3px_3px_0px_0px_#000] flex flex-col justify-between"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-textMuted">{stat.label}</span>
-                <div className={`p-1.5 rounded-lg border-2 border-black ${stat.color}`}>
-                  <IconComp size={14} strokeWidth={2.5} />
-                </div>
-              </div>
-              <div>
-                <p className="text-base sm:text-xl font-black font-mono text-textMain tracking-tight">{stat.value}</p>
-                <p className="text-[10px] font-bold text-textMuted mt-0.5">{stat.sub}</p>
-              </div>
-            </div>
-          );
-        })}
-      </motion.section>
-
-      {/* ── 3. BRIEF ABOUT UBIT & THE PLATFORM ── */}
+      {/* ── 2. BRIEF ABOUT UBIT & THE PLATFORM ── */}
       <motion.section variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: About Department */}
         <div className="lg:col-span-2 p-5 sm:p-7 rounded-2xl sm:rounded-3xl bg-surface border-2 border-black shadow-[5px_5px_0px_0px_#000] space-y-4">
