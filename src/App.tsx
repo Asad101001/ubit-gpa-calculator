@@ -201,7 +201,7 @@ function App() {
     return { gpa: totalCredits > 0 ? totalQP / totalCredits : 0, totalQP, totalCredits, highest, lowest };
   };
 
-  const { gpa1, gpa2, gpa3, cgpa, bestCourse, worstCourse, radarData } = useMemo(() => {
+  const { gpa1, gpa2, gpa3, cgpa, bestCourse, worstCourse } = useMemo(() => {
     const s1Calc = calculateGPA(SEM1_COURSES, sem1Grades);
     const s2Calc = calculateGPA(SEM2_COURSES, sem2Grades);
     const s3Calc = calculateGPA(SEM3_COURSES, sem3Grades);
@@ -218,26 +218,6 @@ function App() {
     allCourses.sort((a, b) => b.gp - a.gp);
     const best = allCourses.length > 0 ? allCourses[0] : { name: "N/A", gp: 0 };
     const worst = allCourses.length > 0 ? allCourses[allCourses.length - 1] : { name: "N/A", gp: 0 };
-
-    const typeGroups: Record<string, { total: number, count: number }> = {};
-    allCourses.forEach(c => {
-      if (!typeGroups[c.type]) typeGroups[c.type] = { total: 0, count: 0 };
-      typeGroups[c.type].total += c.gp;
-      typeGroups[c.type].count += 1;
-    });
-
-    const rData = Object.keys(typeGroups).length > 0 
-      ? Object.keys(typeGroups).map(type => ({
-          subject: type,
-          A: Number((typeGroups[type].total / typeGroups[type].count).toFixed(2)),
-          fullMark: 4.0
-        }))
-      : [
-          { subject: 'Programming', A: 0, fullMark: 4.0 },
-          { subject: 'Math', A: 0, fullMark: 4.0 },
-          { subject: 'Soft Skills', A: 0, fullMark: 4.0 }
-        ];
-
     return {
       gpa1: s1Calc.gpa.toFixed(2),
       gpa2: s2Calc.gpa.toFixed(2),
@@ -245,9 +225,10 @@ function App() {
       cgpa: cgpaCalc.toFixed(3),
       bestCourse: best,
       worstCourse: worst,
-      radarData: rData
     };
   }, [sem1Grades, sem2Grades, sem3Grades]);
+
+
 
   const chartData = useMemo(() => {
     return [
@@ -490,9 +471,10 @@ function App() {
                       <Analytics
                         gpa1={gpa1} gpa2={gpa2} gpa3={gpa3} cgpa={cgpa}
                         bestCourse={bestCourse} worstCourse={worstCourse}
-                        radarData={radarData} chartData={chartData}
+                        chartData={chartData}
                         sem1Grades={sem1Grades} sem2Grades={sem2Grades} sem3Grades={sem3Grades}
                       />
+
 
                       <Leaderboard
                         leaderboardData={leaderboardData}
