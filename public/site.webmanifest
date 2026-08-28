@@ -1,7 +1,7 @@
 {
-  "name": "UBIT GPA Calculator & Results Portal",
-  "short_name": "UBIT GPA",
-  "description": "Calculate GPA/CGPA, simulate targets, and view results for Department of Computer Science, University of Karachi.",
+  "name": "UBIT Results & GPA Hub | BSCS 2024-28",
+  "short_name": "UBIT Results",
+  "description": "Academic results portal, GPA/CGPA calculator, and leaderboard for BSCS Batch 2024-28 at UBIT, University of Karachi.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#09090b",

@@ -199,7 +199,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
           {/* Bottom Line & Scroll to Top */}
           <div className="pt-8 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-textMuted">
             <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
-              <span>© {new Date().getFullYear()} UBIT GPA Calculator. All rights reserved.</span>
+              <span>© {new Date().getFullYear()} UBIT Results & GPA Hub · <a href="https://ubit-results-28.vercel.app" className="hover:text-textMain transition-colors" target="_blank" rel="noopener">ubit-results-28.vercel.app</a></span>
               <span className="hidden sm:inline text-border">•</span>
               <button onClick={() => navigateTo?.('terms')} className="hover:text-textMain transition-colors">
                 Terms of Use

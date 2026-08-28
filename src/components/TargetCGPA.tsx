@@ -52,7 +52,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
       try {
         let resultsData: Record<string, unknown>[] | null = null;
         try {
-          const res = await fetch('https://ubit-gpa-calculator-api.vercel.app/api/results');
+          const res = await fetch('https://ubit-results-28-api.vercel.app/api/results');
           if (res.ok) resultsData = await res.json();
         } catch {
           // ignore network error
