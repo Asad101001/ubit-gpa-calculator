@@ -16,7 +16,6 @@ import { Analytics } from './components/Analytics';
 import { TargetCGPA } from './components/TargetCGPA';
 import { Leaderboard, SubmitModal } from './components/Leaderboard';
 import { BoycottModal } from './components/BoycottModal';
-import { SplashScreen } from './components/SplashScreen';
 import { HomePage } from './components/HomePage';
 import { ResultsPortal } from './components/ResultsPortal';
 import { AuthModal } from './components/AuthModal';
@@ -35,17 +34,9 @@ export type ViewType = 'home' | 'calculator' | 'results' | 'profile' | 'terms' |
 
 function App() {
   const { user, profile, initialize: initAuth } = useAuthStore();
-
-  const [appLoaded, setAppLoaded] = useState(() => {
-    const lastSplash = localStorage.getItem('lastSplashTime');
-    const now = Date.now();
-    if (lastSplash && (now - parseInt(lastSplash) < 10 * 60 * 1000)) {
-      return true;
-    }
-    return false;
-  });
   
   const [currentView, setCurrentView] = useState<ViewType>(() => {
+
     const hash = window.location.hash;
     if (hash === '#calculator') return 'calculator';
     if (hash === '#results') return 'results';
@@ -324,13 +315,6 @@ function App() {
 
   return (
     <>
-      <AnimatePresence>
-        {!appLoaded && <SplashScreen onComplete={() => {
-          localStorage.setItem('lastSplashTime', Date.now().toString());
-          setAppLoaded(true);
-        }} />}
-      </AnimatePresence>
-
       <Toaster
         position="top-center"
         gutter={10}
@@ -389,10 +373,10 @@ function App() {
         }}
       />
 
-
       <AuthModal />
 
-      <div className={`min-h-screen relative selection:bg-yellow-400/30 font-sans ${!appLoaded ? 'hidden' : ''}`}>
+      <div className="min-h-screen relative selection:bg-yellow-400/30 font-sans">
+
         <Header currentView={currentView} navigateTo={navigateTo} activeSection={activeSection} />
         <BoycottModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         <SubmitModal
