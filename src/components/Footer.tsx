@@ -29,13 +29,14 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
                   <img src="/images/ubit_logo.jpg" alt="UBIT Logo" className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-textMain tracking-tight">UBIT GPA Portal</h3>
+                  <h3 className="font-bold text-sm text-textMain tracking-tight">UBIT Academic Portal</h3>
                   <p className="text-[11px] text-textMuted font-medium">University of Karachi</p>
                 </div>
               </div>
               <p className="text-xs text-textMuted leading-relaxed">
-                Umaer Basha Institute of Information Technology · University of Karachi. Automated GPA/CGPA calculations, target path advisory, and academic analytics.
+                Umaer Basha Institute of Information Technology · University of Karachi. Department results, official 1-page transcripts, GPA & target simulations, and academic analytics.
               </p>
+
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surfaceHighlight border border-border text-[10px] font-bold text-emerald-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 Batch '28 · BSCS

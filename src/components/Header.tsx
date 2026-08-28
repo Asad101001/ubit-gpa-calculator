@@ -31,7 +31,7 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
     { id: 'home', label: 'Home', view: 'home' as const, icon: Home },
     { id: 'calculator', label: 'Calculator', view: 'calculator' as const, icon: Calculator },
     { id: 'results', label: 'Results', view: 'results' as const, icon: Table },
-    { id: 'profile', label: 'Profile', view: 'profile' as const, icon: User },
+    ...(user && profile ? [{ id: 'profile', label: 'Profile', view: 'profile' as const, icon: User }] : []),
   ];
 
   const isActive = (item: typeof navItems[0]) => {
@@ -40,12 +40,9 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
 
   const handleNav = (item: typeof navItems[0]) => {
     setIsMobileMenuOpen(false);
-    if (item.view === 'profile' && !user) {
-      openAuthModal('signin');
-      return;
-    }
     navigateTo(item.view);
   };
+
 
 
   return (

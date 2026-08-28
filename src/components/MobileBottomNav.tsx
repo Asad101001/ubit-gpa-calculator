@@ -14,7 +14,8 @@ export const MobileBottomNav = ({
   navigateTo,
   onGeneratePdf
 }: MobileBottomNavProps) => {
-  const { user, profile, openAuthModal } = useAuthStore();
+  const { user, profile } = useAuthStore();
+
 
   const isHomeActive = currentView === 'home';
   const isCalcActive = currentView === 'calculator';
@@ -83,28 +84,25 @@ export const MobileBottomNav = ({
           </span>
         </button>
 
-        {/* 4. PROFILE */}
-        <button
-          onClick={() => {
-            if (user && profile) {
-              navigateTo('profile');
-            } else {
-              openAuthModal('signin');
-            }
-          }}
-          className={`flex flex-col items-center justify-center flex-1 h-full px-1 transition-all ${
-            isProfileActive 
-              ? 'text-black font-black scale-105' 
-              : 'text-black/75 hover:text-black font-bold'
-          }`}
-        >
-          <div className={`p-1 rounded-md transition-colors ${isProfileActive ? 'bg-black text-yellow-400 shadow-[1px_1px_0px_0px_#000]' : ''}`}>
-            <User size={18} strokeWidth={2.5} />
-          </div>
-          <span className="text-[9.5px] uppercase tracking-tighter mt-0.5 leading-none">
-            {user ? 'Profile' : 'Sign In'}
-          </span>
-        </button>
+        {/* 4. PROFILE (Only when signed in) */}
+        {user && profile && (
+          <button
+            onClick={() => navigateTo('profile')}
+            className={`flex flex-col items-center justify-center flex-1 h-full px-1 transition-all ${
+              isProfileActive 
+                ? 'text-black font-black scale-105' 
+                : 'text-black/75 hover:text-black font-bold'
+            }`}
+          >
+            <div className={`p-1 rounded-md transition-colors ${isProfileActive ? 'bg-black text-yellow-400 shadow-[1px_1px_0px_0px_#000]' : ''}`}>
+              <User size={18} strokeWidth={2.5} />
+            </div>
+            <span className="text-[9.5px] uppercase tracking-tighter mt-0.5 leading-none">
+              Profile
+            </span>
+          </button>
+        )}
+
 
         {/* 5. PDF (Red brutalist button on right) */}
         <button

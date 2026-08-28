@@ -2,8 +2,9 @@ import { motion } from 'framer-motion';
 import { 
   Calculator, Table, User, Target, 
   BookOpen, Award, ArrowRight, ShieldCheck, Sparkles, CheckCircle2,
-  GraduationCap, FileText, Zap, ChevronRight
+  GraduationCap, FileText, ChevronRight
 } from 'lucide-react';
+
 import type { ViewType } from '../App';
 import { useAuthStore } from '../store/useAuthStore';
 
@@ -50,19 +51,8 @@ export const HomePage = ({ navigateTo }: HomePageProps) => {
             loading="eager"
           />
 
-          {/* Floating Badges */}
-          <div className="absolute top-3 right-3 hidden sm:flex items-center gap-2">
-            <div className="px-3 py-1.5 bg-yellow-400 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5 text-xs font-black text-black">
-              <Zap size={13} className="text-black" />
-              <span>BSCS Batch 2024–28</span>
-            </div>
-            <div className="px-3 py-1.5 bg-white/95 backdrop-blur-md rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5 text-xs font-black text-black">
-              <Award size={13} className="text-yellow-500" />
-              <span>4.00 A+ Scale</span>
-            </div>
-          </div>
-
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent flex items-end p-5 sm:p-8">
+
             <div className="text-left max-w-3xl">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-yellow-400 text-black border-2 border-black font-black text-[10px] sm:text-xs tracking-wider uppercase mb-2 shadow-[1.5px_1.5px_0px_0px_#000]">
                 <BookOpen size={11} strokeWidth={2.5} />

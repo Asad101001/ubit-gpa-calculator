@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Calculator, CheckCircle, XCircle, AlertTriangle, Send, Loader2, Lock } from 'lucide-react';
+import { Download, Calculator, CheckCircle, XCircle, AlertTriangle, Send, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { getGradePoint, getLetterGrade as getLetterGradeUtil, getMarkColor } from '../lib/utils';
 import { generateTranscriptPDF } from '../lib/transcriptGenerator';
 import { SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 import { TentativeCGPA } from './TentativeCGPA';
-import { useAuthStore } from '../store/useAuthStore';
 import { triggerConfetti } from '../lib/confetti';
 
 
@@ -29,7 +28,6 @@ interface Props {
 }
 
 export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }: Props) => {
-  const { user, profile } = useAuthStore();
   const [isReportModalOpen, setIsReportModalOpen] = useState(autoOpenReport);
   const [reportMessage, setReportMessage] = useState('');
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
@@ -39,9 +37,6 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
   const sem2Subs = SUBJECTS_META.filter(s => s.sem === 2);
   const sem3Subs = SEM3_META;
 
-  // Auth: only the matching signed-in student can prefill (edit their own marks)
-  const isOwnRecord = !!user && !!profile?.seat_no && profile.seat_no === String(student['Seat No']);
-  const isAdmin = profile?.is_admin ?? false;
 
   const handleReportSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,24 +199,18 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-5 border-t border-border/50">
-          {/* Load into calculator — only for own record or admin */}
-          {onPrefill && (isOwnRecord || isAdmin) ? (
+          {/* Load into calculator — available for all */}
+          {onPrefill && (
             <button
               onClick={handlePrefill}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-black text-yellow-400 border-2 border-black font-bold text-sm rounded-lg transition-all active:scale-95 shadow-[3px_3px_0px_0px_#E6B400] hover:shadow-[1px_1px_0px_0px_#E6B400] hover:translate-x-0.5 hover:translate-y-0.5"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-yellow-400 hover:bg-yellow-300 text-black border-2 border-black font-black text-sm rounded-lg transition-all active:scale-95 shadow-[3px_3px_0px_0px_#000] hover:shadow-[1px_1px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5"
+              title="Load this student's marks into the GPA calculator & simulator"
             >
-              <Calculator size={16} />
+              <Calculator size={16} strokeWidth={2.5} />
               Load into Calculator
             </button>
-          ) : onPrefill ? (
-            <div
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-gray-200 text-gray-400 font-bold text-sm rounded-lg cursor-not-allowed"
-              title="Sign in as this student to edit marks"
-            >
-              <Lock size={14} />
-              Sign in to Edit
-            </div>
-          ) : null}
+          )}
+
 
           {/* PDF Transcript — always available */}
           <button

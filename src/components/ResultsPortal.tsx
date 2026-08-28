@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, ChevronDown, ChevronUp, FileText, Filter, ArrowLeft, AlertTriangle, Pencil } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, FileText, Filter, ArrowLeft, AlertTriangle, Pencil, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { toast } from 'react-hot-toast';
+
 
 import { StudentResultCard, getMarkColor } from './StudentResultCard';
 import { useAuthStore } from '../store/useAuthStore';
@@ -50,6 +50,8 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   const [selectedSubject, setSelectedSubject] = useState(ALL_SUBJECTS);
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>({ key: 'Seat No', direction: 'asc' });
   const [isScrolled, setIsScrolled] = useState(false);
+  const [selectedStudentModal, setSelectedStudentModal] = useState<any | null>(null);
+
 
   const [showDisclaimer, setShowDisclaimer] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -147,29 +149,9 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   }, []);
 
   const handleEditClick = (student: any) => {
-    const isOwner = !!profile?.seat_no && profile.seat_no === String(student['Seat No']);
-    const isAdmin = !!profile?.is_admin;
-
-    if ((isOwner || isAdmin) && onPrefill) {
-      const s1: Record<string, number | ''> = {};
-      const s2: Record<string, number | ''> = {};
-      const s3: Record<string, number | ''> = {};
-
-      SUBJECTS_DATA.forEach(sub => {
-        const val = student[sub.id];
-        const num = val !== undefined && val !== null && !isNaN(Number(val)) ? Number(val) : '';
-        if (sub.semester === 1) s1[sub.code] = num;
-        else if (sub.semester === 2) s2[sub.code] = num;
-        else if (sub.semester === 3) s3[sub.code] = num;
-      });
-
-      onPrefill(s1, s2, s3);
-      toast.success(`Loaded ${student['Name']}'s marks into calculator!`, { icon: '✏️' });
-    } else {
-      setSearchQuery(student['Seat No']);
-      toast(`Showing full result card for ${student['Name']}`, { icon: '📄' });
-    }
+    setSelectedStudentModal(student);
   };
+
 
 
   const handleSort = (key: string) => {
@@ -296,6 +278,8 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
 
   // When searching, force effective selected subject to ALL_SUBJECTS to show all marks
   const effectiveSubject = searchQuery.trim() !== '' ? ALL_SUBJECTS : selectedSubject;
+
+
 
   return (
     <section id="results" className="pt-8 sm:pt-16 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
@@ -545,7 +529,9 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3 }}
                         key={student['Seat No']} 
-                        className="hover:bg-brand-500/5 transition-colors group"
+                        onClick={() => setSelectedStudentModal(student)}
+                        className="hover:bg-yellow-50/50 transition-colors group cursor-pointer"
+                        title="Click to view full student results & load into calculator"
                       >
                         <td className="hidden sm:table-cell p-2 sm:p-4 text-center text-textMuted font-medium text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start border-b border-border/50">
                           {index + 1}
@@ -556,7 +542,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                         <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[210px] max-w-[210px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border/50">
                           <div className="flex items-center justify-between gap-1 w-full h-full">
                             <div className="flex flex-col min-w-0 flex-1">
-                              <span className="truncate leading-tight font-bold" title={student['Name']}>
+                              <span className="truncate leading-tight font-bold group-hover:text-yellow-600 transition-colors" title={student['Name']}>
                                 {isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}
                               </span>
                               <span className="sm:hidden font-mono text-[9px] text-textMuted mt-0.5 leading-tight">
@@ -569,10 +555,10 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                                   e.stopPropagation();
                                   handleEditClick(student);
                                 }}
-                                title={`Edit or calculate marks for ${student['Name']}`}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-yellow-100 hover:bg-yellow-400 text-black border border-black/20 hover:border-black shrink-0 ml-1 shadow-sm active:scale-95"
+                                title={`Open and load marks for ${student['Name']}`}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-yellow-400 text-black border-2 border-black shrink-0 ml-1 shadow-[1px_1px_0px_0px_#000] active:scale-95"
                               >
-                                <Pencil size={11} />
+                                <Pencil size={11} strokeWidth={2.5} />
                               </button>
                             )}
                           </div>
@@ -625,6 +611,46 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
           </div>
         )}
       </div>
+
+      {/* ── STUDENT RESULT CARD MODAL WITH LOAD INTO CALCULATOR ── */}
+      <AnimatePresence>
+        {selectedStudentModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedStudentModal(null)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', duration: 0.4 }}
+              className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto my-auto"
+            >
+              <div className="relative">
+                <button
+                  onClick={() => setSelectedStudentModal(null)}
+                  className="absolute -top-3 -right-3 z-30 p-2 bg-yellow-400 hover:bg-yellow-300 text-black rounded-full border-2 border-black font-black text-xs shadow-[2px_2px_0px_0px_#000] active:scale-95"
+                  aria-label="Close student card"
+                >
+                  <X size={16} />
+                </button>
+                <StudentResultCard
+                  student={selectedStudentModal}
+                  onPrefill={(s1, s2, s3) => {
+                    setSelectedStudentModal(null);
+                    if (onPrefill) onPrefill(s1, s2, s3);
+                  }}
+                />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
+
