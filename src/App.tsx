@@ -234,26 +234,38 @@ function App() {
 
   const chartData = useMemo(() => {
     return [
-      ...SEM1_COURSES.filter(c => sem1Grades[c.code] !== '').map(c => ({
-        name: c.code,
-        fullname: c.name,
-        semester: 'Sem 1',
-        gpa: getGradePoint(sem1Grades[c.code] as number),
-      })),
-      ...SEM2_COURSES.filter(c => sem2Grades[c.code] !== '').map(c => ({
-        name: c.code,
-        fullname: c.name,
-        semester: 'Sem 2',
-        gpa: getGradePoint(sem2Grades[c.code] as number),
-      })),
-      ...SEM3_COURSES.filter(c => sem3Grades[c.code] !== '').map(c => ({
+      ...SEM1_COURSES.map(c => {
+        const val = sem1Grades[c.code];
+        const isFilled = typeof val === 'number' && !isNaN(val);
+        return {
+          name: c.code,
+          fullname: c.name,
+          semester: 'Sem 1',
+          gpa: isFilled ? getGradePoint(val) : 0,
+          isFilled,
+        };
+      }),
+      ...SEM2_COURSES.map(c => {
+        const val = sem2Grades[c.code];
+        const isFilled = typeof val === 'number' && !isNaN(val);
+        return {
+          name: c.code,
+          fullname: c.name,
+          semester: 'Sem 2',
+          gpa: isFilled ? getGradePoint(val) : 0,
+          isFilled,
+        };
+      }),
+      ...SEM3_COURSES.filter(c => sem3Grades && typeof sem3Grades[c.code] === 'number' && !isNaN(sem3Grades[c.code] as number)).map(c => ({
         name: c.code,
         fullname: c.name,
         semester: 'Sem 3',
         gpa: getGradePoint(sem3Grades[c.code] as number),
+        isFilled: true,
       }))
     ];
   }, [sem1Grades, sem2Grades, sem3Grades]);
+
 
 
   const handleLeaderboardSubmit = async (e: React.FormEvent) => {

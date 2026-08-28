@@ -116,37 +116,56 @@ export const Analytics = ({
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
           viewport={{ once: true }}
-          className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-8 md:p-10 border-2 border-black shadow-[4px_4px_0px_0px_#000] w-full min-h-[320px] sm:min-h-[400px] flex flex-col"
+          className="glass rounded-2xl sm:rounded-3xl p-5 sm:p-8 border-2 border-black shadow-[4px_4px_0px_0px_#000] w-full flex flex-col"
         >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div>
               <h3 className="text-base sm:text-lg font-black text-textMain tracking-tight">Course by Course GPA Comparison</h3>
               <p className="text-xs text-textMuted font-bold mt-0.5">Visual representation of grade points earned per subject</p>
             </div>
-            <div className="flex items-center gap-3 text-[11px] font-bold">
+            <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold">
               <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-yellow-400 border border-black" /> Semester 1</span>
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-yellow-600 border border-black" /> Semester 2</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-600 border border-black" /> Semester 2</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500 border border-black" /> Semester 3</span>
             </div>
           </div>
 
-          <div className="w-full flex-1 min-h-[240px] sm:min-h-[300px]">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
-                <XAxis dataKey="name" stroke="#000000" tick={{ fill: '#000000', fontSize: 11, fontWeight: 700 }} angle={-25} textAnchor="end" height={40} />
-                <YAxis domain={[0, 4]} ticks={[0, 1, 2, 3, 4]} stroke="#000000" tick={{ fill: '#000000', fontSize: 11, fontWeight: 700 }} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.05)' }} />
-                <ReferenceLine y={3.0} stroke="#000000" strokeDasharray="3 3" />
-                <Bar dataKey="gpa" radius={[4, 4, 0, 0]}>
-                  {chartData.map((entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={entry.semester === 'Sem 1' ? '#fbbf24' : '#d97706'} stroke="#000000" strokeWidth={1.5} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="w-full h-80 sm:h-96 min-h-[300px]">
+            {chartData && chartData.some((d: any) => d.gpa > 0 || d.isFilled) ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 15, right: 15, left: -20, bottom: 25 }}>
+                  <XAxis dataKey="name" stroke="#000000" tick={{ fill: '#000000', fontSize: 11, fontWeight: 700 }} angle={-25} textAnchor="end" height={45} />
+                  <YAxis domain={[0, 4]} ticks={[0, 1, 2, 3, 4]} stroke="#000000" tick={{ fill: '#000000', fontSize: 11, fontWeight: 700 }} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.05)' }} />
+                  <ReferenceLine y={3.0} stroke="#000000" strokeDasharray="3 3" />
+                  <Bar dataKey="gpa" radius={[4, 4, 0, 0]}>
+                    {chartData.map((entry: any, index: number) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.semester === 'Sem 1' ? '#facc15' : entry.semester === 'Sem 2' ? '#d97706' : '#10b981'} 
+                        stroke="#000000" 
+                        strokeWidth={1.5} 
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full w-full flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-black/20 rounded-2xl bg-yellow-50/50">
+                <div className="w-12 h-12 rounded-full bg-yellow-400 border-2 border-black flex items-center justify-center mb-3 shadow-[2px_2px_0px_0px_#000]">
+                  <BookOpen className="w-6 h-6 text-black" />
+                </div>
+                <h4 className="font-black text-black text-base">Enter Course Marks Above</h4>
+                <p className="text-xs text-gray-600 font-medium max-w-sm mt-1">
+                  Type in your marks in the calculator or load your seat number from the Results tab to generate your course-by-course GPA comparison.
+                </p>
+              </div>
+            )}
           </div>
         </motion.div>
       </section>
     </>
   );
+
 };
 
