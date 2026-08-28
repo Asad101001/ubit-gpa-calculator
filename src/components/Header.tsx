@@ -1,13 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, User, LogOut, Shield, ChevronDown, Menu, X, Calculator, Table } from 'lucide-react';
+import { Home, User, LogOut, Shield, ChevronDown, Calculator, Table } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import type { ViewType } from '../App';
 
 export const Header = ({ currentView, navigateTo }: { currentView: ViewType, navigateTo: (v: ViewType) => void, activeSection?: string }) => {
   const { user, profile, openAuthModal, signOut } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,7 +21,6 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
 
   const handleSignOut = async () => {
     setIsDropdownOpen(false);
-    setIsMobileMenuOpen(false);
     await signOut();
     navigateTo('home');
   };
@@ -39,11 +37,8 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
   };
 
   const handleNav = (item: typeof navItems[0]) => {
-    setIsMobileMenuOpen(false);
     navigateTo(item.view);
   };
-
-
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b-2 border-black">
@@ -51,10 +46,9 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
         {/* Logo & Branding */}
         <div className="flex items-center gap-2.5 sm:gap-4 flex-shrink-0">
           <button
-            onClick={() => { setIsMobileMenuOpen(false); navigateTo('home'); }}
+            onClick={() => navigateTo('home')}
             className="flex items-center gap-2 group text-left"
           >
-
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border-2 border-black shadow-[2px_2px_0px_0px_#000] flex-shrink-0 group-hover:translate-x-0.5 group-hover:translate-y-0.5 transition-transform">
               <img
                 src="/images/ubit_logo.jpg"
@@ -92,24 +86,21 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
               );
             })}
           </nav>
-
         </div>
 
         {/* Right side controls */}
         <div className="flex items-center gap-2 sm:gap-3">
-
-
           {/* Auth Controls */}
           {user && profile ? (
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-yellow-400 hover:bg-yellow-300 text-black rounded-lg font-bold text-xs border-2 border-black shadow-[2px_2px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-black rounded-lg font-bold text-xs border-2 border-black shadow-[2px_2px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
               >
                 <div className="w-5 h-5 bg-black text-yellow-400 rounded-full flex items-center justify-center text-[10px] font-black">
                   {profile.full_name.charAt(0)}
                 </div>
-                <span className="max-w-[70px] sm:max-w-[100px] truncate text-[11px] sm:text-xs">
+                <span className="max-w-[80px] sm:max-w-[120px] truncate text-[11px] sm:text-xs">
                   {profile.full_name.split(' ')[0]}
                 </span>
                 {profile.is_admin && <Shield size={11} className="text-black" />}
@@ -164,51 +155,9 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
               <span>Sign In</span>
             </button>
           )}
-
-          {/* Mobile Menu Toggle Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-1.5 bg-gray-100 hover:bg-gray-200 border-2 border-black rounded-lg text-black transition-colors"
-            aria-label="Toggle navigation menu"
-          >
-            {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
         </div>
       </div>
-
-      {/* Mobile Drawer Navigation */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden border-t-2 border-black bg-white px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.1)] overflow-hidden"
-          >
-            <div className="grid grid-cols-2 gap-2">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item);
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => handleNav(item)}
-                    className={`flex items-center gap-2 p-2.5 rounded-lg text-xs font-bold border-2 transition-all text-left ${
-                      active
-                        ? 'bg-yellow-400 text-black border-black shadow-[2px_2px_0px_0px_#000]'
-                        : 'bg-gray-50 text-gray-800 border-gray-200 hover:border-black'
-                    }`}
-                  >
-                    <Icon size={14} className={active ? 'text-black' : 'text-gray-500'} />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </header>
   );
 };
+

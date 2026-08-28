@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
 import { 
   Calculator, Table, User, Target, 
-  BookOpen, ArrowRight, ShieldCheck, Sparkles, CheckCircle2,
-  ChevronRight
+  BookOpen, ArrowRight
 } from 'lucide-react';
+
 
 import type { ViewType } from '../App';
 import { useAuthStore } from '../store/useAuthStore';
@@ -87,90 +87,9 @@ export const HomePage = ({ navigateTo }: HomePageProps) => {
         </div>
       </motion.section>
 
-      {/* ── 2. BRIEF ABOUT UBIT & THE PLATFORM ── */}
-      <motion.section variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: About Department */}
-        <div className="lg:col-span-2 p-5 sm:p-7 rounded-2xl sm:rounded-3xl bg-surface border-2 border-black shadow-[5px_5px_0px_0px_#000] space-y-4">
-          <div className="flex items-center gap-2.5 pb-2 border-b-2 border-black/10">
-            <div className="w-8 h-8 rounded-lg bg-yellow-400 border-2 border-black flex items-center justify-center font-black text-black">
-              <BookOpen size={16} />
-            </div>
-            <div>
-              <h2 className="text-lg sm:text-xl font-black text-textMain tracking-tight">
-                About UBIT & DCS
-              </h2>
-              <p className="text-[10px] sm:text-xs font-bold text-textMuted uppercase tracking-wider">
-                Department of Computer Science · University of Karachi
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-3 text-xs sm:text-sm text-textMain font-medium leading-relaxed">
-            <p>
-              The <strong>Umaer Basha Institute of Information Technology (UBIT)</strong> is the dedicated computing institute at the Department of Computer Science (DCS), University of Karachi. Established to pioneer computer science education and software engineering in Pakistan, it nurtures students across modern paradigms of AI, Systems, Web Technologies, and Computational Theory.
-            </p>
-            <p>
-              This portal serves the <strong>BSCS Batch 2024–2028</strong> with high-precision academic grade calculations, semester historical comparisons, single-page official transcripts, and automated target CGPA roadmap simulations.
-            </p>
-          </div>
-
-          {/* Key Platform Pillars */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            <div className="p-3 bg-yellow-50 rounded-xl border-2 border-black flex items-start gap-2.5">
-              <CheckCircle2 size={16} className="text-yellow-600 shrink-0 mt-0.5" />
-              <div>
-                <h4 className="text-xs font-black text-black">Authentic 4.0 A+ Scale</h4>
-                <p className="text-[11px] text-gray-700 mt-0.5">Strict adherence to UOK official grading policies with 85+ awarded as 4.0 (A+).</p>
-              </div>
-            </div>
-            <div className="p-3 bg-gray-50 rounded-xl border-2 border-black flex items-start gap-2.5">
-              <ShieldCheck size={16} className="text-black shrink-0 mt-0.5" />
-              <div>
-                <h4 className="text-xs font-black text-black">Verified & Secure</h4>
-                <p className="text-[11px] text-gray-700 mt-0.5">Authenticated student editing with live Supabase security & fallbacks.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right: Quick Launch Card */}
-        <div className="p-5 sm:p-7 rounded-2xl sm:rounded-3xl bg-yellow-400 border-2 border-black shadow-[5px_5px_0px_0px_#000] flex flex-col justify-between space-y-4">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-black text-yellow-400 rounded text-[10px] font-black uppercase tracking-wider mb-2">
-              <Sparkles size={11} />
-              Quick Launch
-            </div>
-            <h3 className="text-xl font-black text-black tracking-tight leading-tight">
-              Calculate Your CGPA & Targets
-            </h3>
-            <p className="text-xs text-black/85 font-bold mt-2 leading-relaxed">
-              Input marks for Semester 1, 2, and 3 to see live GPAs, visual grade radar charts, and achievable roadmaps.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <button
-              onClick={() => navigateTo('calculator')}
-              className="w-full py-3 bg-black hover:bg-gray-900 text-yellow-400 rounded-xl border-2 border-black font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-[2px_2px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
-            >
-              <Calculator size={16} />
-              <span>Go to Calculator</span>
-              <ChevronRight size={14} />
-            </button>
-
-            <button
-              onClick={() => navigateTo('results')}
-              className="w-full py-2.5 bg-white hover:bg-yellow-100 text-black rounded-xl border-2 border-black font-black text-xs flex items-center justify-center gap-2 active:translate-x-0.5 active:translate-y-0.5 transition-all"
-            >
-              <Table size={14} />
-              <span>View All 75 Students</span>
-            </button>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* ── 4. FOUR MAIN MODULE CARDS ── */}
+      {/* ── 2. FOUR MAIN MODULE CARDS ── */}
       <motion.section variants={itemVariants} className="space-y-3">
+
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse" />
           <h3 className="text-xs font-black font-mono uppercase tracking-wider text-textMuted">
