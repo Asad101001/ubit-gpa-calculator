@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, ReferenceLine, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, BookOpen, Award, GraduationCap, Trophy, Download } from 'lucide-react';
+import { TrendingUp, TrendingDown, BookOpen, Download } from 'lucide-react';
 import { generateTranscriptPDF } from '../lib/transcriptGenerator';
 import { AnimatedCounter } from './AnimatedCounter';
 
@@ -38,7 +38,6 @@ export const MetricCard = ({ title, value, subtitle, icon: Icon, highlight = fal
 );
 
 export const Analytics = ({
-  gpa1, gpa2, gpa3, cgpa,
   bestCourse, worstCourse, chartData,
   sem1Grades, sem2Grades, sem3Grades,
 }: any) => {
@@ -58,62 +57,54 @@ export const Analytics = ({
 
   return (
     <>
-      <div id="analytics" className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-6 relative z-10 mt-8 mb-12">
-        <MetricCard title="Semester 1 GPA" value={gpa1} icon={GraduationCap} />
-        <MetricCard title="Semester 2 GPA" value={gpa2} icon={BookOpen} />
-        <MetricCard title="Semester 3 GPA" value={gpa3 ?? '—'} icon={Award} />
-        <MetricCard title="Cumulative CGPA" value={cgpa} icon={Trophy} highlight />
-      </div>
-
-      <div className="flex justify-center -mt-8 mb-12 relative z-10">
-        <button
-          onClick={() => {
-            const hasMissingMarks = Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === '');
-            if (hasMissingMarks) {
-              alert("Cannot generate transcript: Marks are missing for one or more subjects.");
-              return;
-            }
-            const studentObj: Record<string, any> = {
-              'Name': localStorage.getItem('submitName') || 'Guest Student',
-              'Seat No': 'Calculator Preview'
-            };
-            const mapCodeToId = (code: string) => code.toLowerCase().replace('-', '');
-            Object.entries(sem1Grades).forEach(([code, mark]) => {
-              if (mark !== '') studentObj[mapCodeToId(code)] = mark;
-            });
-            Object.entries(sem2Grades).forEach(([code, mark]) => {
-              if (mark !== '') studentObj[mapCodeToId(code)] = mark;
-            });
-            if (sem3Grades) Object.entries(sem3Grades).forEach(([code, mark]) => {
-              if (mark !== '') studentObj[mapCodeToId(code)] = mark;
-            });
-            generateTranscriptPDF(studentObj);
-          }}
-          className={`flex items-center gap-2 px-6 py-4 font-bold text-sm rounded-2xl transition-all shadow-lg active:scale-95 group ${
-            (Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === ''))
-            ? 'bg-surfaceHighlight text-textMuted border border-border cursor-not-allowed opacity-50' 
-            : 'bg-surfaceHighlight hover:bg-brand-500/10 border border-border hover:border-brand-500/40 text-textMain hover:text-brand-500'
-          }`}
-        >
-          <Download size={20} className="text-textMuted group-hover:text-brand-500 transition-colors" />
-          Download Unofficial Transcript
-        </button>
-      </div>
-
       <section className="space-y-4 sm:space-y-8 pt-4 sm:pt-8">
         <motion.div 
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex items-center justify-between mb-6 sm:mb-10"
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8"
         >
           <div>
-            <p className="text-[10px] font-bold text-brand-400 uppercase tracking-widest mb-1">Performance Breakdown</p>
+            <p className="text-[10px] font-bold text-yellow-600 uppercase tracking-widest mb-1">Performance Breakdown</p>
             <h2 className="text-2xl sm:text-3xl font-black text-textMain tracking-tight">Advanced Analytics</h2>
           </div>
+
+          <button
+            onClick={() => {
+              const hasMissingMarks = Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === '');
+              if (hasMissingMarks) {
+                alert("Cannot generate transcript: Marks are missing for one or more subjects.");
+                return;
+              }
+              const studentObj: Record<string, any> = {
+                'Name': localStorage.getItem('submitName') || 'Guest Student',
+                'Seat No': 'Calculator Preview'
+              };
+              const mapCodeToId = (code: string) => code.toLowerCase().replace('-', '');
+              Object.entries(sem1Grades).forEach(([code, mark]) => {
+                if (mark !== '') studentObj[mapCodeToId(code)] = mark;
+              });
+              Object.entries(sem2Grades).forEach(([code, mark]) => {
+                if (mark !== '') studentObj[mapCodeToId(code)] = mark;
+              });
+              if (sem3Grades) Object.entries(sem3Grades).forEach(([code, mark]) => {
+                if (mark !== '') studentObj[mapCodeToId(code)] = mark;
+              });
+              generateTranscriptPDF(studentObj);
+            }}
+            className={`flex items-center gap-2 px-5 py-2.5 font-black text-xs rounded-xl border-2 border-black transition-all shadow-[2px_2px_0px_0px_#000] active:scale-95 group ${
+              (Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === ''))
+              ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60 shadow-none' 
+              : 'bg-white hover:bg-yellow-400 text-black'
+            }`}
+          >
+            <Download size={15} strokeWidth={2.5} />
+            <span>Download Unofficial Transcript</span>
+          </button>
         </motion.div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6 mb-4 sm:mb-6">
+
           <MetricCard title="Best Performing Course" value={bestCourse.gp.toFixed(1)} subtitle={bestCourse.name} icon={TrendingUp} />
           <MetricCard title="Needs Improvement" value={worstCourse.gp.toFixed(1)} subtitle={worstCourse.name} icon={TrendingDown} />
           <MetricCard title="Total Credits Taken" value="36" subtitle="Across 2 Semesters" icon={BookOpen} />

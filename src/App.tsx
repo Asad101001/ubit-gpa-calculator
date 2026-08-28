@@ -201,7 +201,9 @@ function App() {
     return { gpa: totalCredits > 0 ? totalQP / totalCredits : 0, totalQP, totalCredits, highest, lowest };
   };
 
-  const { gpa1, gpa2, gpa3, cgpa, bestCourse, worstCourse } = useMemo(() => {
+  const { gpa1, gpa2, cgpa, bestCourse, worstCourse } = useMemo(() => {
+
+
     const s1Calc = calculateGPA(SEM1_COURSES, sem1Grades);
     const s2Calc = calculateGPA(SEM2_COURSES, sem2Grades);
     const s3Calc = calculateGPA(SEM3_COURSES, sem3Grades);
@@ -471,11 +473,11 @@ function App() {
                       />
 
                       <Analytics
-                        gpa1={gpa1} gpa2={gpa2} gpa3={gpa3} cgpa={cgpa}
                         bestCourse={bestCourse} worstCourse={worstCourse}
                         chartData={chartData}
                         sem1Grades={sem1Grades} sem2Grades={sem2Grades} sem3Grades={sem3Grades}
                       />
+
 
 
                       <Leaderboard
