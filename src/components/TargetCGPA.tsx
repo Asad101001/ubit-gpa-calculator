@@ -4,6 +4,8 @@ import { Target, ChevronDown, ChevronUp, Lightbulb, CheckCircle2, Sparkles, Calc
 import { getGradePoint, getMarkColor, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 import { useAuthStore } from '../store/useAuthStore';
 import { validateTargetCgpa } from '../lib/validation';
+import { triggerConfetti } from '../lib/confetti';
+
 
 const ALL_COURSES = [...SEM1_COURSES, ...SEM2_COURSES, ...SEM3_COURSES];
 const GRADE_BOUNDARIES = [50, 53, 54, 55, 56, 57, 61, 64, 68, 71, 75, 80, 85];
@@ -333,8 +335,11 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                     ].map((preset) => (
                       <button
                         key={preset.val}
-                        onClick={() => setTargetCgpa(preset.val)}
-                        className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border-2 transition-all ${
+                        onClick={() => {
+                          setTargetCgpa(preset.val);
+                          if (parseFloat(preset.val) >= 3.75) triggerConfetti();
+                        }}
+                        className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border-2 transition-all active:scale-95 ${
                           targetCgpa === preset.val
                             ? 'bg-black text-yellow-400 border-black shadow-[2px_2px_0px_0px_#E6B400]'
                             : 'bg-white text-black border-black hover:bg-yellow-100'
@@ -343,6 +348,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                         {preset.label}
                       </button>
                     ))}
+
                   </div>
                 </div>
 

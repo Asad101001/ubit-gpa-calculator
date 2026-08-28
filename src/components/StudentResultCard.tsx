@@ -7,6 +7,8 @@ import { generateTranscriptPDF } from '../lib/transcriptGenerator';
 import { SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 import { TentativeCGPA } from './TentativeCGPA';
 import { useAuthStore } from '../store/useAuthStore';
+import { triggerConfetti } from '../lib/confetti';
+
 
 // Build subjects meta from canonical course lists in utils.ts
 const SUBJECTS_META = [
@@ -224,6 +226,7 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
           {/* PDF Transcript — always available */}
           <button
             onClick={() => {
+              triggerConfetti();
               toast.promise(
                 Promise.resolve(generateTranscriptPDF(student)),
                 {
@@ -238,6 +241,7 @@ export const StudentResultCard = ({ student, onPrefill, autoOpenReport = false }
             <Download size={16} />
             Download PDF Transcript
           </button>
+
 
           {/* Report Issue Button */}
           <button

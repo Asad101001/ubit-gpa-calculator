@@ -4,6 +4,8 @@ import { TrendingUp, TrendingDown, BookOpen, Award, GraduationCap, Trophy, Downl
 
 import { generateTranscriptPDF } from '../lib/transcriptGenerator';
 
+import { AnimatedCounter } from './AnimatedCounter';
+
 export const MetricCard = ({ title, value, subtitle, icon: Icon, highlight = false }: any) => (
   <motion.div 
     initial={{ opacity: 0, y: 15 }}
@@ -25,13 +27,18 @@ export const MetricCard = ({ title, value, subtitle, icon: Icon, highlight = fal
       </div>
       <div className="flex items-baseline gap-2">
         <span className={`text-3xl sm:text-5xl font-black font-mono tracking-tight ${highlight ? 'text-black' : 'text-textMain'}`}>
-          {value}
+          {typeof value === 'number' || (!isNaN(parseFloat(value)) && isFinite(Number(value))) ? (
+            <AnimatedCounter value={value} decimals={2} />
+          ) : (
+            value
+          )}
         </span>
         {subtitle && <span className={`text-xs sm:text-sm font-mono font-bold truncate max-w-[120px] sm:max-w-none ${highlight ? 'text-black/80' : 'text-textMuted'}`}>{subtitle}</span>}
       </div>
     </div>
   </motion.div>
 );
+
 
 export const Analytics = ({
   gpa1, gpa2, gpa3, cgpa,

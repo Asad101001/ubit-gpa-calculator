@@ -1,8 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-import { RotateCcw, BookOpen } from 'lucide-react';
+import { RotateCcw, BookOpen, Trophy, Zap } from 'lucide-react';
+
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from './lib/utils';
+import { generateTranscriptPDF } from './lib/transcriptGenerator';
+import { triggerConfetti } from './lib/confetti';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { Calculator } from './components/Calculator';
@@ -15,11 +18,13 @@ import { ResultsPortal } from './components/ResultsPortal';
 import { AuthModal } from './components/AuthModal';
 import { AuthGate } from './components/AuthGate';
 import { ProfilePage } from './components/ProfilePage';
+import { FloatingGPABar } from './components/FloatingGPABar';
 import { useAuthStore } from './store/useAuthStore';
 import { TermsPage } from './pages/TermsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { GradingPage } from './pages/GradingPage';
 import { LegalPage } from './pages/LegalPage';
+
 
 export type ViewType = 'main' | 'results' | 'profile' | 'terms' | 'privacy' | 'grading' | 'legal';
 
@@ -299,7 +304,9 @@ function App() {
       localStorage.setItem('hasSubmitted', 'true');
       setIsSubmitModalOpen(false);
       fetchLeaderboard(); // Refresh from Edge API
+      triggerConfetti();
       toast.success('Successfully added to the Leaderboard!', { icon: '🏆' });
+
     } catch (err: any) {
       setSubmitError(err.message || "Failed to submit. Check your connection.");
       toast.error(err.message || "Failed to submit. Check your connection.");
@@ -371,38 +378,72 @@ function App() {
             </div>
 
             <main className="pb-6 sm:pb-20">
-              {/* ── HERO — only shows on main/results/profile ── */}
+              {/* ── HERO — only shows on main/results ── */}
               {(currentView === 'main' || currentView === 'results') && (
                 <motion.section
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  className="relative overflow-hidden pt-6 pb-4"
+                  className="relative overflow-hidden pt-4 pb-2"
                 >
                   <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Live Brutalist Ticker Marquee */}
+                    <div className="w-full bg-yellow-400 border-2 border-black rounded-lg py-1 px-3 mb-3 overflow-hidden shadow-[2px_2px_0px_0px_#000] flex items-center">
+                      <div className="flex items-center gap-2 text-[10px] sm:text-xs font-black font-mono uppercase tracking-wider text-black shrink-0 pr-3 border-r-2 border-black">
+                        <span className="w-2 h-2 rounded-full bg-red-600 animate-ping inline-block" />
+                        LIVE
+                      </div>
+                      <div className="overflow-hidden whitespace-nowrap w-full pl-3">
+                        <div className="inline-block animate-tape-scroll text-[10px] sm:text-xs font-black font-mono uppercase tracking-wider text-black">
+                          🔥 UBIT BSCS BATCH 2024–28 PORTAL &nbsp;•&nbsp; ⚡ REAL-TIME GPA & TARGET SIMULATOR &nbsp;•&nbsp; 📄 1-PAGE OFFICIAL TRANSCRIPT PDF &nbsp;•&nbsp; 🏆 CLASS LEADERBOARDS &nbsp;•&nbsp; 📊 SEMESTER BREAKDOWNS &nbsp;•&nbsp;
+                        </div>
+                      </div>
+                    </div>
+
                     <motion.div
                       initial={{ opacity: 0, y: 16 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                     >
-                      <div className="relative rounded-xl overflow-hidden mb-5 border-2 border-black shadow-[6px_6px_0px_0px_#000000]">
+                      <div className="relative rounded-2xl overflow-hidden mb-5 border-2 border-black shadow-[6px_6px_0px_0px_#000000] group">
                         <img
                           src="/images/ubit_building_day.jpg"
                           alt="UBIT Building"
-                          className="w-full h-40 sm:h-56 object-cover"
+                          className="w-full h-44 sm:h-60 object-cover group-hover:scale-105 transition-transform duration-700"
                           loading="eager"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent flex items-end p-4 sm:p-6">
+
+                        {/* Floating Dynamic Badges */}
+                        <div className="absolute top-3 right-3 hidden sm:flex items-center gap-2">
+                          <motion.div
+                            animate={{ y: [0, -5, 0] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                            className="px-3 py-1.5 bg-white/95 backdrop-blur-md rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5 text-xs font-black text-black"
+                          >
+                            <Trophy size={13} className="text-yellow-500" />
+                            <span>4.00 Max Potential</span>
+                          </motion.div>
+                          <motion.div
+                            animate={{ y: [0, 5, 0] }}
+                            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                            className="px-3 py-1.5 bg-yellow-400 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000] flex items-center gap-1.5 text-xs font-black text-black"
+                          >
+                            <Zap size={13} className="text-black" />
+                            <span>Live GPA Engine</span>
+                          </motion.div>
+                        </div>
+
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent flex items-end p-4 sm:p-6">
                           <div className="text-left">
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-yellow-400 text-black border border-black font-extrabold text-[10px] sm:text-xs tracking-wider uppercase mb-2">
-                              <BookOpen size={11} />
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-yellow-400 text-black border-2 border-black font-black text-[10px] sm:text-xs tracking-wider uppercase mb-2 shadow-[1.5px_1.5px_0px_0px_#000]">
+                              <BookOpen size={11} strokeWidth={2.5} />
                               Umaer Basha Institute of Information Technology
                             </span>
                             <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
                               {currentView === 'results' ? 'Department Results Portal' : 'Academic Results & GPA Hub'}
                             </h1>
-                            <p className="text-xs sm:text-sm text-gray-300 font-medium mt-1">
-                              University of Karachi · BSCS Batch 2024–28
+                            <p className="text-xs sm:text-sm text-gray-200 font-bold mt-1">
+                              Department of Computer Science (DCS) · University of Karachi · Batch 2024–28
                             </p>
                           </div>
                         </div>
@@ -421,13 +462,19 @@ function App() {
                   ) : currentView === 'main' ? (
                     <motion.div key="main" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="space-y-6 sm:space-y-10">
                       <section id="calculator" className="space-y-4">
-                        <div className="flex justify-end">
+                        <div className="flex justify-between items-center pb-2 border-b-2 border-black/10">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+                            <span className="text-xs font-mono font-black uppercase text-gray-700 tracking-wider">
+                              Interactive Mark Inputs
+                            </span>
+                          </div>
                           <button
                             onClick={clearGrades}
-                            className="flex items-center gap-2 px-3 py-1.5 text-red-600 hover:bg-red-50 border-2 border-red-300 rounded-lg font-bold text-xs transition-all active:scale-95"
+                            className="group flex items-center gap-1.5 px-3 py-1.5 text-red-600 hover:bg-red-50 border-2 border-red-400 hover:border-red-600 rounded-lg font-black text-xs transition-all active:scale-95 shadow-[1.5px_1.5px_0px_0px_#f87171]"
                           >
-                            <RotateCcw size={13} />
-                            Clear All
+                            <RotateCcw size={12} className="group-hover:-rotate-180 transition-transform duration-500" />
+                            Clear All Marks
                           </button>
                         </div>
                         <Calculator
@@ -476,6 +523,34 @@ function App() {
                 </AnimatePresence>
               </div>
             </main>
+
+            {/* Floating Live GPA Pill on Calculator View */}
+            {currentView === 'main' && (
+              <FloatingGPABar
+                cgpa={cgpa}
+                gpa1={gpa1}
+                gpa2={gpa2}
+                gpa3={gpa3}
+                onGeneratePdf={() => {
+
+                  const hasMissingMarks = Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === '');
+                  if (hasMissingMarks) {
+                    toast.error("Cannot generate transcript: Marks are missing for one or more subjects.", { id: 'pdf-err-float' });
+                    return;
+                  }
+                  const studentObj: Record<string, any> = {
+                    'Name': profile?.full_name || localStorage.getItem('submitName') || 'Guest Student',
+                    'Seat No': profile?.seat_no || 'Calculator Preview'
+                  };
+                  const mapCodeToId = (code: string) => code.toLowerCase().replace('-', '');
+                  Object.entries(sem1Grades).forEach(([code, mark]) => { studentObj[mapCodeToId(code)] = mark; });
+                  Object.entries(sem2Grades).forEach(([code, mark]) => { studentObj[mapCodeToId(code)] = mark; });
+                  Object.entries(sem3Grades).forEach(([code, mark]) => { studentObj[mapCodeToId(code)] = mark; });
+                  generateTranscriptPDF(studentObj);
+                  toast.success('Generated official single-page transcript PDF!', { icon: '📄' });
+                }}
+              />
+            )}
           </>
         )}
 
@@ -486,4 +561,5 @@ function App() {
 }
 
 export default App;
+
 
