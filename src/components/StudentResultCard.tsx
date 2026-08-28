@@ -77,18 +77,21 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
 
     try {
       const targetSeatNo = student['Seat No'];
-      const updates: Record<string, any> = { seat_no: targetSeatNo, updated_at: new Date().toISOString() };
+      const updates: Record<string, any> = {};
       
       Object.entries(editedMarks).forEach(([subId, markVal]) => {
-        if (markVal !== '') {
+        if (markVal !== '' && markVal !== null && markVal !== undefined) {
           updates[subId] = Number(markVal);
+        } else {
+          updates[subId] = null; // Explicitly allow empty/missing/unannounced marks
         }
       });
 
       // Try updating via supabase directly if user is logged in
       const { error } = await supabase
-        .from('results')
-        .upsert(updates, { onConflict: 'seat_no' });
+        .from('student_results')
+        .update(updates)
+        .eq('seat_no', targetSeatNo);
 
       if (error) {
         // Try fallback via API
@@ -98,22 +101,38 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
           body: JSON.stringify({ seat_no: targetSeatNo, marks_payload: updates }),
         });
-        if (!res.ok) throw new Error('Failed to save marks');
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || 'Failed to save marks');
+        }
       }
 
-      setStudent(prev => ({ ...prev, ...editedMarks }));
+      setStudent(prev => {
+        const next = { ...prev };
+        Object.entries(updates).forEach(([k, v]) => {
+          next[k] = v;
+        });
+        return next;
+      });
       setIsEditing(false);
       triggerConfetti();
       toast.success('Official marks updated successfully!', { icon: '✅' });
     } catch (err: any) {
-      // Local optimistic update if backend fails in offline/demo mode
-      setStudent(prev => ({ ...prev, ...editedMarks }));
+      // Local optimistic update if backend is unreachable
+      setStudent(prev => {
+        const next = { ...prev };
+        Object.entries(editedMarks).forEach(([k, v]) => {
+          next[k] = v === '' ? null : Number(v);
+        });
+        return next;
+      });
       setIsEditing(false);
-      toast.success('Marks updated locally in session!', { icon: '💾' });
+      toast.success('Marks updated locally for this session!', { icon: '💾' });
     } finally {
       setIsSavingMarks(false);
     }
   };
+
 
   const handleReportSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

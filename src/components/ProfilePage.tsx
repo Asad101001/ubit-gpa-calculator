@@ -127,9 +127,20 @@ export const ProfilePage = () => {
     const targetSeatNo = adminSelectedUser
       ? adminSelectedUser.seat_no
       : adminCustomSeatNo || profile?.seat_no;
-    if (!targetSeatNo || !editValue.trim()) return;
-    const numVal = Number(editValue);
-    if (isNaN(numVal) || numVal < 0 || numVal > 100) { toast.error('Enter a valid mark (0-100).'); return; }
+    if (!targetSeatNo) return;
+    
+    const isClearing = editValue.trim() === '' || editValue.trim() === '-';
+    let numVal: number | null = null;
+    
+    if (!isClearing) {
+      const parsed = Number(editValue);
+      if (isNaN(parsed) || parsed < 0 || parsed > 100) { 
+        toast.error('Enter a valid mark (0-100) or leave empty.'); 
+        return; 
+      }
+      numVal = parsed;
+    }
+
     setIsSavingMark(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -139,13 +150,14 @@ export const ProfilePage = () => {
         body: JSON.stringify({ seat_no: targetSeatNo, subject_id: subjectId, marks: numVal }),
       });
       if (res.ok) {
-        toast.success('Mark updated!');
+        toast.success(numVal !== null ? 'Mark updated!' : 'Mark cleared / set to pending');
         setStudentData(prev => prev ? { ...prev, [subjectId]: numVal } : prev);
         setEditingMark(null); setEditValue('');
       } else { const d = await res.json(); toast.error(d.error || 'Failed to update.'); }
     } catch { toast.error('Network error.'); }
     setIsSavingMark(false);
   };
+
 
   const fetchAdminUsers = async () => {
     if (!isAdmin) return;
