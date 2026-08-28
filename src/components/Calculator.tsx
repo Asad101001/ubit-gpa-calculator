@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { toast } from 'react-hot-toast';
+import { 
+  Code2, Cpu, Binary, BookOpen, MessageSquare, Sparkles, Plus, Minus, 
+  ChevronDown, GraduationCap, Award, BookMarked
+} from 'lucide-react';
+
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 import { validateMarks } from '../lib/validation';
 
@@ -12,8 +17,18 @@ const itemVariants: Variants = {
   }
 };
 
+const getCourseIcon = (courseCode: string, type: string) => {
+  if (courseCode === 'CS-354' || courseCode === 'CS-455') return Cpu;
+  if (type === 'Programming') return Code2;
+  if (type === 'Math') return Binary;
+  if (courseCode === 'CS-359' || courseCode === 'CS-360') return MessageSquare;
+  if (courseCode === 'CS-361' || courseCode === 'CS-362' || courseCode === 'CS-461') return BookOpen;
+  return Sparkles;
+};
+
 export const CourseSelect = ({ course, value, onChange }: any) => {
   const gp = getGradePoint(typeof value === 'number' ? value : 0);
+  const IconComponent = getCourseIcon(course.code, course.type);
   
   const handleDirectChange = (raw: string) => {
     if (raw === '') {
@@ -31,22 +46,25 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
   return (
     <motion.div 
       variants={itemVariants}
-      whileHover={{ y: -3 }}
+      whileHover={{ y: -2 }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className="group flex flex-col p-2.5 sm:p-4 rounded-xl hover:bg-surface/60 border border-transparent hover:border-border/50 transition-all gap-2 sm:gap-4"
+      className="group flex flex-col p-2.5 sm:p-3.5 rounded-xl hover:bg-surface/60 border border-transparent hover:border-black/20 transition-all gap-2 sm:gap-3"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
-        <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
-          <div className="flex flex-col items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-surface/70 border border-border text-brand-400 group-hover:scale-105 group-hover:bg-gradient-to-br group-hover:from-brand-500/10 group-hover:to-accent-500/10 group-hover:border-accent-500/30 group-hover:text-accent-500 transition-all shrink-0">
-            <span className="text-[8px] sm:text-[10px] uppercase font-bold text-textMuted mb-[-2px] group-hover:text-accent-400 transition-colors">{course.code.split('-')[0]}</span>
-            <span className="text-[12px] sm:text-base font-extrabold">{course.code.split('-')[1]}</span>
+        <div className="flex items-center gap-2.5 sm:gap-3.5 flex-1 min-w-0">
+          <div className="flex flex-col items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-lg bg-surface border-2 border-black text-black group-hover:scale-105 group-hover:bg-yellow-400 group-hover:shadow-[2px_2px_0px_0px_#000] transition-all shrink-0">
+            <IconComponent size={14} className="mb-0.5 text-black" strokeWidth={2.25} />
+            <span className="text-[10px] sm:text-xs font-black font-mono tracking-tight leading-none">{course.code.split('-')[1]}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-semibold text-textMain group-hover:text-textMain/90 transition-colors text-[12px] sm:text-[14px] leading-tight h-[34px] sm:h-[42px] flex items-center">
-              <span className="line-clamp-2 w-full pr-2">{course.name}</span>
+            <div className="font-bold text-textMain group-hover:text-black transition-colors text-[13px] sm:text-[14px] leading-tight flex items-center">
+              <span className="line-clamp-2 w-full pr-1">{course.name}</span>
             </div>
-            <div className="text-[10px] sm:text-[11px] font-medium text-textMuted mt-0.5 sm:mt-1 truncate w-full">
-              {course.instructor}
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-medium text-textMuted mt-0.5 truncate">
+              <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-gray-100 text-gray-700 border border-gray-300">
+                {course.credits} Cr
+              </span>
+              <span className="truncate">{course.instructor}</span>
             </div>
           </div>
         </div>
@@ -59,7 +77,9 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
               }}
               aria-label="Decrease marks"
               className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-l-lg bg-gray-100 hover:bg-yellow-400 border-2 border-black border-r-0 text-black font-black text-sm active:bg-yellow-300 transition-colors select-none"
-            >-</button>
+            >
+              <Minus size={13} strokeWidth={3} />
+            </button>
             <input
               type="number"
               min="0"
@@ -68,7 +88,7 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
               onChange={(e) => handleDirectChange(e.target.value)}
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="0"
-              className="w-12 sm:w-14 h-8 sm:h-9 bg-white text-black py-0 px-1 border-y-2 border-black font-black text-xs sm:text-sm focus:outline-none placeholder:text-gray-400 text-center"
+              className="w-12 sm:w-14 h-8 sm:h-9 bg-white text-black py-0 px-1 border-y-2 border-black font-mono font-black text-xs sm:text-sm focus:outline-none placeholder:text-gray-400 text-center"
             />
             <button
               onClick={() => {
@@ -77,16 +97,18 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
               }}
               aria-label="Increase marks"
               className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-r-lg bg-gray-100 hover:bg-yellow-400 border-2 border-black border-l-0 text-black font-black text-sm active:bg-yellow-300 transition-colors select-none"
-            >+</button>
+            >
+              <Plus size={13} strokeWidth={3} />
+            </button>
           </div>
-          <div className="w-11 sm:w-14 h-8 sm:h-9 text-center rounded-lg bg-yellow-50 border-2 border-black font-mono font-black text-black flex flex-col justify-center shadow-[1px_1px_0px_0px_#000]">
-            <span className="text-[7px] sm:text-[8px] text-gray-600 leading-none mb-0.5">GP</span>
+          <div className="w-12 sm:w-14 h-8 sm:h-9 text-center rounded-lg bg-yellow-50 border-2 border-black font-mono font-black text-black flex flex-col justify-center shadow-[1.5px_1.5px_0px_0px_#000]">
+            <span className="text-[7.5px] sm:text-[8px] uppercase tracking-wider text-gray-600 leading-none mb-0.5">GP</span>
             <span className="text-xs sm:text-sm leading-none">{value === '' ? '-' : gp.toFixed(1)}</span>
           </div>
         </div>
       </div>
 
-      <div className="w-full px-0.5 mt-1">
+      <div className="w-full px-0.5 mt-0.5">
         <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden relative">
           <motion.div 
             initial={{ width: 0 }}
@@ -94,8 +116,10 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
             transition={{ type: 'spring', stiffness: 120, damping: 20, delay: 0.05 }}
             className={`absolute top-0 left-0 h-full rounded-full ${
               typeof value === 'number' && value >= 85 ? 'bg-emerald-500' : 
-              typeof value === 'number' && value >= 75 ? 'bg-green-600' :
-              typeof value === 'number' && value >= 50 ? 'bg-yellow-500' :
+              typeof value === 'number' && value >= 80 ? 'bg-green-600' :
+              typeof value === 'number' && value >= 70 ? 'bg-blue-600' :
+              typeof value === 'number' && value >= 60 ? 'bg-gray-500' :
+              typeof value === 'number' && value >= 50 ? 'bg-amber-500' :
               typeof value === 'number' && value >= 35 ? 'bg-red-700' : 'bg-[#ff0033]'
             }`}
           />
@@ -110,6 +134,7 @@ export const Calculator = ({
   sem2Grades, setSem2Grades,
   sem3Grades, setSem3Grades,
 }: any) => {
+
   const [isSem4Expanded, setIsSem4Expanded] = useState(false);
 
   return (
@@ -126,22 +151,25 @@ export const Calculator = ({
       {/* Semester 1 */}
       <motion.div 
         variants={itemVariants}
-        whileHover={{ y: -4 }}
+        whileHover={{ y: -3 }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden"
+        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden"
       >
-        <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-brand-400 shadow-[0_0_20px_rgba(var(--color-brand-500),0.15)]">
+        <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-black shadow-[2px_2px_0px_0px_#000]">
               01
             </div>
             <div>
-              <h2 className="text-lg sm:text-2xl font-bold text-textMain tracking-tight">Semester One</h2>
-              <p className="text-[10px] sm:text-sm font-medium text-textMuted uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester One</h2>
+                <GraduationCap size={16} className="text-yellow-600 hidden sm:inline" />
+              </div>
+              <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
             </div>
           </div>
         </div>
-        <div className="space-y-3 relative z-10">
+        <div className="space-y-2 sm:space-y-2.5 relative z-10">
           {SEM1_COURSES.map((course) => (
             <CourseSelect 
               key={course.code} course={course} value={sem1Grades[course.code]}
@@ -153,23 +181,27 @@ export const Calculator = ({
 
       {/* Semester 2 */}
       <motion.div 
+
         variants={itemVariants}
-        whileHover={{ y: -4 }}
+        whileHover={{ y: -3 }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden"
+        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden"
       >
-        <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-brand-600/20 to-brand-600/5 border border-brand-600/20 flex items-center justify-center text-sm sm:text-lg font-bold text-brand-600 shadow-[0_0_20px_rgba(var(--color-brand-600),0.15)]">
+        <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-black shadow-[2px_2px_0px_0px_#000]">
               02
             </div>
             <div>
-              <h2 className="text-lg sm:text-2xl font-bold text-textMain tracking-tight">Semester Two</h2>
-              <p className="text-[10px] sm:text-sm font-medium text-textMuted uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Two</h2>
+                <Award size={16} className="text-yellow-600 hidden sm:inline" />
+              </div>
+              <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
             </div>
           </div>
         </div>
-        <div className="space-y-3 relative z-10">
+        <div className="space-y-2 sm:space-y-2.5 relative z-10">
           {SEM2_COURSES.map((course) => (
             <CourseSelect 
               key={course.code} course={course} value={sem2Grades[course.code]}
@@ -182,22 +214,25 @@ export const Calculator = ({
       {/* Semester 3 */}
       <motion.div 
         variants={itemVariants}
-        whileHover={{ y: -4 }}
+        whileHover={{ y: -3 }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-10 relative overflow-hidden xl:col-span-2 max-w-3xl mx-auto w-full"
+        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden xl:col-span-2 max-w-3xl mx-auto w-full"
       >
-        <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-8">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl bg-gradient-to-br from-accent-500/20 to-accent-500/5 border border-accent-500/20 flex items-center justify-center text-sm sm:text-lg font-bold text-accent-500 shadow-[0_0_20px_rgba(var(--color-accent-500),0.15)]">
+        <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-black shadow-[2px_2px_0px_0px_#000]">
               03
             </div>
             <div>
-              <h2 className="text-lg sm:text-2xl font-bold text-textMain tracking-tight">Semester Three</h2>
-              <p className="text-[10px] sm:text-sm font-medium text-textMuted uppercase tracking-widest mt-0.5 sm:mt-1">18 Credits</p>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Three</h2>
+                <BookMarked size={16} className="text-yellow-600 hidden sm:inline" />
+              </div>
+              <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
             </div>
           </div>
         </div>
-        <div className="space-y-3 relative z-10">
+        <div className="space-y-2 sm:space-y-2.5 relative z-10">
           {SEM3_COURSES.map((course) => (
             <CourseSelect 
               key={course.code} course={course} value={sem3Grades[course.code]}
@@ -214,24 +249,25 @@ export const Calculator = ({
       >
         <div 
           onClick={() => setIsSem4Expanded(!isSem4Expanded)}
-          className="glass rounded-full px-6 sm:px-8 py-4 flex items-center justify-between cursor-pointer hover:bg-surface/60 transition-all border border-border group"
+          className="glass rounded-2xl sm:rounded-full px-5 sm:px-8 py-3.5 sm:py-4 flex items-center justify-between cursor-pointer hover:bg-yellow-50 transition-all border-2 border-black shadow-[3px_3px_0px_0px_#000] group active:translate-x-0.5 active:translate-y-0.5"
         >
-          <div className="flex items-center gap-4">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/30 flex items-center justify-center text-sm font-bold text-yellow-500 shadow-[0_0_15px_rgba(245,197,24,0.15)] group-hover:scale-110 transition-transform">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-8 h-8 rounded-lg bg-yellow-400 border-2 border-black flex items-center justify-center text-xs sm:text-sm font-mono font-black text-black shadow-[1.5px_1.5px_0px_0px_#000] group-hover:scale-105 transition-transform">
               04
             </div>
-            <h2 className="text-base sm:text-lg font-bold text-textMain tracking-tight">Semester Four</h2>
+            <h2 className="text-sm sm:text-lg font-black text-textMain tracking-tight">Semester Four</h2>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden sm:flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-yellow-500/80 uppercase tracking-widest bg-yellow-500/10 px-3 py-1.5 rounded-full border border-yellow-500/20">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+            <span className="flex items-center gap-1.5 text-[9.5px] sm:text-xs font-mono font-bold text-black uppercase tracking-wider bg-yellow-400 px-2.5 sm:px-3 py-1 rounded-md border border-black shadow-[1px_1px_0px_0px_#000]">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
               Ongoing
             </span>
-            <div className={`text-textMuted group-hover:text-textMain transition-transform duration-300 ${isSem4Expanded ? 'rotate-180' : ''}`}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <div className={`text-black transition-transform duration-300 ${isSem4Expanded ? 'rotate-180' : ''}`}>
+              <ChevronDown size={18} strokeWidth={2.5} />
             </div>
           </div>
         </div>
+
 
         <AnimatePresence>
           {isSem4Expanded && (

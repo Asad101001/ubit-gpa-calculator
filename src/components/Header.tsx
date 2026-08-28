@@ -74,21 +74,26 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
           </button>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1.5 ml-4">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleNav(item)}
-                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${
-                  isActive(item)
-                    ? 'bg-yellow-400 text-black border-black shadow-[2px_2px_0px_0px_#000]'
-                    : 'text-gray-700 hover:text-black border-transparent hover:border-black/30 hover:bg-gray-100'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+          <nav className="hidden md:flex items-center gap-2 ml-4">
+            {navItems.map((item) => {
+              const IconComp = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNav(item)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black transition-all border-2 ${
+                    isActive(item)
+                      ? 'bg-yellow-400 text-black border-black shadow-[2px_2px_0px_0px_#000]'
+                      : 'text-gray-700 hover:text-black border-transparent hover:border-black/30 hover:bg-gray-100'
+                  }`}
+                >
+                  <IconComp size={13} strokeWidth={2.5} />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
           </nav>
+
         </div>
 
         {/* Right side controls */}

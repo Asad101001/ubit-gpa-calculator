@@ -1,36 +1,33 @@
 import { motion } from 'framer-motion';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip, BarChart, Bar, XAxis, YAxis, ReferenceLine, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, BookOpen, Calculator, Award } from 'lucide-react';
+import { TrendingUp, TrendingDown, BookOpen, Award, GraduationCap, Trophy, Download } from 'lucide-react';
+
 import { generateTranscriptPDF } from '../lib/transcriptGenerator';
-import { Download } from 'lucide-react';
 
 export const MetricCard = ({ title, value, subtitle, icon: Icon, highlight = false }: any) => (
   <motion.div 
-    initial={{ opacity: 0, y: 20 }}
+    initial={{ opacity: 0, y: 15 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    whileHover={{ y: -5, scale: 1.02 }}
+    whileHover={{ y: -3 }}
     transition={{ type: "spring", stiffness: 300, damping: 20 }}
-    className={`p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border relative overflow-hidden group ${
+    className={`p-4 sm:p-6 rounded-2xl border-2 transition-all relative overflow-hidden group ${
     highlight 
-      ? 'bg-gradient-to-br from-brand-500/15 via-accent-500/10 to-transparent border-brand-500/40 shadow-[0_0_30px_rgba(var(--color-brand-500),0.2)]' 
-      : 'glass border-border hover:border-accent-500/30 hover:shadow-[0_0_20px_rgba(var(--color-accent-500),0.1)] transition-all'
+      ? 'bg-yellow-400 border-black shadow-[4px_4px_0px_0px_#000]' 
+      : 'glass border-black shadow-[3px_3px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5'
   }`}>
-    {highlight && (
-      <div className="absolute inset-0 bg-accent-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" />
-    )}
     <div className="relative z-10 flex flex-col h-full justify-between">
-      <div className="flex items-center gap-3 mb-4 sm:mb-6">
-        <div className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl transition-colors ${highlight ? 'bg-gradient-to-br from-brand-500 to-accent-500 text-background shadow-lg shadow-brand-500/30' : 'bg-surfaceHighlight text-textMuted group-hover:text-accent-500 group-hover:bg-accent-500/10'}`}>
-          <Icon size={24} className="sm:w-[28px] sm:h-[28px]" />
+      <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
+        <div className={`p-2 sm:p-2.5 rounded-xl border-2 border-black ${highlight ? 'bg-black text-yellow-400 shadow-[1.5px_1.5px_0px_0px_#000]' : 'bg-yellow-400 text-black shadow-[1.5px_1.5px_0px_0px_#000]'}`}>
+          <Icon size={18} strokeWidth={2.5} />
         </div>
-        <h3 className="text-sm sm:text-base font-extrabold text-textMuted uppercase tracking-widest">{title}</h3>
+        <h3 className={`text-[10px] sm:text-xs font-black uppercase tracking-wider ${highlight ? 'text-black' : 'text-gray-700'}`}>{title}</h3>
       </div>
-      <div className="flex items-baseline gap-3">
-        <span className={`text-5xl sm:text-7xl font-black tracking-tight transition-all duration-300 ${highlight ? 'text-transparent bg-clip-text bg-gradient-to-br from-brand-600 to-accent-400 drop-shadow-sm' : 'text-textMain'}`}>
+      <div className="flex items-baseline gap-2">
+        <span className={`text-3xl sm:text-5xl font-black font-mono tracking-tight ${highlight ? 'text-black' : 'text-textMain'}`}>
           {value}
         </span>
-        {subtitle && <span className="text-sm sm:text-base font-bold text-textMuted truncate max-w-[150px] sm:max-w-none">{subtitle}</span>}
+        {subtitle && <span className={`text-xs sm:text-sm font-mono font-bold truncate max-w-[120px] sm:max-w-none ${highlight ? 'text-black/80' : 'text-textMuted'}`}>{subtitle}</span>}
       </div>
     </div>
   </motion.div>
@@ -45,10 +42,10 @@ export const Analytics = ({
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="glass p-3 rounded-xl border border-border text-sm shadow-xl">
-          <p className="font-bold text-textMain mb-1">{payload[0].payload.fullname || payload[0].payload.subject}</p>
-          {payload[0].payload.semester && <p className="text-textMuted text-xs mb-2">{payload[0].payload.semester}</p>}
-          <p className="text-brand-400 font-extrabold text-xl">GPA: {Number(payload[0].value).toFixed(2)}</p>
+        <div className="glass p-3 rounded-xl border-2 border-black text-sm shadow-[3px_3px_0px_0px_#000]">
+          <p className="font-black text-textMain mb-0.5">{payload[0].payload.fullname || payload[0].payload.subject}</p>
+          {payload[0].payload.semester && <p className="text-textMuted text-xs font-bold mb-1.5">{payload[0].payload.semester}</p>}
+          <p className="text-black font-mono font-black text-base">GPA: {Number(payload[0].value).toFixed(2)}</p>
         </div>
       );
     }
@@ -57,12 +54,13 @@ export const Analytics = ({
 
   return (
     <>
-      <div id="analytics" className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 relative z-10 mt-8 mb-12">
-        <MetricCard title="Semester One GPA" value={gpa1} icon={Calculator} />
-        <MetricCard title="Semester Two GPA" value={gpa2} icon={Calculator} />
-        <MetricCard title="Semester Three GPA" value={gpa3 ?? '—'} icon={Calculator} />
-        <MetricCard title="CGPA" value={cgpa} icon={Award} highlight />
+      <div id="analytics" className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-6 relative z-10 mt-8 mb-12">
+        <MetricCard title="Semester 1 GPA" value={gpa1} icon={GraduationCap} />
+        <MetricCard title="Semester 2 GPA" value={gpa2} icon={BookOpen} />
+        <MetricCard title="Semester 3 GPA" value={gpa3 ?? '—'} icon={Award} />
+        <MetricCard title="Cumulative CGPA" value={cgpa} icon={Trophy} highlight />
       </div>
+
 
       <div className="flex justify-center -mt-8 mb-12 relative z-10">
         <button
