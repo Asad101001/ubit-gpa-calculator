@@ -97,23 +97,8 @@ export const Header = ({ currentView, navigateTo, activeSection = 'calculator' }
         </div>
 
         {/* Right side controls */}
-        <div className="flex items-center gap-1.5 sm:gap-3">
-          {/* Quick Nav on Tablet */}
-          <div className="hidden sm:flex md:hidden items-center gap-1 bg-gray-100 p-1 rounded-lg border border-black">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleNav(item)}
-                className={`px-2 py-1 rounded text-[11px] font-bold transition-all ${
-                  isActive(item)
-                    ? 'bg-yellow-400 text-black border border-black'
-                    : 'text-gray-600 hover:text-black'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
+        <div className="flex items-center gap-2 sm:gap-3">
+
 
           {/* Auth Controls */}
           {user && profile ? (

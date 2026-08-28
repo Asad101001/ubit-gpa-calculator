@@ -25,7 +25,8 @@ export const GradingPage = ({ onBack }: GradingPageProps) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -16 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="max-w-4xl mx-auto space-y-8 pb-16 pt-4"
+      className="max-w-4xl mx-auto space-y-8 pb-28 sm:pb-16 pt-4"
+
     >
       {/* Header Bar */}
       <div className="flex items-center justify-between">

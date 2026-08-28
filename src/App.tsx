@@ -18,8 +18,9 @@ import { ResultsPortal } from './components/ResultsPortal';
 import { AuthModal } from './components/AuthModal';
 import { AuthGate } from './components/AuthGate';
 import { ProfilePage } from './components/ProfilePage';
-import { FloatingGPABar } from './components/FloatingGPABar';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { useAuthStore } from './store/useAuthStore';
+
 import { TermsPage } from './pages/TermsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { GradingPage } from './pages/GradingPage';
@@ -377,7 +378,8 @@ function App() {
               />
             </div>
 
-            <main className="pb-6 sm:pb-20">
+            <main className="pb-24 md:pb-16">
+
               {/* ── HERO — only shows on main/results ── */}
               {(currentView === 'main' || currentView === 'results') && (
                 <motion.section
@@ -524,42 +526,40 @@ function App() {
               </div>
             </main>
 
-            {/* Floating Live GPA Pill on Calculator View */}
-            {currentView === 'main' && (
-              <FloatingGPABar
-                cgpa={cgpa}
-                gpa1={gpa1}
-                gpa2={gpa2}
-                gpa3={gpa3}
-                onGeneratePdf={() => {
-
-                  const hasMissingMarks = Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === '');
-                  if (hasMissingMarks) {
-                    toast.error("Cannot generate transcript: Marks are missing for one or more subjects.", { id: 'pdf-err-float' });
-                    return;
-                  }
-                  const studentObj: Record<string, any> = {
-                    'Name': profile?.full_name || localStorage.getItem('submitName') || 'Guest Student',
-                    'Seat No': profile?.seat_no || 'Calculator Preview'
-                  };
-                  const mapCodeToId = (code: string) => code.toLowerCase().replace('-', '');
-                  Object.entries(sem1Grades).forEach(([code, mark]) => { studentObj[mapCodeToId(code)] = mark; });
-                  Object.entries(sem2Grades).forEach(([code, mark]) => { studentObj[mapCodeToId(code)] = mark; });
-                  Object.entries(sem3Grades).forEach(([code, mark]) => { studentObj[mapCodeToId(code)] = mark; });
-                  generateTranscriptPDF(studentObj);
-                  toast.success('Generated official single-page transcript PDF!', { icon: '📄' });
-                }}
-              />
-            )}
           </>
         )}
 
         <Footer navigateTo={navigateTo} />
+
+        {/* ── MOBILE BRUTALIST BOTTOM NAV DOCK ── */}
+        <MobileBottomNav
+          currentView={currentView}
+          navigateTo={navigateTo}
+          activeSection={activeSection}
+          onGeneratePdf={() => {
+            const hasMissingMarks = Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === '');
+            if (hasMissingMarks) {
+              toast.error("Cannot generate transcript: Marks are missing for one or more subjects.", { id: 'pdf-err-mobile-nav' });
+              return;
+            }
+            const studentObj: Record<string, any> = {
+              'Name': profile?.full_name || localStorage.getItem('submitName') || 'Guest Student',
+              'Seat No': profile?.seat_no || 'Calculator Preview'
+            };
+            const mapCodeToId = (code: string) => code.toLowerCase().replace('-', '');
+            Object.entries(sem1Grades).forEach(([code, mark]) => { studentObj[mapCodeToId(code)] = mark; });
+            Object.entries(sem2Grades).forEach(([code, mark]) => { studentObj[mapCodeToId(code)] = mark; });
+            Object.entries(sem3Grades).forEach(([code, mark]) => { studentObj[mapCodeToId(code)] = mark; });
+            generateTranscriptPDF(studentObj);
+            toast.success('Generated official single-page transcript PDF!', { icon: '📄' });
+          }}
+        />
       </div>
     </>
   );
 }
 
 export default App;
+
 
 

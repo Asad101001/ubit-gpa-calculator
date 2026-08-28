@@ -9,12 +9,13 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
 
   return (
     <>
-      <footer className="w-full border-t border-border mt-20 relative overflow-hidden bg-surface/90 backdrop-blur-xl">
+      <footer className="w-full border-t border-border mt-16 sm:mt-20 pb-24 sm:pb-12 relative overflow-hidden bg-surface/90 backdrop-blur-xl">
         {/* Subtle HD Campus Background Overlay */}
         <div 
           className="absolute inset-0 opacity-[0.07] bg-cover bg-center pointer-events-none mix-blend-overlay"
           style={{ backgroundImage: 'url(/images/campus_bg.jpg)' }}
         />
+
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-brand-500/40 to-transparent" />
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10 space-y-12">
