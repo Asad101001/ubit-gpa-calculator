@@ -45,12 +45,28 @@ export const ProfilePage = () => {
       
       setIsLoadingData(true);
       try {
+        // For the authenticated owner / admin: fetch directly from Supabase
+        // so that privacy-masked API response never hides the owner's own marks
+        const { data: rows, error } = await supabase
+          .from('student_results')
+          .select('*')
+          .eq('seat_no', targetSeatNo)
+          .maybeSingle();
+
+        if (!error && rows) {
+          const mapped: Record<string, any> = { 'Seat No': rows.seat_no, 'Name': rows.name };
+          SUBJECTS_META.forEach(sub => { if (rows[sub.id] !== undefined) mapped[sub.id] = rows[sub.id]; });
+          setStudentData(mapped);
+          setIsLoadingData(false);
+          return;
+        }
+
+        // Fallback to public API (covers edge cases / local dev)
         let resultsData: any[] | null = null;
         const res = await fetch('/api/results');
         if (res.ok) {
           resultsData = await res.json();
         } else {
-          // Fallback to local JSON snapshot for local dev
           const fallbackRes = await fetch('/fallback-results.json');
           if (fallbackRes.ok) resultsData = await fallbackRes.json();
         }
@@ -69,6 +85,7 @@ export const ProfilePage = () => {
     };
     fetchStudentData();
   }, [profile?.seat_no, adminSelectedUser, adminCustomSeatNo]);
+
 
   const stats = useMemo(() => {
     if (!studentData) return null;

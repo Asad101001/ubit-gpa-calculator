@@ -44,31 +44,11 @@ export default async function handler(req: Request) {
       }
     }
 
-    // Subject IDs to sanitize if private
-    const subjectIds = [
-      'cs351','cs353','cs355','cs357','cs359','cs361',
-      'cs352','cs354','cs356','cs358','cs360','cs362',
-      'cs451','cs453','cs455','cs457','cs459','cs461'
-    ];
-
-    // Attach is_hidden tag and sanitize records
+    // Attach is_hidden flag — client handles masking in the UI
     const enrichedData = data.map((row: any) => {
       const seatNo = row.seat_no ? String(row.seat_no).toUpperCase() : '';
       const isHidden = (seatNo && hiddenSeatNos.has(seatNo)) || !!row.is_hidden;
-
-      if (!isHidden) {
-        return { ...row, is_hidden: false };
-      }
-
-      // If hidden, sanitize marks from public response
-      const sanitized: Record<string, any> = {
-        ...row,
-        is_hidden: true,
-      };
-      subjectIds.forEach(sub => {
-        sanitized[sub] = 'Hidden';
-      });
-      return sanitized;
+      return { ...row, is_hidden: isHidden };
     });
 
     return new Response(JSON.stringify(enrichedData), {
