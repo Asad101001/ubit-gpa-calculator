@@ -41,8 +41,9 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b-2 border-black">
+    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white/95 backdrop-blur-md border-b-2 border-black">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex justify-between items-center h-14 sm:h-16">
+
         {/* Logo & Branding */}
         <div className="flex items-center gap-2.5 sm:gap-4 flex-shrink-0">
           <button

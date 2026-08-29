@@ -76,9 +76,25 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
       try {
         const hidden = new Set<string>();
 
-        // 1. If current logged-in user has hidden results, add immediately
-        if (profile?.seat_no && profile.show_results_publicly === false) {
-          hidden.add(String(profile.seat_no).toUpperCase());
+        // 0. Load cached hidden seat numbers from localStorage
+        const savedHidden = localStorage.getItem('hidden_seats');
+        if (savedHidden) {
+          try {
+            JSON.parse(savedHidden).forEach((s: string) => {
+              if (s) hidden.add(String(s).toUpperCase());
+            });
+          } catch {}
+        }
+
+        // 1. If current logged-in user has hidden results, sync immediately
+        if (profile?.seat_no) {
+          const mySeat = String(profile.seat_no).toUpperCase();
+          if (profile.show_results_publicly === false) {
+            hidden.add(mySeat);
+          } else {
+            hidden.delete(mySeat);
+          }
+          localStorage.setItem('hidden_seats', JSON.stringify(Array.from(hidden)));
         }
 
         // 2. Fetch hidden profiles from Supabase if possible
@@ -91,10 +107,12 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
             profiles.forEach((p: any) => { 
               if (p.seat_no) hidden.add(String(p.seat_no).toUpperCase()); 
             });
+            localStorage.setItem('hidden_seats', JSON.stringify(Array.from(hidden)));
           }
         } catch { /* profiles table policy fallback */ }
 
         const res = await fetch('/api/results');
+
         if (res.ok) {
           const json = await res.json();
           if (json.length > 0) {

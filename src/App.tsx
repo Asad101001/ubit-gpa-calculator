@@ -392,7 +392,7 @@ function App() {
 
         {/* ── LEGAL PAGES: Clean full-page layout ── */}
         {isLegalView ? (
-          <main className="min-h-[calc(100vh-64px)] pb-16 bg-white">
+          <main className="min-h-screen pb-16 bg-white pt-16 sm:pt-20">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
               {currentView === 'terms' && <TermsPage onBack={() => navigateTo('home')} />}
               {currentView === 'privacy' && <PrivacyPage onBack={() => navigateTo('home')} />}
@@ -417,8 +417,9 @@ function App() {
               />
             </div>
 
-            <main className="pb-24 md:pb-16 pt-4 sm:pt-6">
+            <main className="pb-24 md:pb-16 pt-16 sm:pt-20">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
                 <AnimatePresence mode="wait">
                   {currentView === 'home' ? (
                     <motion.div key="home" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
