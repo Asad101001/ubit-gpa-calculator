@@ -1,7 +1,14 @@
 {
   "name": "ubit-gpa-calculator-28",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.2.0",
+  "description": "Official Academic Results Portal, CGPA Calculator, Target Simulator, and Class Leaderboard for BSCS Batch 2024–28 at UBIT, University of Karachi.",
+  "author": "Muhammad Asad Khan / DCS UBIT",
+  "homepage": "https://ubit-results-28.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Asad101001/ubit-gpa-calculator.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,6 +17,7 @@
     "preview": "vite preview",
     "db:dump": "node scripts/dump-db.cjs"
   },
+
   "dependencies": {
     "@supabase/supabase-js": "^2.110.7",
     "@types/canvas-confetti": "^1.9.0",
