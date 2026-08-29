@@ -1,36 +1,42 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
 import { RotateCcw } from 'lucide-react';
-
-
-
 
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from './lib/utils';
 import { triggerConfetti } from './lib/confetti';
 
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
-import { Calculator } from './components/Calculator';
-import { Analytics } from './components/Analytics';
-import { TargetCGPA } from './components/TargetCGPA';
-import { Leaderboard, SubmitModal } from './components/Leaderboard';
-import { BoycottModal } from './components/BoycottModal';
 import { HomePage } from './components/HomePage';
-import { ResultsPortal } from './components/ResultsPortal';
-import { AuthModal } from './components/AuthModal';
-
 import { AuthGate } from './components/AuthGate';
-import { ProfilePage } from './components/ProfilePage';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { useAuthStore } from './store/useAuthStore';
 
-import { TermsPage } from './pages/TermsPage';
-import { PrivacyPage } from './pages/PrivacyPage';
-import { GradingPage } from './pages/GradingPage';
-import { LegalPage } from './pages/LegalPage';
+// Code-split heavy secondary views and modals so initial mobile payload is ultra-lean
+const Calculator = lazy(() => import('./components/Calculator').then(m => ({ default: m.Calculator })));
+const Analytics = lazy(() => import('./components/Analytics').then(m => ({ default: m.Analytics })));
+const TargetCGPA = lazy(() => import('./components/TargetCGPA').then(m => ({ default: m.TargetCGPA })));
+const Leaderboard = lazy(() => import('./components/Leaderboard').then(m => ({ default: m.Leaderboard })));
+const SubmitModal = lazy(() => import('./components/Leaderboard').then(m => ({ default: m.SubmitModal })));
+const BoycottModal = lazy(() => import('./components/BoycottModal').then(m => ({ default: m.BoycottModal })));
+const ResultsPortal = lazy(() => import('./components/ResultsPortal').then(m => ({ default: m.ResultsPortal })));
+const AuthModal = lazy(() => import('./components/AuthModal').then(m => ({ default: m.AuthModal })));
+const ProfilePage = lazy(() => import('./components/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
+const GradingPage = lazy(() => import('./pages/GradingPage').then(m => ({ default: m.GradingPage })));
+const LegalPage = lazy(() => import('./pages/LegalPage').then(m => ({ default: m.LegalPage })));
+
+const ViewFallback = () => (
+  <div className="py-20 flex flex-col items-center justify-center gap-3">
+    <div className="w-8 h-8 border-3 border-black border-t-yellow-400 rounded-full animate-spin" />
+    <span className="font-mono text-xs font-bold text-gray-600 uppercase tracking-wider">Loading view...</span>
+  </div>
+);
 
 export type ViewType = 'home' | 'calculator' | 'results' | 'profile' | 'terms' | 'privacy' | 'grading' | 'legal';
+
 
 function App() {
   const { user, profile, initialize: initAuth } = useAuthStore();
@@ -373,11 +379,8 @@ function App() {
         }}
       />
 
-      <AuthModal />
-
-      <div className="min-h-screen relative selection:bg-yellow-400/30 font-sans">
-
-        <Header currentView={currentView} navigateTo={navigateTo} activeSection={activeSection} />
+      <Suspense fallback={null}>
+        <AuthModal />
         <BoycottModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         <SubmitModal
           isOpen={isSubmitModalOpen}
@@ -389,17 +392,25 @@ function App() {
           error={submitError}
           currentCgpa={cgpa}
         />
+      </Suspense>
+
+      <div className="min-h-screen relative selection:bg-yellow-400/30 font-sans">
+
+        <Header currentView={currentView} navigateTo={navigateTo} activeSection={activeSection} />
 
         {/* ── LEGAL PAGES: Clean full-page layout ── */}
         {isLegalView ? (
           <main className="min-h-screen pb-16 bg-white pt-16 sm:pt-20">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-enter">
-              {currentView === 'terms' && <TermsPage onBack={() => navigateTo('home')} />}
-              {currentView === 'privacy' && <PrivacyPage onBack={() => navigateTo('home')} />}
-              {currentView === 'grading' && <GradingPage onBack={() => navigateTo('home')} />}
-              {currentView === 'legal' && <LegalPage onBack={() => navigateTo('home')} />}
+              <Suspense fallback={<ViewFallback />}>
+                {currentView === 'terms' && <TermsPage onBack={() => navigateTo('home')} />}
+                {currentView === 'privacy' && <PrivacyPage onBack={() => navigateTo('home')} />}
+                {currentView === 'grading' && <GradingPage onBack={() => navigateTo('home')} />}
+                {currentView === 'legal' && <LegalPage onBack={() => navigateTo('home')} />}
+              </Suspense>
             </div>
           </main>
+
 
         ) : (
           <>
@@ -434,72 +445,76 @@ function App() {
 
                   ) : currentView === 'profile' ? (
                     <motion.div key="profile" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
-                      {user && profile ? <ProfilePage /> : <AuthGate />}
+                      <Suspense fallback={<ViewFallback />}>
+                        {user && profile ? <ProfilePage /> : <AuthGate />}
+                      </Suspense>
                     </motion.div>
                   ) : currentView === 'calculator' ? (
                     <motion.div key="calculator" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="space-y-6 sm:space-y-10">
-                      <section id="calculator" className="space-y-4">
-                        <div className="flex justify-between items-center pb-2 border-b-2 border-black/10">
-                          <div className="flex items-center gap-2">
-                            <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-                            <span className="text-xs font-mono font-black uppercase text-gray-700 tracking-wider">
-                              Interactive Mark Inputs
-                            </span>
+                      <Suspense fallback={<ViewFallback />}>
+                        <section id="calculator" className="space-y-4">
+                          <div className="flex justify-between items-center pb-2 border-b-2 border-black/10">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+                              <span className="text-xs font-mono font-black uppercase text-gray-700 tracking-wider">
+                                Interactive Mark Inputs
+                              </span>
+                            </div>
+                            <button
+                              onClick={clearGrades}
+                              className="group flex items-center gap-1.5 px-3 py-1.5 text-red-600 hover:bg-red-50 border-2 border-red-400 hover:border-red-600 rounded-lg font-black text-xs transition-all active:scale-95 shadow-[1.5px_1.5px_0px_0px_#f87171]"
+                            >
+                              <RotateCcw size={12} className="group-hover:-rotate-180 transition-transform duration-500" />
+                              Clear All Marks
+                            </button>
                           </div>
-                          <button
-                            onClick={clearGrades}
-                            className="group flex items-center gap-1.5 px-3 py-1.5 text-red-600 hover:bg-red-50 border-2 border-red-400 hover:border-red-600 rounded-lg font-black text-xs transition-all active:scale-95 shadow-[1.5px_1.5px_0px_0px_#f87171]"
-                          >
-                            <RotateCcw size={12} className="group-hover:-rotate-180 transition-transform duration-500" />
-                            Clear All Marks
-                          </button>
-                        </div>
-                        <Calculator
-                          sem1Grades={sem1Grades} setSem1Grades={setSem1Grades}
-                          sem2Grades={sem2Grades} setSem2Grades={setSem2Grades}
-                          sem3Grades={sem3Grades} setSem3Grades={setSem3Grades}
-                          cgpa={cgpa}
+                          <Calculator
+                            sem1Grades={sem1Grades} setSem1Grades={setSem1Grades}
+                            sem2Grades={sem2Grades} setSem2Grades={setSem2Grades}
+                            sem3Grades={sem3Grades} setSem3Grades={setSem3Grades}
+                            cgpa={cgpa}
+                          />
+                        </section>
+
+                        <TargetCGPA
+                          sem1Grades={sem1Grades}
+                          sem2Grades={sem2Grades}
+                          sem3Grades={sem3Grades}
+                          currentCgpa={cgpa}
                         />
-                      </section>
 
+                        <Analytics
+                          bestCourse={bestCourse} worstCourse={worstCourse}
+                          chartData={chartData}
+                          sem1Grades={sem1Grades} sem2Grades={sem2Grades} sem3Grades={sem3Grades}
+                        />
 
-                      <TargetCGPA
-                        sem1Grades={sem1Grades}
-                        sem2Grades={sem2Grades}
-                        sem3Grades={sem3Grades}
-                        currentCgpa={cgpa}
-                      />
-
-                      <Analytics
-                        bestCourse={bestCourse} worstCourse={worstCourse}
-                        chartData={chartData}
-                        sem1Grades={sem1Grades} sem2Grades={sem2Grades} sem3Grades={sem3Grades}
-                      />
-
-
-
-                      <Leaderboard
-                        leaderboardData={leaderboardData}
-                        isLeaderboardLoading={isLeaderboardLoading}
-                        setIsSubmitModalOpen={setIsSubmitModalOpen}
-                        cgpa={cgpa}
-                        hasSubmitted={hasSubmitted}
-                      />
+                        <Leaderboard
+                          leaderboardData={leaderboardData}
+                          isLeaderboardLoading={isLeaderboardLoading}
+                          setIsSubmitModalOpen={setIsSubmitModalOpen}
+                          cgpa={cgpa}
+                          hasSubmitted={hasSubmitted}
+                        />
+                      </Suspense>
                     </motion.div>
                   ) : (
                     /* Results View — open to everyone, auth only needed to edit */
                     <motion.div key="results" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
-                      <ResultsPortal
-                        onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>) => {
-                          setSem1Grades(s1);
-                          setSem2Grades(s2);
-                          setSem3Grades(s3 || SEM3_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
-                          navigateTo('calculator');
-                          setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100);
-                        }}
-                      />
+                      <Suspense fallback={<ViewFallback />}>
+                        <ResultsPortal
+                          onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>) => {
+                            setSem1Grades(s1);
+                            setSem2Grades(s2);
+                            setSem3Grades(s3 || SEM3_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
+                            navigateTo('calculator');
+                            setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100);
+                          }}
+                        />
+                      </Suspense>
                     </motion.div>
                   )}
+
                 </AnimatePresence>
               </div>
             </main>
