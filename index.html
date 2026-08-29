@@ -19,8 +19,10 @@
     <link rel="apple-touch-icon" href="/images/ubit_logo.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Resource Preloads -->
-    <link rel="preload" as="image" href="/images/ubit_logo.png" type="image/png" />
+    <!-- Resource Preloads for Fast Mobile LCP -->
+    <link rel="preload" as="image" href="/images/ubit_building_day.webp" type="image/webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/ubit_logo.webp" type="image/webp" />
+
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />

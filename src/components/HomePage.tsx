@@ -41,17 +41,22 @@ export const HomePage = ({ navigateTo }: HomePageProps) => {
       animate="show"
       className="space-y-8 sm:space-y-12 pb-8"
     >
-      {/* ── 1. HERO SECTION ── */}
-      <motion.section variants={itemVariants} className="relative">
+      {/* ── 1. HERO SECTION (Unblocked initial paint for instant LCP) ── */}
+      <section className="relative">
         <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-black shadow-[6px_6px_0px_0px_#000000] bg-surface group">
           <img
-            src="/images/ubit_building_day.jpg"
-            alt="UBIT Building"
+            src="/images/ubit_building_day.webp"
+            alt="UBIT Building - Department of Computer Science"
+            width="1200"
+            height="320"
+            fetchPriority="high"
+            decoding="async"
             className="w-full h-52 sm:h-72 md:h-80 object-cover group-hover:scale-105 transition-transform duration-700"
             loading="eager"
           />
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent flex items-end p-5 sm:p-8">
+
 
             <div className="text-left max-w-3xl">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-yellow-400 text-black border-2 border-black font-black text-[10px] sm:text-xs tracking-wider uppercase mb-2 shadow-[1.5px_1.5px_0px_0px_#000]">
@@ -85,9 +90,10 @@ export const HomePage = ({ navigateTo }: HomePageProps) => {
             </div>
           </div>
         </div>
-      </motion.section>
+      </section>
 
       {/* ── 2. FOUR MAIN MODULE CARDS ── */}
+
       <motion.section variants={itemVariants} className="space-y-3">
 
         <div className="flex items-center gap-2">

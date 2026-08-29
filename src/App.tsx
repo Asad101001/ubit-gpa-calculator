@@ -403,8 +403,8 @@ function App() {
 
         ) : (
           <>
-            {/* Fixed page background */}
-            <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
+            {/* Fixed page background - disabled on small screens to save mobile data & paint */}
+            <div className="hidden sm:block fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
               <div className="absolute inset-0 bg-background" />
               <div
                 className="absolute inset-0 opacity-[0.03]"
@@ -420,9 +420,9 @@ function App() {
             <main className="pb-24 md:pb-16 pt-16 sm:pt-20">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="wait" initial={false}>
                   {currentView === 'home' ? (
-                    <motion.div key="home" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
+                    <motion.div key="home" initial={false} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                       <HomePage
                         navigateTo={navigateTo}
                         gpa1={gpa1}
@@ -431,6 +431,7 @@ function App() {
                         hasGrades={Object.values(sem1Grades).some(v => v !== '') || Object.values(sem2Grades).some(v => v !== '')}
                       />
                     </motion.div>
+
                   ) : currentView === 'profile' ? (
                     <motion.div key="profile" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
                       {user && profile ? <ProfilePage /> : <AuthGate />}

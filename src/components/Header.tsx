@@ -52,10 +52,13 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
           >
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border-2 border-black shadow-[2px_2px_0px_0px_#000] flex-shrink-0 group-hover:translate-x-0.5 group-hover:translate-y-0.5 transition-transform">
               <img
-                src="/images/ubit_logo.jpg"
+                src="/images/ubit_logo.webp"
                 alt="UBIT Logo"
+                width="36"
+                height="36"
                 className="w-full h-full object-cover"
               />
+
             </div>
             <div className="flex flex-col items-start leading-none">
               <span className="font-black text-xs sm:text-sm tracking-tight text-black">

@@ -18,8 +18,9 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
           <div className="space-y-3.5">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-lg overflow-hidden border-2 border-black shadow-[2px_2px_0px_0px_#000] flex-shrink-0">
-                <img src="/images/ubit_logo.jpg" alt="UBIT Logo" className="w-full h-full object-cover" />
+                <img src="/images/ubit_logo.webp" alt="UBIT Logo" width="36" height="36" className="w-full h-full object-cover" />
               </div>
+
               <div>
                 <h3 className="font-black text-sm text-black tracking-tight leading-none">
                   UBIT <span className="bg-yellow-400 px-1 py-0.2 rounded border border-black text-[10px]">RESULTS</span>
