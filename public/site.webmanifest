@@ -1,9 +1,18 @@
 {
-  "name": "UBIT Results & GPA Portal",
+  "name": "UBIT GPA Calculator & Results Hub",
   "short_name": "UBIT Results",
-  "description": "Academic results portal, GPA/CGPA calculator, and target simulator for BSCS Batch 2024-28 at UBIT, University of Karachi.",
+  "description": "Official Academic Results Portal, CGPA Calculator, and Target Advisor for BSCS Batch 2024-28 at DCS UBIT, University of Karachi.",
   "start_url": "/",
-  "display": "browser",
-  "background_color": "#ffd700",
-  "theme_color": "#ffd700"
+  "display": "standalone",
+  "background_color": "#0B0F19",
+  "theme_color": "#FFD700",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/ubit_logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
