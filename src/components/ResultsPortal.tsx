@@ -181,39 +181,14 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   const sortedAndFilteredData = useMemo(() => {
     let filtered = [...data];
 
-    const isAdmin = !!profile?.is_admin;
-    const mySeatNo = String(profile?.seat_no || '').toUpperCase();
-    const isMyProfileHidden = profile?.show_results_publicly === false;
-    const hasSearch = searchQuery.trim() !== '';
-
-    // Enforce Public Privacy Filtering
-    filtered = filtered.filter(item => {
-      const seatNo = String(item['Seat No'] || '').toUpperCase();
-      const isThisHidden = (seatNo && hiddenSeatNos.has(seatNo)) || !!item.is_hidden || (seatNo === mySeatNo && isMyProfileHidden);
-      
-      // If student is not hidden, show normally
-      if (!isThisHidden) return true;
-
-      // If admin explicitly requested to view private records:
-      if (isAdmin && showAdminPrivateRecords) return true;
-
-      // If student themselves is searching for their own record while logged in:
-      if (hasSearch && mySeatNo && seatNo === mySeatNo) return true;
-
-      // By default, private records are 100% hidden from the public directory!
-      return false;
-    });
-
-    // Filter by Search Query
-    if (hasSearch) {
+    // Filter by Search Query (Name or Seat No)
+    if (searchQuery.trim() !== '') {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(item => 
         (item['Seat No'] && String(item['Seat No']).toLowerCase().includes(q)) || 
         (item['Name'] && String(item['Name']).toLowerCase().includes(q))
       );
     }
-
-
 
     // Sort Data
     if (sortConfig !== null) {
@@ -229,6 +204,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
             if (aStr > bStr) return sortConfig.direction === 'asc' ? 1 : -1;
             return 0;
         }
+
 
         // Handle missing/unannounced strings for Mark columns
         const isAString = typeof aVal === 'string' && isNaN(Number(aVal));
@@ -414,6 +390,27 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
       </div>
 
       <div className="glass rounded-[2rem] p-4 sm:p-6 md:p-8 relative overflow-hidden shadow-xl">
+        {/* Privacy Education & Notice Banner */}
+        <div className="mb-6 p-4 bg-yellow-50/90 border-2 border-black rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[3px_3px_0px_0px_#000]">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 shadow-[1px_1px_0px_0px_#000]">
+              <Lock size={15} className="text-black" />
+            </div>
+            <div>
+              <h4 className="text-xs sm:text-sm font-black text-black">Student Privacy Control</h4>
+              <p className="text-[11px] sm:text-xs text-gray-600 font-medium leading-tight mt-0.5">
+                Want to keep your subject grades private? Sign in to your verified account and toggle <strong>"Privacy & Results Visibility"</strong> in your Profile anytime.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => window.location.hash = 'profile'}
+            className="px-3.5 py-2 bg-black hover:bg-gray-800 text-yellow-400 font-black text-xs rounded-xl border border-black shrink-0 active:scale-95 transition-all shadow-[2px_2px_0px_0px_#000] text-center"
+          >
+            Manage Privacy
+          </button>
+        </div>
+
         {/* Controls */}
         <div className="flex flex-col lg:flex-row gap-4 mb-6">
           <div className="flex-1 relative group">
@@ -464,6 +461,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
             Viewing all subjects for searched student
           </div>
         )}
+
 
         {/* Results View */}
         {sortedAndFilteredData.length === 1 && searchQuery.trim() !== '' ? (
@@ -568,13 +566,20 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                   </tr>
                 ) : (
                   sortedAndFilteredData.map((student, index) => {
+                    const seatNo = String(student['Seat No'] || '').toUpperCase();
+                    const mySeatNo = String(profile?.seat_no || '').toUpperCase();
+                    const isMyProfileHidden = profile?.show_results_publicly === false;
+                    const isHidden = (seatNo && hiddenSeatNos.has(seatNo)) || !!student.is_hidden || (seatNo === mySeatNo && isMyProfileHidden);
+                    const isOwner = !!mySeatNo && seatNo === mySeatNo;
+                    const canViewMarks = !isHidden || isOwner || (!!profile?.is_admin && showAdminPrivateRecords);
+
                     return (
                       <motion.tr 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3 }}
                         key={student['Seat No']} 
-                        onClick={() => setSelectedStudentModal(student)}
+                        onClick={() => setSelectedStudentModal({ ...student, is_hidden: isHidden })}
                         className="hover:bg-yellow-50/50 transition-colors group cursor-pointer"
                         title="Click to view full student results & load into calculator"
                       >
@@ -589,9 +594,10 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                             <div className="flex flex-col min-w-0 flex-1">
                               <span className="truncate leading-tight font-bold group-hover:text-yellow-600 transition-colors flex items-center gap-1.5" title={student['Name']}>
                                 <span>{isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}</span>
-                                {student.is_hidden && (
-                                  <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-red-100 text-red-800 border border-red-400 shrink-0">
-                                    🔒 Private
+                                {isHidden && (
+                                  <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border shrink-0 flex items-center gap-1 ${isOwner ? 'bg-red-100 text-red-800 border-red-400' : 'bg-gray-100 text-gray-700 border-gray-300'}`}>
+                                    <Lock size={9} />
+                                    {isOwner ? 'Private (You)' : 'Hidden'}
                                   </span>
                                 )}
                               </span>
@@ -604,7 +610,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleEditClick(student);
+                                  handleEditClick({ ...student, is_hidden: isHidden });
                                 }}
                                 title={`Open and load marks for ${student['Name']}`}
                                 className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-yellow-400 text-black border-2 border-black shrink-0 ml-1 shadow-[1px_1px_0px_0px_#000] active:scale-95"
@@ -621,8 +627,13 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                             const isMissing = mark === undefined || mark === null || mark === '' || (typeof mark === 'string' && isNaN(Number(mark)));
                             const unannounced = mark === "Results Unannounced" || mark === undefined || mark === null || mark === '';
                             return (
-                              <td key={sub.id} className="p-1 px-1.5 sm:p-4 text-right border-l border-b border-border/30 snap-start">
-                                {isMissing ? (
+                              <td key={sub.id} className={`p-1 px-1.5 sm:p-4 text-right border-l border-b border-border/30 snap-start ${!canViewMarks ? 'bg-gray-50/40' : ''}`}>
+                                {!canViewMarks ? (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] sm:text-[9.5px] font-mono font-bold bg-gray-100 text-gray-500 border border-gray-200" title="Marks hidden by student">
+                                    <Lock size={8} className="opacity-70" />
+                                    <span>Hidden</span>
+                                  </span>
+                                ) : isMissing ? (
                                   <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8.5px] sm:text-[10px] font-bold bg-surfaceHighlight text-gray-500 border border-border/40">
                                     {unannounced ? "Unannounced" : "Missing"}
                                   </span>
@@ -640,7 +651,12 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                               const mark = student[effectiveSubject];
                               const isMissing = mark === undefined || mark === null || mark === '' || (typeof mark === 'string' && isNaN(Number(mark)));
                               const unannounced = mark === "Results Unannounced" || mark === undefined || mark === null || mark === '';
-                              return isMissing ? (
+                              return !canViewMarks ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200">
+                                  <Lock size={11} />
+                                  <span>Marks Hidden</span>
+                                </span>
+                              ) : isMissing ? (
                                 <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-surfaceHighlight text-gray-500 border border-border">
                                   {unannounced ? "Results Unannounced" : mark}
                                 </span>
@@ -656,6 +672,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                       </motion.tr>
                     )
                   })
+
                 )}
               </tbody>
             </table>

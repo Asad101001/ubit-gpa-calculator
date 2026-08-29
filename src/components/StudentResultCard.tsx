@@ -46,6 +46,8 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
 
   const isOwner = !!profile?.seat_no && profile.seat_no.toUpperCase() === String(student['Seat No']).toUpperCase();
   const isAdmin = profile?.is_admin ?? false;
+  const isHidden = !!student.is_hidden || (isOwner && profile?.show_results_publicly === false);
+  const canViewMarks = !isHidden || isOwner || isAdmin;
   const canEdit = isOwner || isAdmin;
 
   const sem1Subs = SUBJECTS_META.filter(s => s.sem === 1);
@@ -88,47 +90,18 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
         }
       });
 
-      // Try updating via supabase directly if user is logged in
       const { error } = await supabase
         .from('student_results')
         .update(updates)
         .eq('seat_no', targetSeatNo);
 
-      if (error) {
-        // Try fallback via API
-        const { data: { session } } = await supabase.auth.getSession();
-        const res = await fetch('/api/update-marks', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-          body: JSON.stringify({ seat_no: targetSeatNo, marks_payload: updates }),
-        });
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || 'Failed to save marks');
-        }
-      }
+      if (error) throw error;
 
-      setStudent(prev => {
-        const next = { ...prev };
-        Object.entries(updates).forEach(([k, v]) => {
-          next[k] = v;
-        });
-        return next;
-      });
+      setStudent(prev => ({ ...prev, ...updates }));
       setIsEditing(false);
-      triggerConfetti();
-      toast.success('Official marks updated successfully!', { icon: '✅' });
+      toast.success('Marks updated successfully! 🎉');
     } catch (err: any) {
-      // Local optimistic update if backend is unreachable
-      setStudent(prev => {
-        const next = { ...prev };
-        Object.entries(editedMarks).forEach(([k, v]) => {
-          next[k] = v === '' ? null : Number(v);
-        });
-        return next;
-      });
-      setIsEditing(false);
-      toast.success('Marks updated locally for this session!', { icon: '💾' });
+      toast.error(err.message || 'Failed to update marks.');
     } finally {
       setIsSavingMarks(false);
     }
@@ -279,6 +252,10 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
               {marks !== null ? `${getLetterGrade(marks)} (${getGradePoint(marks)})` : '—'}
             </span>
           </div>
+        ) : !canViewMarks ? (
+          <span className="shrink-0 flex items-center gap-1 text-xs font-bold text-gray-500 font-mono bg-gray-100 px-2.5 py-1 rounded-lg border border-gray-200">
+            <Lock size={11} className="opacity-70" /> Hidden by Student
+          </span>
         ) : isMissing ? (
           <span className="shrink-0 sm:w-32 text-left sm:text-right text-[10px] text-textMuted/50 italic pr-2 mt-1 sm:mt-0">— Missing Marks</span>
         ) : (
@@ -312,9 +289,9 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
               <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-yellow-400 text-black border border-black shadow-[1px_1px_0px_0px_#000]">
                 Verified Student Record
               </span>
-              {student.is_hidden && (
+              {isHidden && (
                 <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-red-100 text-red-800 border border-red-400 flex items-center gap-1">
-                  <Lock size={10} /> Private Profile
+                  <Lock size={10} /> Marks Hidden
                 </span>
               )}
               {canEdit && (
@@ -329,8 +306,15 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            {/* CGPA Badge: Concrete vs Pencilled-in */}
-            {isConcrete ? (
+            {/* CGPA Badge: Concrete vs Tentative vs Hidden */}
+            {!canViewMarks ? (
+              <div className="flex flex-col items-center px-4 py-2 border-2 border-black rounded-xl bg-gray-100 shadow-[2px_2px_0px_0px_#000]">
+                <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider flex items-center gap-1">
+                  <Lock size={10} /> Private
+                </span>
+                <span className="text-xl sm:text-2xl font-black text-gray-700">Hidden</span>
+              </div>
+            ) : isConcrete ? (
               <div className="flex flex-col items-center px-4 py-2.5 border-2 rounded-xl bg-yellow-400 border-black shadow-[2px_2px_0px_0px_#000]">
                 <span className="text-[10px] font-black text-black uppercase tracking-wider">CGPA</span>
                 <span className="text-2xl sm:text-3xl font-black text-black">{currentCalculatedCgpa}</span>
@@ -348,6 +332,33 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
           </div>
 
         </div>
+
+        {/* ── Privacy Status Banner ── */}
+        {!canViewMarks ? (
+          <div className="mt-5 p-4 bg-yellow-50/90 border-2 border-black rounded-xl text-xs font-bold text-black shadow-[2px_2px_0px_0px_#000] flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-yellow-400 border border-black flex items-center justify-center shrink-0 mt-0.5 shadow-[1px_1px_0px_0px_#000]">
+              <Lock size={16} />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-black text-black text-sm">Marks Kept Private by Student</h4>
+              <p className="text-gray-600 text-xs mt-0.5 leading-relaxed">
+                This student has opted to keep their scores and CGPA hidden from public view. Only the student themselves or administration can view full transcripts.
+              </p>
+              <p className="text-[11px] text-gray-500 mt-2">
+                💡 Are you this student? <button onClick={() => openAuthModal('signin')} className="text-black font-black underline hover:text-yellow-600 cursor-pointer">Sign in to your account</button> to view, claim, or edit your private records.
+              </p>
+            </div>
+          </div>
+        ) : isHidden && isOwner ? (
+          <div className="mt-5 p-3.5 bg-green-50 border-2 border-green-600 rounded-xl text-xs font-bold text-green-900 shadow-[2px_2px_0px_0px_#000] flex items-center gap-3">
+            <div className="w-7 h-7 rounded-lg bg-green-400 border border-green-700 flex items-center justify-center shrink-0">
+              <Lock size={13} className="text-black" />
+            </div>
+            <p className="flex-1">
+              <strong>Your Privacy is Active:</strong> Other students only see your name with a <em>"🔒 Hidden"</em> tag and cannot see your subject scores or CGPA. You can toggle public visibility anytime in your Profile.
+            </p>
+          </div>
+        ) : null}
 
         {/* ── 3 PRIMARY ACTION BUTTONS ── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-6 pt-5 border-t-2 border-black/10">
@@ -374,7 +385,7 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
           ) : (
             <button
               onClick={startEditing}
-              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-yellow-400 hover:bg-yellow-300 text-black border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-yellow-400 hover:bg-yellow-300 text-black border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
               title={canEdit ? "Edit your official marks" : "Sign in to edit this record"}
             >
               <Edit3 size={15} strokeWidth={2.5} />
@@ -385,8 +396,9 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
           {/* 2. LOAD INTO CALCULATOR BUTTON */}
           <button
             onClick={handlePrefill}
-            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-black hover:bg-gray-900 text-yellow-400 border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
-            title="Load marks into the live GPA calculator & target simulator"
+            disabled={!canViewMarks}
+            className={`flex items-center justify-center gap-2 px-3 py-2.5 border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] transition-all ${!canViewMarks ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-900 text-yellow-400 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer'}`}
+            title={canViewMarks ? "Load marks into the live GPA calculator & target simulator" : "Marks are private and cannot be loaded by other users"}
           >
             <Calculator size={15} strokeWidth={2.5} />
             <span>Load into Calculator</span>
@@ -395,6 +407,7 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
           {/* 3. DOWNLOAD PDF TRANSCRIPT BUTTON */}
           <button
             onClick={() => {
+              if (!canViewMarks) return;
               triggerConfetti();
               toast.promise(
                 Promise.resolve(generateTranscriptPDF(student)),
@@ -405,7 +418,9 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
                 }
               );
             }}
-            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white hover:bg-gray-100 text-black border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+            disabled={!canViewMarks}
+            className={`flex items-center justify-center gap-2 px-3 py-2.5 border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] transition-all ${!canViewMarks ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-100 text-black active:translate-x-0.5 active:translate-y-0.5 cursor-pointer'}`}
+            title={canViewMarks ? "Download official PDF transcript" : "Transcript is private"}
           >
             <Download size={15} strokeWidth={2.5} />
             <span>PDF Transcript</span>
@@ -448,7 +463,11 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
             <div className="flex items-center gap-3">
               <span className="text-xs text-textMuted">{stats.cr} / {subs.reduce((a,s)=>a+s.credits,0)} Credit Hours</span>
               <span className={`text-sm font-black px-3 py-1 rounded-lg border-2 ${badgeClass}`}>
-                GPA {stats.gpa}
+                {!canViewMarks ? (
+                  <span className="flex items-center gap-1"><Lock size={12} /> GPA Hidden</span>
+                ) : (
+                  `GPA ${stats.gpa}`
+                )}
               </span>
             </div>
           </div>
@@ -469,7 +488,9 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
 
           {/* Passing indicator */}
           <div className="px-5 py-3 bg-surfaceHighlight/30 border-t border-border/30 flex items-center gap-2">
-            {Number(stats.gpa) >= 2.0 ? (
+            {!canViewMarks ? (
+              <span className="text-xs text-textMuted flex items-center gap-1 font-semibold"><Lock size={12} /> Status hidden for private record</span>
+            ) : Number(stats.gpa) >= 2.0 ? (
               <><CheckCircle size={14} className="text-green-600" /><span className="text-xs font-semibold text-green-700">Passing</span></>
             ) : stats.gpa === '—' ? (
               <span className="text-xs text-textMuted">No marks recorded</span>
@@ -496,7 +517,13 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
           <div className="flex items-center gap-3">
             <span className="text-xs text-amber-700">{s3Stats.cr} / {sem3Subs.reduce((a,s)=>a+s.credits,0)} Credit Hours</span>
             <span className="text-sm font-black px-3 py-1 rounded-lg border-2 text-amber-700 bg-amber-50 border-amber-300">
-              {s3Stats.gpa === '—' || s3Stats.missing ? 'Tentative' : `GPA ${s3Stats.gpa}`}
+              {!canViewMarks ? (
+                <span className="flex items-center gap-1"><Lock size={12} /> GPA Hidden</span>
+              ) : s3Stats.gpa === '—' || s3Stats.missing ? (
+                'Tentative'
+              ) : (
+                `GPA ${s3Stats.gpa}`
+              )}
             </span>
           </div>
         </div>
@@ -521,7 +548,11 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
                   </div>
                 </div>
                 <span className="hidden sm:block text-[10px] text-textMuted shrink-0 w-24 text-center">{sub.credits} Credit Hours</span>
-                {marks === null ? (
+                {!canViewMarks ? (
+                  <span className="shrink-0 flex items-center gap-1 text-xs font-bold text-amber-800/60 font-mono bg-amber-100/60 px-2.5 py-1 rounded-lg border border-amber-200">
+                    <Lock size={11} className="opacity-70" /> Hidden by Student
+                  </span>
+                ) : marks === null ? (
                   <span className="shrink-0 sm:w-32 text-left sm:text-right text-[10px] text-amber-500/70 italic pr-2">
                     ⏳ Pending
                   </span>
@@ -536,6 +567,7 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
             );
           })}
         </div>
+
         <div className="px-5 py-3 bg-amber-50/30 border-t border-amber-100 flex items-center gap-2">
           <AlertTriangle size={13} className="text-amber-500" />
           <span className="text-xs text-amber-700 italic">Results not yet finalized — marks shown are tentative</span>
