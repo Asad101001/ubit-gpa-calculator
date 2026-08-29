@@ -44,20 +44,42 @@ export default async function handler(req: Request) {
       }
     }
 
-    // Attach is_hidden tag to records
-    const enrichedData = data.map((row: any) => ({
-      ...row,
-      is_hidden: row.seat_no ? hiddenSeatNos.has(String(row.seat_no).toUpperCase()) : false,
-    }));
+    // Subject IDs to sanitize if private
+    const subjectIds = [
+      'cs351','cs353','cs355','cs357','cs359','cs361',
+      'cs352','cs354','cs356','cs358','cs360','cs362',
+      'cs451','cs453','cs455','cs457','cs459','cs461'
+    ];
+
+    // Attach is_hidden tag and sanitize records
+    const enrichedData = data.map((row: any) => {
+      const seatNo = row.seat_no ? String(row.seat_no).toUpperCase() : '';
+      const isHidden = (seatNo && hiddenSeatNos.has(seatNo)) || !!row.is_hidden;
+
+      if (!isHidden) {
+        return { ...row, is_hidden: false };
+      }
+
+      // If hidden, sanitize marks from public response
+      const sanitized: Record<string, any> = {
+        ...row,
+        is_hidden: true,
+      };
+      subjectIds.forEach(sub => {
+        sanitized[sub] = 'Hidden';
+      });
+      return sanitized;
+    });
 
     return new Response(JSON.stringify(enrichedData), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 's-maxage=10, stale-while-revalidate=60',
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
         'Access-Control-Allow-Origin': '*',
       },
     });
+
   } catch (e: any) {
     return new Response(JSON.stringify({ error: e.message || 'Server error' }), {
       status: 500,

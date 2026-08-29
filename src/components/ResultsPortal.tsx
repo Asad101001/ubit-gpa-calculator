@@ -589,7 +589,8 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                     const isMyProfileHidden = profile?.show_results_publicly === false;
                     const isHidden = (seatNo && hiddenSeatNos.has(seatNo)) || !!student.is_hidden || (seatNo === mySeatNo && isMyProfileHidden);
                     const isOwner = !!mySeatNo && seatNo === mySeatNo;
-                    const canViewMarks = !isHidden || isOwner || (!!profile?.is_admin && showAdminPrivateRecords);
+                    const canViewMarks = !isHidden || (!!profile?.is_admin && showAdminPrivateRecords);
+
 
                     return (
                       <motion.tr 
