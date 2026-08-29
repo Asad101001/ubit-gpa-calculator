@@ -90,7 +90,30 @@
 
 
   <body class="bg-background text-textMain antialiased selection:bg-brand-500/30">
-    <div id="root"></div>
+    <div id="root">
+      <!-- Instant First-Frame Shell for Sub-Second Mobile FCP & LCP -->
+      <header style="position:fixed; top:0; left:0; right:0; height:56px; border-bottom:2px solid #000; background:#fff; display:flex; align-items:center; padding:0 16px; justify-content:space-between; z-index:50;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:36px; height:36px; border:2px solid #000; border-radius:8px; overflow:hidden; flex-shrink:0;">
+            <img src="/images/ubit_logo.webp" width="36" height="36" alt="UBIT Logo" style="width:100%; height:100%; object-fit:cover; display:block;" />
+          </div>
+          <div style="font-weight:900; font-size:14px; color:#000; display:flex; align-items:center; gap:4px;">
+            <span>UBIT</span>
+            <span style="background:#facc15; padding:1px 4px; border-radius:4px; border:1px solid #000; font-size:10px; font-weight:900;">RESULTS</span>
+          </div>
+        </div>
+      </header>
+      <main style="max-width:1280px; margin:0 auto; padding:72px 16px 32px;">
+        <div style="border:2px solid #000; border-radius:20px; overflow:hidden; background:#111; box-shadow:4px 4px 0px #000; position:relative;">
+          <img src="/images/ubit_building_day.webp" width="1200" height="320" alt="UBIT Building" style="width:100%; height:208px; object-fit:cover; display:block;" fetchpriority="high" />
+          <div style="position:absolute; bottom:0; left:0; right:0; padding:20px; background:linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.4), transparent); color:#fff;">
+            <span style="display:inline-block; padding:2px 8px; background:#facc15; color:#000; border:2px solid #000; border-radius:6px; font-weight:900; font-size:10px; text-transform:uppercase; margin-bottom:8px;">Department of Computer Science · University of Karachi</span>
+            <div style="font-size:24px; font-weight:900; line-height:1.1; margin-bottom:6px;">UBIT Academic Portal</div>
+            <div style="font-size:12px; color:#d1d5db; max-width:600px;">The centralized academic result platform and GPA calculator for BSCS Batch 2024–28.</div>
+          </div>
+        </div>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
