@@ -7,6 +7,7 @@ import {
 
 import type { ViewType } from '../App';
 import { useAuthStore } from '../store/useAuthStore';
+import { BatchStatsCards } from './BatchStatsCards';
 
 interface HomePageProps {
   navigateTo: (view: ViewType) => void;
@@ -92,7 +93,18 @@ export const HomePage = ({ navigateTo }: HomePageProps) => {
         </div>
       </section>
 
-      {/* ── 2. FOUR MAIN MODULE CARDS ── */}
+      {/* ── 2. BATCH ACADEMIC PERFORMANCE OVERVIEW ── */}
+      <motion.section variants={itemVariants} className="space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#801618] animate-pulse" />
+          <h3 className="text-xs font-black font-mono uppercase tracking-wider text-textMuted">
+            Batch 2024–28 Academic Overview
+          </h3>
+        </div>
+        <BatchStatsCards />
+      </motion.section>
+
+      {/* ── 3. FOUR MAIN MODULE CARDS ── */}
 
       <motion.section variants={itemVariants} className="space-y-3">
 

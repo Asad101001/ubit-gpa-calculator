@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { StudentResultCard, getMarkColor } from './StudentResultCard';
 import { useAuthStore } from '../store/useAuthStore';
 import { supabase } from '../lib/supabase';
+import { BatchStatsCards } from './BatchStatsCards';
 
 const SUBJECTS_DATA = [
   // 1st Semester
@@ -413,6 +414,11 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
 
           {error && <p className="text-red-500 text-sm mt-2 font-medium">{error}</p>}
         </div>
+      </div>
+
+      {/* ── BATCH OVERVIEW METRIC CARDS ── */}
+      <div className="mb-6 sm:mb-8">
+        <BatchStatsCards students={data} />
       </div>
 
       <div className="glass rounded-[2rem] p-4 sm:p-6 md:p-8 relative overflow-hidden shadow-xl">
