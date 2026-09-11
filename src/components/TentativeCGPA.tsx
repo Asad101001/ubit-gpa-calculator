@@ -34,7 +34,7 @@ export const TentativeCGPA = ({
         >
           {cgpa}
         </span>
-        <span className="text-yellow-600 font-black text-sm sm:text-base leading-none select-none">*</span>
+        <span className="text-[#801618] font-black text-sm sm:text-base leading-none select-none">*</span>
       </div>
 
       {/* Subtle In-Progress / Pending Note */}

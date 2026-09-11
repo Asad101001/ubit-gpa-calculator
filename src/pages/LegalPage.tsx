@@ -18,7 +18,7 @@ export const LegalPage = ({ initialSubTab = 'terms', onBack }: LegalPageProps) =
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-3 bg-white p-2 rounded-2xl border-2 border-black shadow-[4px_4px_0px_0px_#000000]">
         <button
           onClick={onBack}
-          className="p-2 bg-surfaceHighlight hover:bg-yellow-400 text-black rounded-xl border-2 border-black font-extrabold text-xs transition-all shrink-0"
+          className="p-2 bg-surfaceHighlight hover:bg-[#801618] hover:text-white text-black rounded-xl border-2 border-black font-extrabold text-xs transition-all shrink-0"
         >
           <ArrowLeft size={16} />
         </button>
@@ -37,7 +37,7 @@ export const LegalPage = ({ initialSubTab = 'terms', onBack }: LegalPageProps) =
                 onClick={() => setSubTab(tab.id as 'terms' | 'privacy' | 'grading')}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap border-2 border-black transition-all ${
                   isActive
-                    ? 'bg-yellow-400 text-black shadow-[2px_2px_0px_0px_#000000]'
+                    ? 'bg-[#801618] text-white shadow-[2px_2px_0px_0px_#000000]'
                     : 'bg-white text-textMuted hover:text-textMain hover:bg-gray-100'
                 }`}
               >

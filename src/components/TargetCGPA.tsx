@@ -252,13 +252,13 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
         className="flex items-center justify-between cursor-pointer group select-none"
       >
         <div className="flex items-center gap-3 sm:gap-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_#000] shrink-0">
-            <Target className="text-black w-5 h-5 sm:w-6 sm:h-6" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#801618] border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_#000] shrink-0">
+            <Target className="text-white w-5 h-5 sm:w-6 sm:h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-lg sm:text-2xl font-black text-black tracking-tight">Target CGPA Advisor</h3>
-              <span className="bg-black text-yellow-400 text-[10px] font-black px-2 py-0.5 rounded border border-black uppercase tracking-wider">
+              <span className="bg-black text-white text-[10px] font-black px-2 py-0.5 rounded border border-black uppercase tracking-wider">
                 Smart Engine
               </span>
             </div>
@@ -271,7 +271,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gray-100 border-2 border-black flex items-center justify-center text-black group-hover:bg-yellow-400 transition-colors">
+          <div className="w-8 h-8 rounded-lg bg-gray-100 border-2 border-black flex items-center justify-center text-black group-hover:bg-[#801618] group-hover:text-white transition-colors">
             {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </div>
         </div>
@@ -287,7 +287,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
             className="overflow-hidden space-y-6 pt-2"
           >
             {/* Control Panel: Goal Input + Presets + Modes */}
-            <div className="p-4 sm:p-5 bg-yellow-50 rounded-xl border-2 border-black space-y-4">
+            <div className="p-4 sm:p-5 bg-rose-50/80 rounded-xl border-2 border-black space-y-4">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
                 
                 {/* 1. Target Input */}
@@ -304,7 +304,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                       placeholder="e.g. 3.50"
                       value={targetCgpa}
                       onChange={e => setTargetCgpa(e.target.value)}
-                      className="w-28 sm:w-36 px-3 py-2 bg-white text-black font-black text-base sm:text-lg rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-[2px_2px_0px_0px_#000] placeholder:text-gray-400 placeholder:font-normal"
+                      className="w-28 sm:w-36 px-3 py-2 bg-white text-black font-black text-base sm:text-lg rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-[#801618] shadow-[2px_2px_0px_0px_#000] placeholder:text-gray-400 placeholder:font-normal"
                     />
                     {currentVal > 0 && targetVal > 0 && (
                       <div className="px-2.5 py-1.5 bg-white border-2 border-black rounded-lg text-xs font-bold text-black">
@@ -336,8 +336,8 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                         }}
                         className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border-2 transition-all active:scale-95 ${
                           targetCgpa === preset.val
-                            ? 'bg-black text-yellow-400 border-black shadow-[2px_2px_0px_0px_#E6B400]'
-                            : 'bg-white text-black border-black hover:bg-yellow-100'
+                            ? 'bg-[#801618] text-white border-black shadow-[2px_2px_0px_0px_#000]'
+                            : 'bg-white text-black border-black hover:bg-rose-100'
                         }`}
                       >
                         {preset.label}
@@ -357,7 +357,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                       onClick={() => setMode('improvement')}
                       className={`flex items-center justify-center gap-1 py-1.5 px-2 rounded-md text-[11px] font-black transition-all ${
                         mode === 'improvement'
-                          ? 'bg-yellow-400 text-black border border-black shadow-[1px_1px_0px_0px_#000]'
+                          ? 'bg-[#801618] text-white border border-black shadow-[1px_1px_0px_0px_#000]'
                           : 'text-gray-600 hover:text-black'
                       }`}
                     >
@@ -367,7 +367,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                       onClick={() => setMode('future')}
                       className={`flex items-center justify-center gap-1 py-1.5 px-2 rounded-md text-[11px] font-black transition-all ${
                         mode === 'future'
-                          ? 'bg-yellow-400 text-black border border-black shadow-[1px_1px_0px_0px_#000]'
+                          ? 'bg-[#801618] text-white border border-black shadow-[1px_1px_0px_0px_#000]'
                           : 'text-gray-600 hover:text-black'
                       }`}
                     >
@@ -382,7 +382,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
             {/* Empty state when no marks entered */}
             {!hasGrades && (
               <div className="p-4 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl flex items-center gap-3 text-xs sm:text-sm text-gray-700">
-                <Lightbulb size={18} className="text-yellow-600 shrink-0" />
+                <Lightbulb size={18} className="text-[#801618] shrink-0" />
                 <span>Fill in your subject marks in the calculator above to get custom target recommendations and roadmaps.</span>
               </div>
             )}
@@ -390,7 +390,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
             {/* Target not entered state */}
             {hasGrades && !targetVal && (
               <div className="p-6 bg-white border-2 border-black rounded-xl text-center space-y-2 shadow-[2px_2px_0px_0px_#000]">
-                <div className="w-10 h-10 rounded-full bg-yellow-100 border-2 border-black flex items-center justify-center mx-auto text-black shadow-[1px_1px_0px_0px_#000]">
+                <div className="w-10 h-10 rounded-full bg-rose-100 border-2 border-black flex items-center justify-center mx-auto text-[#801618] shadow-[1px_1px_0px_0px_#000]">
                   <Target size={20} />
                 </div>
                 <h4 className="text-sm font-black text-black">Select or Enter a Target CGPA Above</h4>
@@ -419,23 +419,23 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b-2 border-black">
                   <div className="flex items-center gap-2">
-                    <Sparkles size={16} className="text-yellow-500" />
+                    <Sparkles size={16} className="text-[#801618]" />
                     <h4 className="text-xs sm:text-sm font-black text-black uppercase tracking-wider">
                       Strategic Focus ({suggestions.length} Courses Recommended)
                     </h4>
                   </div>
                   {isTargetAchievable && (
-                    <span className="text-xs font-black bg-yellow-400 text-black px-2.5 py-1 rounded border border-black self-start sm:self-auto">
+                    <span className="text-xs font-black bg-[#801618] text-white px-2.5 py-1 rounded border border-black self-start sm:self-auto">
                       Projected CGPA: {projectedCgpa.toFixed(3)}
                     </span>
                   )}
                 </div>
 
-                <div className="text-[11px] text-gray-600 font-bold bg-amber-50 border border-amber-300 rounded-lg p-2.5 flex items-center justify-between gap-2">
+                <div className="text-[11px] text-gray-600 font-bold bg-rose-50 border border-rose-200 rounded-lg p-2.5 flex items-center justify-between gap-2">
                   <span>ℹ️ Semesters 1 & 2 are finalized records. Recommendations target ongoing Semester 3.</span>
                   <button 
                     onClick={() => setMode('future')} 
-                    className="underline text-black font-black shrink-0 hover:text-yellow-700"
+                    className="underline text-black font-black shrink-0 hover:text-[#801618]"
                   >
                     View Future Roadmap →
                   </button>
@@ -449,7 +449,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                     <p>Since Sem 1 & 2 are closed, switch to <strong>Future Semesters (Sem 4–8)</strong> to see the required semester GPA targets.</p>
                     <button
                       onClick={() => setMode('future')}
-                      className="px-3 py-1.5 bg-black text-yellow-400 rounded-lg font-black text-xs border border-black shadow-[2px_2px_0px_0px_#000] active:scale-95"
+                      className="px-3 py-1.5 bg-[#801618] hover:bg-[#9b1b1e] text-white rounded-lg font-black text-xs border border-black shadow-[2px_2px_0px_0px_#000] active:scale-95"
                     >
                       Calculate Future Semesters Target
                     </button>
@@ -473,7 +473,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                             <div>
                               <div className="flex items-center justify-between gap-1 mb-1.5">
                                 <div className="flex items-center gap-1.5">
-                                  <span className="text-[10px] font-black bg-yellow-400 text-black px-1.5 py-0.5 rounded border border-black">
+                                  <span className="text-[10px] font-black bg-[#801618] text-white px-1.5 py-0.5 rounded border border-black">
                                     {s.course.code}
                                   </span>
                                   <span className="text-[10px] font-bold text-gray-600">{s.course.credits} Cr</span>
@@ -521,7 +521,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                     </div>
 
                     {isTargetAchievable && (
-                      <div className="p-3.5 bg-yellow-400 text-black rounded-xl border-2 border-black font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-[2px_2px_0px_0px_#000]">
+                      <div className="p-3.5 bg-[#801618] text-white rounded-xl border-2 border-black font-bold text-xs sm:text-sm flex items-center gap-2.5 shadow-[2px_2px_0px_0px_#000]">
                         <Award size={18} className="shrink-0" />
                         <span>
                           Target <strong>{targetVal.toFixed(2)} CGPA</strong> is achievable by securing a combined <strong>+{totalMarksToImprove} marks</strong> across the {suggestions.length} subjects above!
@@ -552,7 +552,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
                       <select
                         value={remainingSemesters}
                         onChange={e => setRemainingSemesters(Number(e.target.value))}
-                        className="bg-yellow-50 text-black font-bold text-xs px-2.5 py-1.5 rounded-lg border-2 border-black outline-none focus:bg-yellow-200"
+                        className="bg-rose-50 text-black font-bold text-xs px-2.5 py-1.5 rounded-lg border-2 border-black outline-none focus:bg-rose-100"
                       >
                         {[1, 2, 3, 4, 5, 6].map(n => (
                           <option key={n} value={n}>{n} Sem ({n * 18} Cr)</option>
@@ -572,7 +572,7 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
 
                       <div className={`p-3.5 rounded-xl border-2 ${
                         futureSemesterAnalysis.isPossible
-                          ? 'bg-yellow-100 border-black text-black'
+                          ? 'bg-rose-100 border-black text-[#801618]'
                           : 'bg-red-100 border-red-500 text-red-900'
                       }`}>
                         <span className="text-[10px] font-black uppercase tracking-wider block mb-1">Required Avg GPA</span>

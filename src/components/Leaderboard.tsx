@@ -19,7 +19,7 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
   if (isLoading) {
     return (
       <div className="flex flex-col justify-center items-center h-56 text-black font-black animate-pulse space-y-3">
-        <div className="w-10 h-10 border-4 border-black border-t-yellow-400 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-black border-t-[#801618] rounded-full animate-spin" />
         <span className="text-xs uppercase tracking-wider">Fetching live rankings...</span>
       </div>
     );
@@ -27,9 +27,9 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-56 text-center px-4 bg-yellow-50/60 border-2 border-dashed border-black/20 rounded-2xl">
-        <div className="w-14 h-14 rounded-2xl bg-yellow-400 border-2 border-black flex items-center justify-center mb-3 shadow-[2px_2px_0px_0px_#000]">
-          <Trophy className="text-black" size={28} />
+      <div className="flex flex-col items-center justify-center h-56 text-center px-4 bg-rose-50/60 border-2 border-dashed border-black/20 rounded-2xl">
+        <div className="w-14 h-14 rounded-2xl bg-[#801618] border-2 border-black flex items-center justify-center mb-3 shadow-[2px_2px_0px_0px_#000]">
+          <Trophy className="text-white" size={28} />
         </div>
         <p className="text-black font-black text-base">The podium is currently open!</p>
         <p className="text-gray-600 font-medium text-xs mt-0.5">Calculate your CGPA above and claim the first spot on the leaderboard.</p>
@@ -63,7 +63,7 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
           const heightClass = isCenter ? "h-44 sm:h-56" : isLeft ? "h-32 sm:h-40" : "h-24 sm:h-32";
           
           const podiumBg = isCenter 
-            ? "bg-yellow-400 text-black border-2 border-black shadow-[4px_4px_0px_0px_#000]" 
+            ? "bg-[#801618] text-white border-2 border-black shadow-[4px_4px_0px_0px_#000]" 
             : isLeft 
             ? "bg-gray-100 text-black border-2 border-black shadow-[3px_3px_0px_0px_#000]" 
             : "bg-amber-100 text-black border-2 border-black shadow-[3px_3px_0px_0px_#000]";
@@ -83,9 +83,9 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
                   <motion.div 
                     animate={{ y: [-3, 3, -3] }} 
                     transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-yellow-400 border-2 border-black flex items-center justify-center mb-1.5 shadow-[2px_2px_0px_0px_#000]"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#801618] border-2 border-black flex items-center justify-center mb-1.5 shadow-[2px_2px_0px_0px_#000]"
                   >
-                    <Trophy className="text-black w-5 h-5 sm:w-6 sm:h-6" />
+                    <Trophy className="text-white w-5 h-5 sm:w-6 sm:h-6" />
                   </motion.div>
                 ) : isLeft ? (
                   <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 border-2 border-black flex items-center justify-center mb-1 shadow-[1.5px_1.5px_0px_0px_#000]">
@@ -101,7 +101,7 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
                   {student.name} 
                 </span>
                 
-                <div className={`mt-1 px-2.5 py-0.5 rounded-md border border-black font-mono font-black text-xs sm:text-sm ${isCenter ? 'bg-black text-yellow-400' : 'bg-white text-black'}`}>
+                <div className={`mt-1 px-2.5 py-0.5 rounded-md border border-black font-mono font-black text-xs sm:text-sm ${isCenter ? 'bg-[#801618] text-white' : 'bg-white text-black'}`}>
                   {student.cgpa.toFixed(2)}
                 </div>
               </div>
@@ -119,7 +119,7 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
       {rest.length > 0 && (
         <div className="space-y-2.5 max-w-2xl mx-auto pt-4">
           <div className="flex items-center gap-2 mb-1 px-1">
-            <Sparkles size={14} className="text-yellow-600" />
+            <Sparkles size={14} className="text-[#801618]" />
             <span className="text-[11px] font-black text-gray-700 uppercase tracking-wider">Top Batch Contenders</span>
           </div>
           {rest.map((student, idx) => (
@@ -137,8 +137,8 @@ const PodiumLeaderboard = ({ data, isLoading }: { data: any[], isLoading: boolea
                 </div>
                 <span className="font-bold text-xs sm:text-sm text-black truncate">{student.name}</span>
               </div>
-              <div className="px-3 py-1 bg-yellow-400 border-2 border-black rounded-lg font-mono font-black text-xs sm:text-sm text-black shadow-[1px_1px_0px_0px_#000]">
-                {student.cgpa.toFixed(2)} <span className="text-[10px] uppercase font-bold text-black/70">CGPA</span>
+              <div className="px-3 py-1 bg-[#801618] border-2 border-black rounded-lg font-mono font-black text-xs sm:text-sm text-white shadow-[1px_1px_0px_0px_#000]">
+                {student.cgpa.toFixed(2)} <span className="text-[10px] uppercase font-bold text-white/80">CGPA</span>
               </div>
             </motion.div>
           ))}
@@ -174,14 +174,14 @@ export const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmit
           >
             <button 
               onClick={onClose}
-              className="absolute top-4 right-4 z-10 p-1.5 bg-gray-100 hover:bg-yellow-400 rounded-lg border-2 border-black text-black transition-colors shadow-[1px_1px_0px_0px_#000] active:scale-95"
+              className="absolute top-4 right-4 z-10 p-1.5 bg-gray-100 hover:bg-[#801618] hover:text-white rounded-lg border-2 border-black text-black transition-colors shadow-[1px_1px_0px_0px_#000] active:scale-95"
             >
               <X size={18} strokeWidth={2.5} />
             </button>
 
             <div className="flex flex-col items-center text-center">
-              <div className="w-14 h-14 rounded-2xl bg-yellow-400 border-2 border-black flex items-center justify-center mb-4 shadow-[2px_2px_0px_0px_#000]">
-                <Trophy size={28} className="text-black" />
+              <div className="w-14 h-14 rounded-2xl bg-[#801618] border-2 border-black flex items-center justify-center mb-4 shadow-[2px_2px_0px_0px_#000]">
+                <Trophy size={28} className="text-white" />
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-black tracking-tight">Join the Leaderboard</h2>
               <p className="text-gray-600 font-medium mb-5 text-xs sm:text-sm mt-1">
@@ -205,14 +205,14 @@ export const SubmitModal = ({ isOpen, onClose, onSubmit, name, setName, isSubmit
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="e.g. Muhammad Asad"
-                    className="w-full bg-gray-50 text-black py-2.5 px-3.5 rounded-xl font-bold text-sm border-2 border-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-[2px_2px_0px_0px_#000] placeholder:text-gray-400"
+                    className="w-full bg-gray-50 text-black py-2.5 px-3.5 rounded-xl font-bold text-sm border-2 border-black focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#801618] shadow-[2px_2px_0px_0px_#000] placeholder:text-gray-400"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isSubmitting || !name.trim()}
-                  className="w-full py-3.5 bg-yellow-400 hover:bg-yellow-300 disabled:opacity-50 text-black font-black text-sm rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_#000] active:scale-95 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-[#801618] hover:bg-[#9b1b1e] disabled:opacity-50 text-white font-black text-sm rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_#000] active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                   <UserCheck size={16} strokeWidth={2.5} />
                   <span>{isSubmitting ? 'Submitting...' : 'Submit to Leaderboard'}</span>
@@ -246,11 +246,11 @@ export const Leaderboard = ({
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2 sm:mb-4"
       >
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-yellow-400 border-2 border-black text-black shadow-[2px_2px_0px_0px_#000]">
+          <div className="p-2.5 rounded-xl bg-[#801618] border-2 border-black text-white shadow-[2px_2px_0px_0px_#000]">
             <Trophy className="w-5 h-5" strokeWidth={2.5} />
           </div>
           <div>
-            <p className="text-[10px] font-black text-yellow-600 uppercase tracking-widest leading-none mb-1">Batch 2024–28</p>
+            <p className="text-[10px] font-black text-[#801618] uppercase tracking-widest leading-none mb-1">Batch 2024–28</p>
             <h2 className="text-2xl sm:text-3xl font-black text-textMain tracking-tight">Class Leaderboard</h2>
           </div>
         </div>
@@ -264,7 +264,7 @@ export const Leaderboard = ({
           <button 
             onClick={() => setIsSubmitModalOpen(true)}
             disabled={Number(cgpa) <= 0}
-            className="px-6 py-3.5 bg-yellow-400 hover:bg-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-black rounded-xl text-black font-black text-xs sm:text-sm tracking-wide transition-all shadow-[3px_3px_0px_0px_#000] active:scale-95 flex items-center gap-2"
+            className="px-6 py-3.5 bg-[#801618] hover:bg-[#9b1b1e] disabled:opacity-50 disabled:cursor-not-allowed border-2 border-black rounded-xl text-white font-black text-xs sm:text-sm tracking-wide transition-all shadow-[3px_3px_0px_0px_#000] active:scale-95 flex items-center gap-2"
           >
             <Database size={16} strokeWidth={2.5} />
             <span>{hasSubmitted ? "Update Score on Leaderboard" : "Submit Your Score to Leaderboard"}</span>

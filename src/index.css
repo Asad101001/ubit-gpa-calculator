@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* Theme: Black & White Brutalist with Gold Accents */
+    /* Theme: Black & White Brutalist with Authentic UBIT Crimson Logo Accents */
     --color-brand-400: 0 0 0;
     --color-brand-500: 0 0 0;
     --color-brand-600: 0 0 0;
@@ -14,9 +14,9 @@
     --color-text-main: 0 0 0;
     --color-text-muted: 75 75 75;
     --color-border: 0 0 0;
-    --color-accent-400: 255 220 0;
-    --color-accent-500: 230 180 0;
-    --color-accent-600: 190 145 0;
+    --color-accent-400: 155 27 30;
+    --color-accent-500: 128 22 24;
+    --color-accent-600: 107 16 18;
     --glass-reflection: 255 255 255;
     --glass-reflection-opacity: 0.1;
   }
@@ -79,7 +79,7 @@
     @apply bg-white border border-black;
   }
   .glass-input {
-    @apply bg-white border border-black focus:ring-2 focus:ring-yellow-400 outline-none transition-shadow duration-150;
+    @apply bg-white border border-black focus:ring-2 focus:ring-[#801618] outline-none transition-shadow duration-150;
   }
 
   /* Custom scrollbar */
@@ -97,7 +97,7 @@
     border-radius: 8px !important;
     background-color: #ffffff !important;
     backdrop-filter: none !important;
-    box-shadow: 4px 4px 0px 0px #000000, 7px 7px 0px 0px rgb(230, 180, 0) !important;
+    box-shadow: 4px 4px 0px 0px #000000, 7px 7px 0px 0px #801618 !important;
   }
 
   .glass {
@@ -117,7 +117,7 @@
   }
 
   .glass-input:focus {
-    box-shadow: 2px 2px 0px 0px rgb(230, 180, 0) !important;
+    box-shadow: 2px 2px 0px 0px #801618 !important;
     background-color: #ffffff !important;
     border-color: #000000 !important;
   }
@@ -131,23 +131,24 @@
     color: #000000 !important;
   }
 
-  /* Gold buttons */
+  /* Crimson buttons with excellent white-on-crimson contrast (10.3:1 AAA) */
   button.bg-gradient-to-r,
   a.bg-gradient-to-r {
     background-image: none !important;
-    background-color: rgb(230, 180, 0) !important;
-    color: #000000 !important;
+    background-color: #801618 !important;
+    color: #ffffff !important;
     border: 2px solid #000000 !important;
     box-shadow: 2.5px 2.5px 0px 0px #000000 !important;
     border-radius: 6px !important;
     font-weight: 800 !important;
     text-shadow: none !important;
-    transition: transform 0.08s ease, box-shadow 0.08s ease !important;
+    transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.15s ease !important;
   }
 
   button.bg-gradient-to-r:hover,
   a.bg-gradient-to-r:hover {
-    background-color: #ffd700 !important;
+    background-color: #9b1b1e !important;
+    color: #ffffff !important;
     box-shadow: 1px 1px 0px 0px #000000 !important;
     transform: translate(1.5px, 1.5px) !important;
   }
@@ -159,7 +160,7 @@
   }
 
   .text-accent-500 {
-    color: rgb(200, 150, 0) !important;
+    color: #801618 !important;
     font-weight: 700 !important;
   }
 
@@ -188,7 +189,7 @@
 
   /* ── Focus ring that matches brutalist theme ── */
   :focus-visible {
-    outline: 2.5px solid rgb(230, 180, 0) !important;
+    outline: 2.5px solid #801618 !important;
     outline-offset: 2px !important;
   }
 }

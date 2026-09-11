@@ -59,7 +59,7 @@ export const HomePage = ({ navigateTo }: HomePageProps) => {
 
 
             <div className="text-left max-w-3xl">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-yellow-400 text-black border-2 border-black font-black text-[10px] sm:text-xs tracking-wider uppercase mb-2 shadow-[1.5px_1.5px_0px_0px_#000]">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#801618] text-white border-2 border-black font-black text-[10px] sm:text-xs tracking-wider uppercase mb-2 shadow-[1.5px_1.5px_0px_0px_#000]">
                 <BookOpen size={11} strokeWidth={2.5} />
                 Department of Computer Science · University of Karachi
               </span>
@@ -73,7 +73,7 @@ export const HomePage = ({ navigateTo }: HomePageProps) => {
               <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
                 <button
                   onClick={() => navigateTo('calculator')}
-                  className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-yellow-400 hover:bg-yellow-300 text-black rounded-xl border-2 border-black font-black text-xs sm:text-sm shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                  className="flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#801618] hover:bg-[#9b1b1e] text-white rounded-xl border-2 border-black font-black text-xs sm:text-sm shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
                 >
                   <Calculator size={16} strokeWidth={2.5} />
                   <span>Launch GPA Calculator</span>
@@ -97,7 +97,7 @@ export const HomePage = ({ navigateTo }: HomePageProps) => {
       <motion.section variants={itemVariants} className="space-y-3">
 
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#801618] animate-pulse" />
           <h3 className="text-xs font-black font-mono uppercase tracking-wider text-textMuted">
             Explore Platform Features
           </h3>
@@ -157,14 +157,14 @@ export const HomePage = ({ navigateTo }: HomePageProps) => {
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <div className="p-2.5 rounded-xl bg-yellow-400 border-2 border-black text-black group-hover:scale-110 transition-transform shadow-[1.5px_1.5px_0px_0px_#000]">
+                    <div className="p-2.5 rounded-xl bg-[#801618] border-2 border-black text-white group-hover:scale-110 transition-transform shadow-[1.5px_1.5px_0px_0px_#000]">
                       <IconComp size={18} strokeWidth={2.5} />
                     </div>
                     <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-gray-100 border border-black text-black">
                       {card.badge}
                     </span>
                   </div>
-                  <h4 className="text-base font-black text-textMain group-hover:text-yellow-600 transition-colors">
+                  <h4 className="text-base font-black text-textMain group-hover:text-[#801618] transition-colors">
                     {card.title}
                   </h4>
                   <p className="text-xs text-textMuted font-medium mt-1.5 leading-relaxed">

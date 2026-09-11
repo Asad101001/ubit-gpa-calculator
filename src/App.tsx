@@ -30,7 +30,7 @@ const LegalPage = lazy(() => import('./pages/LegalPage').then(m => ({ default: m
 
 const ViewFallback = () => (
   <div className="py-20 flex flex-col items-center justify-center gap-3">
-    <div className="w-8 h-8 border-3 border-black border-t-yellow-400 rounded-full animate-spin" />
+    <div className="w-8 h-8 border-3 border-black border-t-[#801618] rounded-full animate-spin" />
     <span className="font-mono text-xs font-bold text-gray-600 uppercase tracking-wider">Loading view...</span>
   </div>
 );
@@ -394,7 +394,7 @@ function App() {
         />
       </Suspense>
 
-      <div className="min-h-screen relative selection:bg-yellow-400/30 font-sans">
+      <div className="min-h-screen relative selection:bg-[#801618]/20 font-sans">
 
         <Header currentView={currentView} navigateTo={navigateTo} activeSection={activeSection} />
 

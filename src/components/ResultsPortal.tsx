@@ -398,7 +398,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black border-2 transition-all shadow-[2px_2px_0px_0px_#000] active:scale-95 ${
                   showAdminPrivateRecords 
                     ? 'bg-red-500 text-white border-black' 
-                    : 'bg-white hover:bg-yellow-100 text-black border-black'
+                    : 'bg-white hover:bg-rose-50 text-black border-black'
                 }`}
                 title="Admin mode: toggle to preview hidden private records"
               >
@@ -417,10 +417,10 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
 
       <div className="glass rounded-[2rem] p-4 sm:p-6 md:p-8 relative overflow-hidden shadow-xl">
         {/* Privacy Education & Notice Banner */}
-        <div className="mb-6 p-4 bg-yellow-50/90 border-2 border-black rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[3px_3px_0px_0px_#000]">
+        <div className="mb-6 p-4 bg-rose-50/90 border-2 border-black rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[3px_3px_0px_0px_#000]">
           <div className="flex items-start sm:items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 shadow-[1px_1px_0px_0px_#000]">
-              <Lock size={15} className="text-black" />
+            <div className="w-8 h-8 rounded-xl bg-[#801618] border-2 border-black flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 shadow-[1px_1px_0px_0px_#000]">
+              <Lock size={15} className="text-white" />
             </div>
             <div>
               <h4 className="text-xs sm:text-sm font-black text-black">Student Privacy Control</h4>
@@ -431,7 +431,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
           </div>
           <button
             onClick={() => window.location.hash = 'profile'}
-            className="px-3.5 py-2 bg-black hover:bg-gray-800 text-yellow-400 font-black text-xs rounded-xl border border-black shrink-0 active:scale-95 transition-all shadow-[2px_2px_0px_0px_#000] text-center"
+            className="px-3.5 py-2 bg-black hover:bg-gray-900 text-white font-black text-xs rounded-xl border border-black shrink-0 active:scale-95 transition-all shadow-[2px_2px_0px_0px_#801618] text-center"
           >
             Manage Privacy
           </button>
@@ -607,7 +607,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                         transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3 }}
                         key={student['Seat No']} 
                         onClick={() => setSelectedStudentModal({ ...student, is_hidden: isHidden })}
-                        className="hover:bg-yellow-50/50 transition-colors group cursor-pointer"
+                        className="hover:bg-rose-50/40 transition-colors group cursor-pointer"
                         title="Click to view full student results & load into calculator"
                       >
                         <td className="hidden sm:table-cell p-2 sm:p-4 text-center text-textMuted font-medium text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start border-b border-border/50">
@@ -619,7 +619,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                         <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[210px] max-w-[210px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border/50">
                           <div className="flex items-center justify-between gap-1 w-full h-full">
                             <div className="flex flex-col min-w-0 flex-1">
-                              <span className="truncate leading-tight font-bold group-hover:text-yellow-600 transition-colors flex items-center gap-1.5" title={student['Name']}>
+                              <span className="truncate leading-tight font-bold group-hover:text-[#801618] transition-colors flex items-center gap-1.5" title={student['Name']}>
                                 <span>{isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}</span>
                                 {isHidden && (
                                   <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border shrink-0 flex items-center gap-1 ${isOwner ? 'bg-red-100 text-red-800 border-red-400' : 'bg-gray-100 text-gray-700 border-gray-300'}`}>
@@ -640,7 +640,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                                   handleEditClick({ ...student, is_hidden: isHidden });
                                 }}
                                 title={`Open and load marks for ${student['Name']}`}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-yellow-400 text-black border-2 border-black shrink-0 ml-1 shadow-[1px_1px_0px_0px_#000] active:scale-95"
+                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-[#801618] text-white border-2 border-black shrink-0 ml-1 shadow-[1px_1px_0px_0px_#000] active:scale-95"
                               >
                                 <Pencil size={11} strokeWidth={2.5} />
                               </button>
@@ -728,7 +728,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
               <div className="relative">
                 <button
                   onClick={() => setSelectedStudentModal(null)}
-                  className="absolute -top-3 -right-3 z-30 p-2 bg-yellow-400 hover:bg-yellow-300 text-black rounded-full border-2 border-black font-black text-xs shadow-[2px_2px_0px_0px_#000] active:scale-95"
+                  className="absolute -top-3 -right-3 z-30 p-2 bg-[#801618] hover:bg-[#9b1b1e] text-white rounded-full border-2 border-black font-black text-xs shadow-[2px_2px_0px_0px_#000] active:scale-95"
                   aria-label="Close student card"
                 >
                   <X size={16} />

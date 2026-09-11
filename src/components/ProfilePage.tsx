@@ -252,14 +252,14 @@ export const ProfilePage = () => {
 
   if (!profile || !user) return null;
 
-  const brutalistBox = { boxShadow: '5px 5px 0px 0px #000000, 9px 9px 0px 0px rgb(230, 180, 0)' };
-  const smallBox = { boxShadow: '3px 3px 0px 0px rgb(230, 180, 0)' };
+  const brutalistBox = { boxShadow: '5px 5px 0px 0px #000000, 9px 9px 0px 0px #801618' };
+  const smallBox = { boxShadow: '3px 3px 0px 0px #801618' };
 
   return (
     <section className="pt-4 sm:pt-8 pb-12 animate-in fade-in duration-500 space-y-6">
       <button 
         onClick={() => window.location.hash = ''} 
-        className="group flex items-center gap-2 mb-2 px-4 py-2 bg-black text-white hover:bg-brand-500 rounded-sm font-black uppercase tracking-wider text-xs transition-colors border-2 border-black w-fit shadow-[3px_3px_0px_0px_rgba(230,180,0,1)]"
+        className="group flex items-center gap-2 mb-2 px-4 py-2 bg-black text-white hover:bg-brand-500 rounded-sm font-black uppercase tracking-wider text-xs transition-colors border-2 border-black w-fit shadow-[3px_3px_0px_0px_#801618]"
       >
         <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
         Back to Calculator
@@ -278,7 +278,7 @@ export const ProfilePage = () => {
               <p className="text-sm text-textMuted font-mono">{profile.email}</p>
               {profile.seat_no && <p className="text-xs text-textMuted font-mono mt-1">Seat: <span className="font-bold text-textMain">{profile.seat_no}</span></p>}
               <div className="flex items-center gap-2 mt-2">
-                {isAdmin && <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-400/20 text-yellow-700 text-[10px] font-bold uppercase tracking-wider rounded-sm border border-yellow-500/40"><Shield size={10} /> Admin</span>}
+                {isAdmin && <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#801618]/15 text-[#801618] text-[10px] font-bold uppercase tracking-wider rounded-sm border border-[#801618]/30"><Shield size={10} /> Admin</span>}
                 {isVerified
                   ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/10 text-green-700 text-[10px] font-bold uppercase tracking-wider rounded-sm border border-green-500/30"><ShieldCheck size={10} /> Verified</span>
                   : <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-surfaceHighlight text-textMuted text-[10px] font-bold uppercase tracking-wider rounded-sm border border-border">Unverified</span>}
@@ -320,7 +320,7 @@ export const ProfilePage = () => {
             disabled={isSavingVisibility}
             className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 border-black font-black text-xs transition-all active:scale-95 shadow-[2px_2px_0px_0px_#000] shrink-0 ${
               profile.show_results_publicly 
-                ? 'bg-yellow-400 hover:bg-yellow-300 text-black' 
+                ? 'bg-[#801618] hover:bg-[#9b1b1e] text-white' 
                 : 'bg-gray-800 hover:bg-black text-white'
             }`}
           >
@@ -328,7 +328,7 @@ export const ProfilePage = () => {
               <Loader2 size={15} className="animate-spin" />
             ) : profile.show_results_publicly ? (
               <>
-                <span className="w-2 h-2 rounded-full bg-green-600 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                 <span>Visible Publicly</span>
               </>
             ) : (
@@ -364,7 +364,7 @@ export const ProfilePage = () => {
               )}
             </div>
             {stats && (stats.isConcrete ? (
-              <div className="flex flex-col items-center px-4 py-2.5 bg-yellow-400 text-black rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+              <div className="flex flex-col items-center px-4 py-2.5 bg-[#801618] text-white rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
                 <span className="text-[10px] font-black uppercase tracking-wider">CGPA</span>
                 <span className="text-2xl font-black">{stats.cgpa}</span>
               </div>
@@ -386,7 +386,7 @@ export const ProfilePage = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-black text-textMain uppercase tracking-wider">Semester {sem}</span>
                   {sem === 3 && (
-                    <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800 border border-yellow-300">
+                    <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-rose-100 text-[#801618] border border-rose-300">
                       Ongoing
                     </span>
                   )}
@@ -459,7 +459,7 @@ export const ProfilePage = () => {
           className="bg-surface border-[2.5px] border-black rounded-sm overflow-hidden" style={brutalistBox}>
           <button onClick={() => { setIsAdminPanelOpen(!isAdminPanelOpen); if (!isAdminPanelOpen && adminUsers.length === 0) fetchAdminUsers(); }}
             className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-surfaceHighlight/30 transition-colors">
-            <h3 className="text-lg font-black text-textMain uppercase tracking-wider flex items-center gap-2"><Shield size={18} className="text-yellow-600" /> Admin Panel</h3>
+            <h3 className="text-lg font-black text-textMain uppercase tracking-wider flex items-center gap-2"><Shield size={18} className="text-[#801618]" /> Admin Panel</h3>
             <ChevronDown size={20} className={`text-textMuted transition-transform ${isAdminPanelOpen ? 'rotate-180' : ''}`} />
           </button>
           <AnimatePresence>
@@ -517,7 +517,7 @@ export const ProfilePage = () => {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-bold text-textMain truncate">{u.full_name}</span>
-                              {u.is_admin && <span className="text-[9px] bg-yellow-400/20 text-yellow-700 px-1.5 py-0.5 rounded-sm font-bold border border-yellow-500/30">ADMIN</span>}
+                              {u.is_admin && <span className="text-[9px] bg-[#801618]/15 text-[#801618] px-1.5 py-0.5 rounded-sm font-bold border border-[#801618]/30">ADMIN</span>}
                             </div>
                             <div className="flex items-center gap-3 mt-0.5">
                               <span className="text-[10px] text-textMuted font-mono">{u.email}</span>
@@ -544,7 +544,7 @@ export const ProfilePage = () => {
                             </button>
                             {u.id !== profile.id && (
                               <button onClick={() => adminToggleRole(u.id, u.is_admin)}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-sm border-2 transition-all ${u.is_admin ? 'bg-yellow-500/10 text-yellow-700 border-yellow-500/30' : 'bg-surfaceHighlight text-textMuted border-border'}`} title="Toggle Admin Role">
+                                className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-sm border-2 transition-all ${u.is_admin ? 'bg-[#801618]/15 text-[#801618] border-[#801618]/30' : 'bg-surfaceHighlight text-textMuted border-border'}`} title="Toggle Admin Role">
                                 <Shield size={12} /> {u.is_admin ? 'Admin' : 'Make Admin'}
                               </button>
                             )}

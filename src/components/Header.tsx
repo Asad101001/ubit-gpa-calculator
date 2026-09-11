@@ -62,7 +62,7 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
             </div>
             <div className="flex flex-col items-start leading-none">
               <span className="font-black text-xs sm:text-sm tracking-tight text-black">
-                UBIT <span className="bg-yellow-400 px-1 py-0.2 rounded border border-black text-[10px] sm:text-xs">RESULTS</span>
+                UBIT <span className="bg-[#801618] text-white px-1.5 py-0.5 rounded border border-black text-[10px] sm:text-xs font-black">RESULTS</span>
               </span>
               <span className="text-[8px] sm:text-[9px] font-bold text-gray-600 tracking-wide uppercase mt-0.5">
                 BSCS Batch 2024–28
@@ -80,7 +80,7 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
                   onClick={() => handleNav(item)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black transition-all border-2 ${
                     isActive(item)
-                      ? 'bg-yellow-400 text-black border-black shadow-[2px_2px_0px_0px_#000]'
+                      ? 'bg-[#801618] text-white border-black shadow-[2px_2px_0px_0px_#000]'
                       : 'text-gray-700 hover:text-black border-transparent hover:border-black/30 hover:bg-gray-100'
                   }`}
                 >
@@ -99,15 +99,15 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-yellow-400 hover:bg-yellow-300 text-black rounded-lg font-bold text-xs border-2 border-black shadow-[2px_2px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-[#801618] hover:bg-[#9b1b1e] text-white rounded-lg font-bold text-xs border-2 border-black shadow-[2px_2px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
               >
-                <div className="w-5 h-5 bg-black text-yellow-400 rounded-full flex items-center justify-center text-[10px] font-black">
+                <div className="w-5 h-5 bg-black text-white rounded-full flex items-center justify-center text-[10px] font-black border border-white/30">
                   {profile.full_name.charAt(0)}
                 </div>
                 <span className="max-w-[80px] sm:max-w-[120px] truncate text-[11px] sm:text-xs">
                   {profile.full_name.split(' ')[0]}
                 </span>
-                {profile.is_admin && <Shield size={11} className="text-black" />}
+                {profile.is_admin && <Shield size={11} className="text-white" />}
                 <ChevronDown size={12} className={`transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
@@ -120,11 +120,11 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
                     transition={{ duration: 0.15 }}
                     className="absolute right-0 mt-2 w-52 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_#000] overflow-hidden z-50"
                   >
-                    <div className="px-3.5 py-2.5 border-b border-gray-200 bg-yellow-50">
+                    <div className="px-3.5 py-2.5 border-b border-gray-200 bg-rose-50/70">
                       <p className="text-xs font-black text-black truncate">{profile.full_name}</p>
                       <p className="text-[10px] text-gray-600 mt-0.5 truncate">{profile.seat_no ? `Seat No: ${profile.seat_no}` : profile.email}</p>
                       {profile.is_admin && (
-                        <span className="mt-1 inline-flex items-center gap-1 text-[9px] font-extrabold bg-black text-yellow-400 px-1.5 py-0.5 rounded">
+                        <span className="mt-1 inline-flex items-center gap-1 text-[9px] font-extrabold bg-[#801618] text-white px-1.5 py-0.5 rounded border border-black">
                           ADMIN
                         </span>
                       )}
@@ -133,7 +133,7 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
                     <div className="p-1.5 space-y-0.5">
                       <button
                         onClick={() => { setIsDropdownOpen(false); navigateTo('profile'); }}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-gray-800 hover:bg-yellow-400 hover:text-black transition-colors text-left"
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-gray-800 hover:bg-[#801618] hover:text-white transition-colors text-left"
                       >
                         <User size={13} />
                         My Profile & Marks
@@ -153,7 +153,7 @@ export const Header = ({ currentView, navigateTo }: { currentView: ViewType, nav
           ) : (
             <button
               onClick={() => openAuthModal('signin')}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-black hover:bg-gray-800 text-yellow-400 rounded-lg font-bold text-xs border-2 border-black shadow-[2px_2px_0px_0px_#E6B400] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-black hover:bg-gray-900 text-white rounded-lg font-bold text-xs border-2 border-black shadow-[2px_2px_0px_0px_#801618] active:translate-x-0.5 active:translate-y-0.5 transition-all"
             >
               <User size={13} />
               <span>Sign In</span>

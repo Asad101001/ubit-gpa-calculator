@@ -140,7 +140,7 @@ export const AuthModal = () => {
             exit={{ scale: 0.95, y: 10, opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="bg-surface border-[2.5px] border-black rounded-sm p-6 sm:p-8 max-w-md w-full relative overflow-hidden"
-            style={{ boxShadow: '5px 5px 0px 0px #000000, 9px 9px 0px 0px rgb(230, 180, 0)' }}
+            style={{ boxShadow: '5px 5px 0px 0px #000000, 9px 9px 0px 0px #801618' }}
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -152,7 +152,7 @@ export const AuthModal = () => {
 
             <div className="relative z-10 flex flex-col items-center text-center">
               {/* Icon */}
-              <div className="bg-black p-4 rounded-sm mb-4 border-2 border-black" style={{ boxShadow: '3px 3px 0px 0px rgb(230, 180, 0)' }}>
+              <div className="bg-black p-4 rounded-sm mb-4 border-2 border-black" style={{ boxShadow: '3px 3px 0px 0px #801618' }}>
                 {isSignUp ? (
                   <UserPlus size={28} className="text-white" />
                 ) : (
@@ -265,7 +265,7 @@ export const AuthModal = () => {
                   type="submit"
                   disabled={isSubmitting || cooldownSeconds > 0}
                   className="w-full py-4 bg-black hover:bg-zinc-800 disabled:opacity-50 text-white font-extrabold rounded-sm transition-all text-sm uppercase tracking-wider border-2 border-black mt-2"
-                  style={{ boxShadow: '3px 3px 0px 0px rgb(230, 180, 0)' }}
+                  style={{ boxShadow: '3px 3px 0px 0px #801618' }}
                 >
                   {cooldownSeconds > 0 ? (
                     `Too many attempts (${failedAttempts}). Please wait ${cooldownSeconds}s`

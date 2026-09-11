@@ -266,7 +266,7 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
                 setEditedMarks(prev => ({ ...prev, [sub.id]: val }));
               }}
               placeholder="0-100"
-              className="w-20 px-2 py-1 bg-white border-2 border-black rounded font-mono font-bold text-sm text-black focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-[1.5px_1.5px_0px_0px_#000]"
+              className="w-20 px-2 py-1 bg-white border-2 border-black rounded font-mono font-bold text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#801618] shadow-[1.5px_1.5px_0px_0px_#000]"
             />
             <span className="text-xs font-bold text-gray-500 w-10 text-right">
               {marks !== null ? `${getLetterGrade(marks)} (${getGradePoint(marks)})` : '—'}
@@ -306,7 +306,7 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-yellow-400 text-black border border-black shadow-[1px_1px_0px_0px_#000]">
+              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-[#801618] text-white border border-black shadow-[1px_1px_0px_0px_#000]">
                 Verified Student Record
               </span>
               {isHidden && (
@@ -335,9 +335,9 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
                 <span className="text-xl sm:text-2xl font-black text-gray-700">Hidden</span>
               </div>
             ) : isConcrete ? (
-              <div className="flex flex-col items-center px-4 py-2.5 border-2 rounded-xl bg-yellow-400 border-black shadow-[2px_2px_0px_0px_#000]">
-                <span className="text-[10px] font-black text-black uppercase tracking-wider">CGPA</span>
-                <span className="text-2xl sm:text-3xl font-black text-black">{currentCalculatedCgpa}</span>
+              <div className="flex flex-col items-center px-4 py-2.5 border-2 rounded-xl bg-[#801618] border-black shadow-[2px_2px_0px_0px_#000]">
+                <span className="text-[10px] font-black text-white/90 uppercase tracking-wider">CGPA</span>
+                <span className="text-2xl sm:text-3xl font-black text-white">{currentCalculatedCgpa}</span>
               </div>
             ) : (
               <div className="flex flex-col items-center px-4 py-2 border-2 border-dashed border-gray-400 rounded-xl bg-gray-50/90 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
@@ -355,8 +355,8 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
 
         {/* ── Privacy Status Banner ── */}
         {!canViewMarks ? (
-          <div className="mt-5 p-4 bg-yellow-50/90 border-2 border-black rounded-xl text-xs font-bold text-black shadow-[2px_2px_0px_0px_#000] flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-yellow-400 border border-black flex items-center justify-center shrink-0 mt-0.5 shadow-[1px_1px_0px_0px_#000]">
+          <div className="mt-5 p-4 bg-rose-50/90 border-2 border-black rounded-xl text-xs font-bold text-black shadow-[2px_2px_0px_0px_#000] flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-[#801618] text-white border border-black flex items-center justify-center shrink-0 mt-0.5 shadow-[1px_1px_0px_0px_#000]">
               <Lock size={16} />
             </div>
             <div className="flex-1">
@@ -365,7 +365,7 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
                 This student has opted to keep their scores and CGPA hidden from public view. Only the student themselves or administration can view full transcripts.
               </p>
               <p className="text-[11px] text-gray-500 mt-2">
-                💡 Are you this student? <button onClick={() => openAuthModal('signin')} className="text-black font-black underline hover:text-yellow-600 cursor-pointer">Sign in to your account</button> to view, claim, or edit your private records.
+                💡 Are you this student? <button onClick={() => openAuthModal('signin')} className="text-black font-black underline hover:text-[#801618] cursor-pointer">Sign in to your account</button> to view, claim, or edit your private records.
               </p>
             </div>
           </div>
@@ -405,7 +405,7 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
           ) : (
             <button
               onClick={startEditing}
-              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-yellow-400 hover:bg-yellow-300 text-black border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+              className="flex items-center justify-center gap-2 px-3 py-2.5 bg-[#801618] hover:bg-[#9b1b1e] text-white border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
               title={canEdit ? "Edit your official marks" : "Sign in to edit this record"}
             >
               <Edit3 size={15} strokeWidth={2.5} />
@@ -417,7 +417,7 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
           <button
             onClick={handlePrefill}
             disabled={!canViewMarks}
-            className={`flex items-center justify-center gap-2 px-3 py-2.5 border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] transition-all ${!canViewMarks ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-900 text-yellow-400 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer'}`}
+            className={`flex items-center justify-center gap-2 px-3 py-2.5 border-2 border-black font-black text-xs sm:text-sm rounded-xl shadow-[3px_3px_0px_0px_#000] transition-all ${!canViewMarks ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-900 text-white active:translate-x-0.5 active:translate-y-0.5 cursor-pointer'}`}
             title={canViewMarks ? "Load marks into the live GPA calculator & target simulator" : "Marks are private and cannot be loaded by other users"}
           >
             <Calculator size={15} strokeWidth={2.5} />

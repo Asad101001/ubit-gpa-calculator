@@ -28,6 +28,18 @@ export default {
           400: 'rgb(var(--color-accent-400) / <alpha-value>)', 
           500: 'rgb(var(--color-accent-500) / <alpha-value>)',
           600: 'rgb(var(--color-accent-600) / <alpha-value>)',
+        },
+        crimson: {
+          50: '#fff1f2',
+          100: '#ffe4e6',
+          200: '#fecdd3',
+          300: '#fda4af',
+          400: '#9b1b1e',
+          500: '#801618', /* Authentic UBIT / KU Crimson Seal */
+          600: '#6b1012',
+          700: '#540c0e',
+          800: '#3f0809',
+          900: '#2c0405',
         }
       },
       animation: {

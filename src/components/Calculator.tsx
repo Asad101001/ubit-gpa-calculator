@@ -53,8 +53,8 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
         <div className="flex items-center gap-2.5 sm:gap-3.5 flex-1 min-w-0">
-          <div className="flex flex-col items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-lg bg-surface border-2 border-black text-black group-hover:scale-105 group-hover:bg-yellow-400 group-hover:shadow-[2px_2px_0px_0px_#000] transition-all shrink-0">
-            <IconComponent size={14} className="mb-0.5 text-black" strokeWidth={2.25} />
+          <div className="flex flex-col items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-lg bg-surface border-2 border-black text-black group-hover:scale-105 group-hover:bg-[#801618] group-hover:text-white group-hover:shadow-[2px_2px_0px_0px_#000] transition-all shrink-0">
+            <IconComponent size={14} className="mb-0.5" strokeWidth={2.25} />
             <span className="text-[10px] sm:text-xs font-black font-mono tracking-tight leading-none">{course.code.split('-')[1]}</span>
           </div>
           <div className="flex-1 min-w-0">
@@ -77,7 +77,7 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
                 if (val > 0) onChange(val - 1);
               }}
               aria-label="Decrease marks"
-              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-l-lg bg-gray-100 hover:bg-yellow-400 border-2 border-black border-r-0 text-black font-black text-sm active:bg-yellow-300 transition-colors select-none"
+              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-l-lg bg-gray-100 hover:bg-[#801618] hover:text-white border-2 border-black border-r-0 text-black font-black text-sm active:bg-[#9b1b1e] transition-colors select-none"
             >
               <Minus size={13} strokeWidth={3} />
             </button>
@@ -97,12 +97,12 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
                 if (val < 100) onChange(val + 1);
               }}
               aria-label="Increase marks"
-              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-r-lg bg-gray-100 hover:bg-yellow-400 border-2 border-black border-l-0 text-black font-black text-sm active:bg-yellow-300 transition-colors select-none"
+              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-r-lg bg-gray-100 hover:bg-[#801618] hover:text-white border-2 border-black border-l-0 text-black font-black text-sm active:bg-[#9b1b1e] transition-colors select-none"
             >
               <Plus size={13} strokeWidth={3} />
             </button>
           </div>
-          <div className="w-12 sm:w-14 h-8 sm:h-9 text-center rounded-lg bg-yellow-50 border-2 border-black font-mono font-black text-black flex flex-col justify-center shadow-[1.5px_1.5px_0px_0px_#000]">
+          <div className="w-12 sm:w-14 h-8 sm:h-9 text-center rounded-lg bg-rose-50/70 border-2 border-black font-mono font-black text-black flex flex-col justify-center shadow-[1.5px_1.5px_0px_0px_#000]">
             <span className="text-[7.5px] sm:text-[8px] uppercase tracking-wider text-gray-600 leading-none mb-0.5">GP</span>
             <span className="text-xs sm:text-sm leading-none">{value === '' ? '-' : gp.toFixed(1)}</span>
           </div>
@@ -191,13 +191,13 @@ export const Calculator = ({
         <div>
           <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-black shadow-[2px_2px_0px_0px_#000]">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#801618] border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-white shadow-[2px_2px_0px_0px_#000]">
                 01
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester One</h2>
-                  <GraduationCap size={16} className="text-yellow-600 hidden sm:inline" />
+                  <GraduationCap size={16} className="text-[#801618] hidden sm:inline" />
                 </div>
                 <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
               </div>
@@ -214,9 +214,9 @@ export const Calculator = ({
         </div>
 
         {/* Semester 1 GPA Pill Directly Below Courses */}
-        <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-yellow-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+        <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-rose-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-yellow-400 border-2 border-black flex items-center justify-center font-mono font-black text-xs text-black shadow-[1px_1px_0px_0px_#000]">
+            <div className="w-7 h-7 rounded-lg bg-[#801618] border-2 border-black flex items-center justify-center font-mono font-black text-xs text-white shadow-[1px_1px_0px_0px_#000]">
               01
             </div>
             <div>
@@ -224,7 +224,7 @@ export const Calculator = ({
               <p className="text-[10px] font-bold text-gray-600">{s1Stats.filledCount} of 6 courses ({s1Stats.totalCredits}/18 Cr)</p>
             </div>
           </div>
-          <div className="px-3 py-1 rounded-xl bg-black text-yellow-400 border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#000]">
+          <div className="px-3 py-1 rounded-xl bg-black text-white border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#801618]">
             {s1Stats.filledCount > 0 ? (s1Stats.isComplete ? s1Stats.gpa : `${s1Stats.gpa}*`) : '—'}
           </div>
         </div>
@@ -240,13 +240,13 @@ export const Calculator = ({
         <div>
           <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-black shadow-[2px_2px_0px_0px_#000]">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#801618] border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-white shadow-[2px_2px_0px_0px_#000]">
                 02
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Two</h2>
-                  <Award size={16} className="text-yellow-600 hidden sm:inline" />
+                  <Award size={16} className="text-[#801618] hidden sm:inline" />
                 </div>
                 <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
               </div>
@@ -263,9 +263,9 @@ export const Calculator = ({
         </div>
 
         {/* Semester 2 GPA Pill Directly Below Courses */}
-        <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-yellow-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+        <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-rose-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-yellow-400 border-2 border-black flex items-center justify-center font-mono font-black text-xs text-black shadow-[1px_1px_0px_0px_#000]">
+            <div className="w-7 h-7 rounded-lg bg-[#801618] border-2 border-black flex items-center justify-center font-mono font-black text-xs text-white shadow-[1px_1px_0px_0px_#000]">
               02
             </div>
             <div>
@@ -273,7 +273,7 @@ export const Calculator = ({
               <p className="text-[10px] font-bold text-gray-600">{s2Stats.filledCount} of 6 courses ({s2Stats.totalCredits}/18 Cr)</p>
             </div>
           </div>
-          <div className="px-3 py-1 rounded-xl bg-black text-yellow-400 border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#000]">
+          <div className="px-3 py-1 rounded-xl bg-black text-white border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#801618]">
             {s2Stats.filledCount > 0 ? (s2Stats.isComplete ? s2Stats.gpa : `${s2Stats.gpa}*`) : '—'}
           </div>
         </div>
@@ -289,13 +289,13 @@ export const Calculator = ({
         <div>
           <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-black shadow-[2px_2px_0px_0px_#000]">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#801618] border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-white shadow-[2px_2px_0px_0px_#000]">
                 03
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Three</h2>
-                  <BookMarked size={16} className="text-yellow-600 hidden sm:inline" />
+                  <BookMarked size={16} className="text-[#801618] hidden sm:inline" />
                 </div>
                 <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
               </div>
@@ -312,9 +312,9 @@ export const Calculator = ({
         </div>
 
         {/* Semester 3 GPA Pill Directly Below Courses */}
-        <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-yellow-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+        <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-rose-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-yellow-400 border-2 border-black flex items-center justify-center font-mono font-black text-xs text-black shadow-[1px_1px_0px_0px_#000]">
+            <div className="w-7 h-7 rounded-lg bg-[#801618] border-2 border-black flex items-center justify-center font-mono font-black text-xs text-white shadow-[1px_1px_0px_0px_#000]">
               03
             </div>
             <div>
@@ -322,7 +322,7 @@ export const Calculator = ({
               <p className="text-[10px] font-bold text-gray-600">{s3Stats.filledCount} of 6 courses ({s3Stats.totalCredits}/18 Cr)</p>
             </div>
           </div>
-          <div className="px-3 py-1 rounded-xl bg-black text-yellow-400 border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#000]">
+          <div className="px-3 py-1 rounded-xl bg-black text-white border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#801618]">
             {s3Stats.filledCount > 0 ? (s3Stats.isComplete ? s3Stats.gpa : `${s3Stats.gpa}*`) : '—'}
           </div>
         </div>
@@ -335,17 +335,17 @@ export const Calculator = ({
       >
         <div 
           onClick={() => setIsSem4Expanded(!isSem4Expanded)}
-          className="glass rounded-2xl sm:rounded-full px-5 sm:px-8 py-3.5 sm:py-4 flex items-center justify-between cursor-pointer hover:bg-yellow-50 transition-all border-2 border-black shadow-[3px_3px_0px_0px_#000] group active:translate-x-0.5 active:translate-y-0.5"
+          className="glass rounded-2xl sm:rounded-full px-5 sm:px-8 py-3.5 sm:py-4 flex items-center justify-between cursor-pointer hover:bg-rose-50/60 transition-all border-2 border-black shadow-[3px_3px_0px_0px_#000] group active:translate-x-0.5 active:translate-y-0.5"
         >
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-8 h-8 rounded-lg bg-yellow-400 border-2 border-black flex items-center justify-center text-xs sm:text-sm font-mono font-black text-black shadow-[1.5px_1.5px_0px_0px_#000] group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-lg bg-[#801618] border-2 border-black flex items-center justify-center text-xs sm:text-sm font-mono font-black text-white shadow-[1.5px_1.5px_0px_0px_#000] group-hover:scale-105 transition-transform">
               04
             </div>
             <h2 className="text-sm sm:text-lg font-black text-textMain tracking-tight">Semester Four</h2>
           </div>
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 text-[9.5px] sm:text-xs font-mono font-bold text-black uppercase tracking-wider bg-yellow-400 px-2.5 sm:px-3 py-1 rounded-md border border-black shadow-[1px_1px_0px_0px_#000]">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
+            <span className="flex items-center gap-1.5 text-[9.5px] sm:text-xs font-mono font-bold text-white uppercase tracking-wider bg-[#801618] px-2.5 sm:px-3 py-1 rounded-md border border-black shadow-[1px_1px_0px_0px_#000]">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
               Upcoming
             </span>
             <div className={`text-black transition-transform duration-300 ${isSem4Expanded ? 'rotate-180' : ''}`}>
@@ -363,10 +363,10 @@ export const Calculator = ({
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="overflow-hidden"
             >
-              <div className="glass rounded-[2rem] p-6 sm:p-10 relative overflow-hidden border border-yellow-500/30 shadow-[0_0_40px_rgba(245,197,24,0.1)]">
+              <div className="glass rounded-[2rem] p-6 sm:p-10 relative overflow-hidden border border-[#801618]/30 shadow-[0_0_40px_rgba(128,22,24,0.1)]">
                  <div className="absolute inset-0 pointer-events-none opacity-20 sm:opacity-40 overflow-hidden flex flex-col justify-center gap-8 -rotate-12 scale-150 mix-blend-overlay">
                    {[...Array(6)].map((_, i) => (
-                     <div key={i} className="w-full h-12 bg-yellow-400 text-black font-black text-2xl tracking-widest uppercase flex items-center overflow-hidden" style={{ transform: i % 2 === 0 ? 'translateX(-10%)' : 'translateX(-5%)' }}>
+                     <div key={i} className="w-full h-12 bg-[#801618] text-white font-black text-2xl tracking-widest uppercase flex items-center overflow-hidden" style={{ transform: i % 2 === 0 ? 'translateX(-10%)' : 'translateX(-5%)' }}>
                        <div className="flex whitespace-nowrap animate-tape-scroll" style={{ animationDirection: i % 2 === 0 ? 'normal' : 'reverse', animationDuration: '4s' }}>
                          {[...Array(10)].map((_, j) => (
                            <span key={j} className="px-4">🎓 SEMESTER JUST STARTED 🎓</span>
@@ -377,8 +377,8 @@ export const Calculator = ({
                 </div>
                 
                 <div className="relative z-10 flex flex-col items-center justify-center text-center py-8">
-                  <div className="w-16 h-16 rounded-full bg-yellow-500/20 border border-yellow-500/40 flex items-center justify-center mb-4">
-                    <svg className="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <div className="w-16 h-16 rounded-full bg-[#801618]/20 border border-[#801618]/40 flex items-center justify-center mb-4">
+                    <svg className="w-8 h-8 text-[#801618]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   </div>
                   <h3 className="text-2xl sm:text-3xl font-black text-textMain mb-2 uppercase tracking-tight">Hold Your Horses</h3>
                   <p className="text-textMuted font-medium max-w-md mx-auto">Bro, the semester literally just started. No results yet — go touch some grass first.</p>
@@ -392,24 +392,24 @@ export const Calculator = ({
       {/* ── OVERALL CUMULATIVE CGPA PILL (Above Advisor) ── */}
       <motion.div
         variants={itemVariants}
-        className="xl:col-span-2 max-w-3xl mx-auto w-full p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-yellow-400 border-2 border-black shadow-[5px_5px_0px_0px_#000] flex flex-col sm:flex-row items-center justify-between gap-4"
+        className="xl:col-span-2 max-w-3xl mx-auto w-full p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-[#801618] border-2 border-black shadow-[5px_5px_0px_0px_#000] flex flex-col sm:flex-row items-center justify-between gap-4"
       >
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-black text-yellow-400 flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_0px_#000] flex-shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_0px_#000] flex-shrink-0">
             <Trophy size={22} strokeWidth={2.5} />
           </div>
           <div className="text-center sm:text-left">
             <div className="flex items-center gap-2 justify-center sm:justify-start">
-              <span className="text-sm sm:text-base font-black text-black uppercase tracking-tight">
+              <span className="text-sm sm:text-base font-black text-white uppercase tracking-tight">
                 Cumulative CGPA
               </span>
               {isConcrete && (
-                <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-black text-yellow-400 border border-black">
+                <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-white text-[#801618] border border-black">
                   Official
                 </span>
               )}
             </div>
-            <p className="text-xs font-bold text-black/80 mt-0.5">
+            <p className="text-xs font-bold text-white/90 mt-0.5">
               {totalCompletedCr} of 54 Credit Hours Completed ({totalCompletedCount} Subjects Entered)
             </p>
           </div>
@@ -417,7 +417,7 @@ export const Calculator = ({
 
         <div className="flex items-center gap-3">
           {isConcrete ? (
-            <div className="px-5 py-2 rounded-xl bg-black text-yellow-400 border-2 border-black font-mono font-black text-2xl sm:text-3xl shadow-[3px_3px_0px_0px_#000] tracking-tight">
+            <div className="px-5 py-2 rounded-xl bg-white text-[#801618] border-2 border-black font-mono font-black text-2xl sm:text-3xl shadow-[3px_3px_0px_0px_#000] tracking-tight">
               {cgpa}
             </div>
           ) : (

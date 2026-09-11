@@ -37,7 +37,7 @@ export const BoycottModal = ({
           >
              <div className="absolute inset-0 pointer-events-none opacity-90 overflow-hidden flex flex-col justify-center gap-8 -rotate-12 scale-150">
                {[...Array(6)].map((_, i) => (
-                 <div key={i} className={`w-full h-12 font-black text-2xl tracking-widest uppercase flex items-center overflow-hidden shadow-xl ${variant === 'fresh' ? 'bg-accent-500 text-white' : 'bg-yellow-400 text-black'}`} style={{ transform: i % 2 === 0 ? 'translateX(-10%)' : 'translateX(-5%)' }}>
+                 <div key={i} className={`w-full h-12 font-black text-2xl tracking-widest uppercase flex items-center overflow-hidden shadow-xl ${variant === 'fresh' ? 'bg-accent-500 text-white' : 'bg-[#801618] text-white'}`} style={{ transform: i % 2 === 0 ? 'translateX(-10%)' : 'translateX(-5%)' }}>
                    <div className="flex whitespace-nowrap animate-tape-scroll" style={{ animationDirection: i % 2 === 0 ? 'normal' : 'reverse', animationDuration: '4s' }}>
                      {[...Array(10)].map((_, j) => (
                        <span key={j} className="px-4">
@@ -59,7 +59,7 @@ export const BoycottModal = ({
             <div className="relative z-10 flex flex-col items-center justify-center min-h-[250px] text-center bg-surface/90 p-6 rounded-2xl backdrop-blur-md border border-border">
               {variant === 'fresh' 
                 ? <PartyPopper size={48} className="text-accent-500 mb-4" />
-                : <AlertTriangle size={48} className="text-yellow-400 mb-4" />
+                : <AlertTriangle size={48} className="text-[#801618] mb-4" />
               }
               <h2 className="text-3xl font-black text-textMain mb-2 uppercase tracking-tight">{title}</h2>
               <p className="text-textMuted font-medium">{message}</p>

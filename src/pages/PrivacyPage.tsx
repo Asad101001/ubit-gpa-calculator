@@ -33,7 +33,7 @@ export const PrivacyPage = ({ onBack }: PrivacyPageProps) => {
       {/* Main Card */}
       <div className="glass-card p-6 sm:p-10 space-y-8 border-2 border-black shadow-[6px_6px_0px_0px_#000000]">
         <div className="flex items-center gap-4 pb-6 border-b-2 border-black">
-          <div className="p-3 bg-yellow-400 text-black border-2 border-black rounded-xl font-black shadow-[3px_3px_0px_0px_#000000]">
+          <div className="p-3 bg-[#801618] text-white border-2 border-black rounded-xl font-black shadow-[3px_3px_0px_0px_#000000]">
             <ShieldCheck size={28} />
           </div>
           <div>
@@ -54,7 +54,7 @@ export const PrivacyPage = ({ onBack }: PrivacyPageProps) => {
         <div className="space-y-6 text-sm text-textMain leading-relaxed">
           <section className="space-y-2">
             <h2 className="text-base font-extrabold text-textMain flex items-center gap-2">
-              <Lock className="text-yellow-600" size={18} /> 1. Non-Affiliation & Copyright Notice
+              <Lock className="text-[#801618]" size={18} /> 1. Non-Affiliation & Copyright Notice
             </h2>
             <p className="text-textMuted text-xs sm:text-sm leading-relaxed">
               All trademarks, department names, logo representations, and course titles ("Department of Computer Science", "UBIT", "University of Karachi") belong to their respective institution owners. The source code of this tool is published under open-source software terms.
@@ -63,7 +63,7 @@ export const PrivacyPage = ({ onBack }: PrivacyPageProps) => {
 
           <section className="space-y-2">
             <h2 className="text-base font-extrabold text-textMain flex items-center gap-2">
-              <Lock className="text-yellow-600" size={18} /> 2. Information Collection & Seat Number Lookups
+              <Lock className="text-[#801618]" size={18} /> 2. Information Collection & Seat Number Lookups
             </h2>
             <p className="text-textMuted text-xs sm:text-sm leading-relaxed">
               The Results Portal allows students to verify publicly announced department exam scores using seat numbers (e.g. B23101001). We do not sell, rent, or trade student details to third parties. Authentication state and session keys are secured using industry-standard TLS encryption.
@@ -75,7 +75,7 @@ export const PrivacyPage = ({ onBack }: PrivacyPageProps) => {
               href="https://github.com/Asad101001/ubit-gpa-calculator"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-xs font-bold text-black bg-yellow-400 border-2 border-black px-4 py-2.5 rounded-xl shadow-[3px_3px_0px_0px_#000000] hover:bg-yellow-300 transition-all"
+              className="inline-flex items-center gap-2 text-xs font-bold text-white bg-[#801618] border-2 border-black px-4 py-2.5 rounded-xl shadow-[3px_3px_0px_0px_#000000] hover:bg-[#9b1b1e] transition-all"
             >
               <ExternalLink size={16} /> View Open Source Repository on GitHub
             </a>

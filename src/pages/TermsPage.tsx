@@ -33,7 +33,7 @@ export const TermsPage = ({ onBack }: TermsPageProps) => {
       {/* Main Card */}
       <div className="glass-card p-6 sm:p-10 space-y-8 border-2 border-black shadow-[6px_6px_0px_0px_#000000]">
         <div className="flex items-center gap-4 pb-6 border-b-2 border-black">
-          <div className="p-3 bg-yellow-400 text-black border-2 border-black rounded-xl font-black shadow-[3px_3px_0px_0px_#000000]">
+          <div className="p-3 bg-[#801618] text-white border-2 border-black rounded-xl font-black shadow-[3px_3px_0px_0px_#000000]">
             <FileText size={28} />
           </div>
           <div>
@@ -44,7 +44,7 @@ export const TermsPage = ({ onBack }: TermsPageProps) => {
           </div>
         </div>
 
-        <div className="p-4 bg-yellow-400/10 border-2 border-black rounded-xl flex items-start gap-3">
+        <div className="p-4 bg-rose-500/10 border-2 border-black rounded-xl flex items-start gap-3">
           <Info className="text-black shrink-0 mt-0.5" size={20} />
           <p className="text-xs text-textMain font-bold">
             By accessing or using the UBIT GPA Calculator & Results Portal, you agree to comply with and be bound by these Terms of Service.
@@ -93,7 +93,7 @@ export const TermsPage = ({ onBack }: TermsPageProps) => {
           </div>
           <button
             onClick={onBack}
-            className="px-6 py-2.5 bg-yellow-400 hover:bg-yellow-300 text-black font-extrabold text-xs rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+            className="px-6 py-2.5 bg-[#801618] hover:bg-[#9b1b1e] text-white font-extrabold text-xs rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
           >
             I Understand & Accept
           </button>

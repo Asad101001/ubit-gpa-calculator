@@ -13,25 +13,25 @@ export const MetricCard = ({ title, value, subtitle, icon: Icon, highlight = fal
     transition={{ type: "spring", stiffness: 300, damping: 20 }}
     className={`p-4 sm:p-6 rounded-2xl border-2 transition-all relative overflow-hidden group ${
     highlight 
-      ? 'bg-yellow-400 border-black shadow-[4px_4px_0px_0px_#000]' 
+      ? 'bg-[#801618] text-white border-black shadow-[4px_4px_0px_0px_#000]' 
       : 'glass border-black shadow-[3px_3px_0px_0px_#000] hover:translate-x-0.5 hover:translate-y-0.5'
   }`}>
     <div className="relative z-10 flex flex-col h-full justify-between">
       <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
-        <div className={`p-2 sm:p-2.5 rounded-xl border-2 border-black ${highlight ? 'bg-black text-yellow-400 shadow-[1.5px_1.5px_0px_0px_#000]' : 'bg-yellow-400 text-black shadow-[1.5px_1.5px_0px_0px_#000]'}`}>
+        <div className={`p-2 sm:p-2.5 rounded-xl border-2 border-black ${highlight ? 'bg-white text-[#801618] shadow-[1.5px_1.5px_0px_0px_#000]' : 'bg-[#801618] text-white shadow-[1.5px_1.5px_0px_0px_#000]'}`}>
           <Icon size={18} strokeWidth={2.5} />
         </div>
-        <h3 className={`text-[10px] sm:text-xs font-black uppercase tracking-wider ${highlight ? 'text-black' : 'text-gray-700'}`}>{title}</h3>
+        <h3 className={`text-[10px] sm:text-xs font-black uppercase tracking-wider ${highlight ? 'text-white' : 'text-gray-700'}`}>{title}</h3>
       </div>
       <div className="flex items-baseline gap-2">
-        <span className={`text-3xl sm:text-5xl font-black font-mono tracking-tight ${highlight ? 'text-black' : 'text-textMain'}`}>
+        <span className={`text-3xl sm:text-5xl font-black font-mono tracking-tight ${highlight ? 'text-white' : 'text-textMain'}`}>
           {typeof value === 'number' || (!isNaN(parseFloat(value)) && isFinite(Number(value))) ? (
             <AnimatedCounter value={value} decimals={2} />
           ) : (
             value
           )}
         </span>
-        {subtitle && <span className={`text-xs sm:text-sm font-mono font-bold truncate max-w-[120px] sm:max-w-none ${highlight ? 'text-black/80' : 'text-textMuted'}`}>{subtitle}</span>}
+        {subtitle && <span className={`text-xs sm:text-sm font-mono font-bold truncate max-w-[120px] sm:max-w-none ${highlight ? 'text-white/80' : 'text-textMuted'}`}>{subtitle}</span>}
       </div>
     </div>
   </motion.div>
@@ -65,7 +65,7 @@ export const Analytics = ({
           className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8"
         >
           <div>
-            <p className="text-[10px] font-bold text-yellow-600 uppercase tracking-widest mb-1">Performance Breakdown</p>
+            <p className="text-[10px] font-bold text-[#801618] uppercase tracking-widest mb-1">Performance Breakdown</p>
             <h2 className="text-2xl sm:text-3xl font-black text-textMain tracking-tight">Advanced Analytics</h2>
           </div>
 
@@ -95,7 +95,7 @@ export const Analytics = ({
             className={`flex items-center gap-2 px-5 py-2.5 font-black text-xs rounded-xl border-2 border-black transition-all shadow-[2px_2px_0px_0px_#000] active:scale-95 group ${
               (Object.values(sem1Grades).some(m => m === '') || Object.values(sem2Grades).some(m => m === ''))
               ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed opacity-60 shadow-none' 
-              : 'bg-white hover:bg-yellow-400 text-black'
+              : 'bg-white hover:bg-[#801618] hover:text-white text-black'
             }`}
           >
             <Download size={15} strokeWidth={2.5} />
@@ -124,7 +124,7 @@ export const Analytics = ({
               <p className="text-xs text-textMuted font-bold mt-0.5">Visual representation of grade points earned per subject</p>
             </div>
             <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold">
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-yellow-400 border border-black" /> Semester 1</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-[#801618] border border-black" /> Semester 1</span>
               <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-600 border border-black" /> Semester 2</span>
               <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500 border border-black" /> Semester 3</span>
             </div>
@@ -142,7 +142,7 @@ export const Analytics = ({
                     {chartData.map((entry: any, index: number) => (
                       <Cell 
                         key={`cell-${index}`} 
-                        fill={entry.semester === 'Sem 1' ? '#facc15' : entry.semester === 'Sem 2' ? '#d97706' : '#10b981'} 
+                        fill={entry.semester === 'Sem 1' ? '#801618' : entry.semester === 'Sem 2' ? '#d97706' : '#10b981'} 
                         stroke="#000000" 
                         strokeWidth={1.5} 
                       />
@@ -151,9 +151,9 @@ export const Analytics = ({
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full w-full flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-black/20 rounded-2xl bg-yellow-50/50">
-                <div className="w-12 h-12 rounded-full bg-yellow-400 border-2 border-black flex items-center justify-center mb-3 shadow-[2px_2px_0px_0px_#000]">
-                  <BookOpen className="w-6 h-6 text-black" />
+              <div className="h-full w-full flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-black/20 rounded-2xl bg-rose-50/50">
+                <div className="w-12 h-12 rounded-full bg-[#801618] border-2 border-black flex items-center justify-center mb-3 shadow-[2px_2px_0px_0px_#000]">
+                  <BookOpen className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="font-black text-black text-base">Enter Course Marks Above</h4>
                 <p className="text-xs text-gray-600 font-medium max-w-sm mt-1">

@@ -23,7 +23,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
 
               <div>
                 <h3 className="font-black text-sm text-black tracking-tight leading-none">
-                  UBIT <span className="bg-yellow-400 px-1 py-0.2 rounded border border-black text-[10px]">RESULTS</span>
+                  UBIT <span className="bg-[#801618] text-white px-1 py-0.2 rounded border border-black text-[10px]">RESULTS</span>
                 </h3>
                 <p className="text-[10px] text-gray-600 font-bold uppercase mt-0.5">DCS · University of Karachi</p>
               </div>
@@ -33,8 +33,8 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
               Official academic results, transcript generator, target CGPA advisor, and analytics for BSCS Batch 2024–2028.
             </p>
 
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-yellow-400 border border-black text-[10px] font-black text-black shadow-[1px_1px_0px_0px_#000]">
-              <span className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#801618] border border-black text-[10px] font-black text-white shadow-[1px_1px_0px_0px_#000]">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
               BSCS Batch 2024–28 · DCS UOK
             </div>
           </div>
@@ -42,7 +42,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
           {/* Col 2: Quick Navigation */}
           <div className="space-y-3">
             <h4 className="text-xs font-black text-black uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b-2 border-black/10">
-              <BookOpen size={13} className="text-yellow-600" />
+              <BookOpen size={13} className="text-[#801618]" />
               Navigation
             </h4>
             <ul className="grid grid-cols-1 gap-2 text-xs font-bold text-gray-700">
@@ -51,7 +51,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
                   onClick={() => { navigateTo?.('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   className="hover:text-black hover:underline transition-colors text-left flex items-center gap-1.5 py-0.5"
                 >
-                  <span className="text-yellow-500 font-black">›</span> Home & Overview
+                  <span className="text-[#801618] font-black">›</span> Home & Overview
                 </button>
               </li>
               <li>
@@ -59,7 +59,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
                   onClick={() => { navigateTo?.('calculator'); setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
                   className="hover:text-black hover:underline transition-colors text-left flex items-center gap-1.5 py-0.5"
                 >
-                  <span className="text-yellow-500 font-black">›</span> GPA Calculator
+                  <span className="text-[#801618] font-black">›</span> GPA Calculator
                 </button>
               </li>
               <li>
@@ -67,7 +67,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
                   onClick={() => { navigateTo?.('calculator'); setTimeout(() => document.getElementById('target-advisor')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
                   className="hover:text-black hover:underline transition-colors text-left flex items-center gap-1.5 py-0.5"
                 >
-                  <span className="text-yellow-500 font-black">›</span> Target CGPA Advisor
+                  <span className="text-[#801618] font-black">›</span> Target CGPA Advisor
                 </button>
               </li>
               <li>
@@ -75,7 +75,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
                   onClick={() => navigateTo?.('results')}
                   className="hover:text-black hover:underline transition-colors text-left flex items-center gap-1.5 py-0.5"
                 >
-                  <span className="text-yellow-500 font-black">›</span> Class Results Portal
+                  <span className="text-[#801618] font-black">›</span> Class Results Portal
                 </button>
               </li>
               <li>
@@ -83,7 +83,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
                   onClick={() => navigateTo?.('profile')}
                   className="hover:text-black hover:underline transition-colors text-left flex items-center gap-1.5 py-0.5"
                 >
-                  <span className="text-yellow-500 font-black">›</span> Student Profile & Account
+                  <span className="text-[#801618] font-black">›</span> Student Profile & Account
                 </button>
               </li>
             </ul>
@@ -92,7 +92,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
           {/* Col 3: Legal, Terms & Grading Policy */}
           <div className="space-y-3">
             <h4 className="text-xs font-black text-black uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b-2 border-black/10">
-              <Scale size={13} className="text-yellow-600" />
+              <Scale size={13} className="text-[#801618]" />
               Policies & Info
             </h4>
             <ul className="space-y-2 text-xs font-bold text-gray-700">
@@ -140,7 +140,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
           {/* Col 4: AI & Developer Credits */}
           <div className="space-y-3">
             <h4 className="text-xs font-black text-black uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b-2 border-black/10">
-              <Code size={13} className="text-yellow-600" />
+              <Code size={13} className="text-[#801618]" />
               Engineering
             </h4>
             <div className="p-3 bg-gray-50 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_#000] space-y-1.5">
@@ -155,7 +155,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
                   href="https://muhammadasad-portfolio.vercel.app/" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-black underline hover:text-yellow-600 transition-colors"
+                  className="text-black underline hover:text-[#801618] transition-colors"
                 >
                   Portfolio
                 </a>
@@ -202,7 +202,7 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
 
           <button
             onClick={scrollToTop}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-black border-2 border-black shadow-[2px_2px_0px_0px_#000] active:scale-95 text-xs font-black transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#801618] hover:bg-[#9b1b1e] text-white border-2 border-black shadow-[2px_2px_0px_0px_#000] active:scale-95 text-xs font-black transition-all"
           >
             <ArrowUp size={13} strokeWidth={2.5} />
             <span>Back to Top</span>
