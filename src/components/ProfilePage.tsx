@@ -35,12 +35,19 @@ export const ProfilePage = () => {
   const isAdmin = profile?.is_admin ?? false;
   const isVerified = profile?.is_verified ?? false;
 
+  const currentTargetSeatNo = (adminSelectedUser
+    ? adminSelectedUser.seat_no
+    : adminCustomSeatNo || profile?.seat_no || '')?.toUpperCase().trim();
+
+  const isOwner = !!profile?.seat_no && !!currentTargetSeatNo && profile.seat_no.toUpperCase().trim() === currentTargetSeatNo;
+  const canEditMarks = isAdmin || isOwner || isVerified;
+
   useEffect(() => {
     const fetchStudentData = async () => {
       // Admin can either select a profile user OR type a custom seat no
-      const targetSeatNo = adminSelectedUser
+      const targetSeatNo = (adminSelectedUser
         ? adminSelectedUser.seat_no
-        : adminCustomSeatNo || profile?.seat_no;
+        : adminCustomSeatNo || profile?.seat_no || '')?.toUpperCase().trim();
       if (!targetSeatNo) { setStudentData(null); setIsLoadingData(false); return; }
       
       setIsLoadingData(true);
@@ -71,7 +78,7 @@ export const ProfilePage = () => {
           if (fallbackRes.ok) resultsData = await fallbackRes.json();
         }
         if (resultsData) {
-          const match = resultsData.find((row: any) => row.seat_no === targetSeatNo);
+          const match = resultsData.find((row: any) => String(row.seat_no).toUpperCase().trim() === targetSeatNo);
           if (match) {
             const mapped: Record<string, any> = { 'Seat No': match.seat_no, 'Name': match.name };
             SUBJECTS_META.forEach(sub => { if (match[sub.id] !== undefined) mapped[sub.id] = match[sub.id]; });
@@ -142,9 +149,9 @@ export const ProfilePage = () => {
   };
 
   const handleSaveMark = async (subjectId: string) => {
-    const targetSeatNo = adminSelectedUser
+    const targetSeatNo = (adminSelectedUser
       ? adminSelectedUser.seat_no
-      : adminCustomSeatNo || profile?.seat_no;
+      : adminCustomSeatNo || profile?.seat_no || '')?.toUpperCase().trim();
     if (!targetSeatNo) return;
     
     const isClearing = editValue.trim() === '' || editValue.trim() === '-';
@@ -160,7 +167,25 @@ export const ProfilePage = () => {
     }
 
     setIsSavingMark(true);
+    const cleanKey = subjectId.toLowerCase().replace('-', '');
+
     try {
+      // 1. Direct Supabase update (fast and works locally in Vite and in prod)
+      const { error: sbError } = await supabase
+        .from('student_results')
+        .update({ [cleanKey]: numVal })
+        .eq('seat_no', targetSeatNo);
+
+      if (!sbError) {
+        toast.success(numVal !== null ? 'Mark updated!' : 'Mark cleared / set to pending');
+        setStudentData(prev => prev ? { ...prev, [cleanKey]: numVal } : prev);
+        setEditingMark(null);
+        setEditValue('');
+        setIsSavingMark(false);
+        return;
+      }
+
+      // 2. Serverless API endpoint fallback
       const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch('/api/update-marks', {
         method: 'POST',
@@ -169,11 +194,18 @@ export const ProfilePage = () => {
       });
       if (res.ok) {
         toast.success(numVal !== null ? 'Mark updated!' : 'Mark cleared / set to pending');
-        setStudentData(prev => prev ? { ...prev, [subjectId]: numVal } : prev);
-        setEditingMark(null); setEditValue('');
-      } else { const d = await res.json(); toast.error(d.error || 'Failed to update.'); }
-    } catch { toast.error('Network error.'); }
-    setIsSavingMark(false);
+        setStudentData(prev => prev ? { ...prev, [cleanKey]: numVal } : prev);
+        setEditingMark(null);
+        setEditValue('');
+      } else {
+        const d = await res.json().catch(() => ({}));
+        toast.error(d.error || sbError?.message || 'Failed to update.');
+      }
+    } catch (e: any) {
+      toast.error(e?.message || 'Network error.');
+    } finally {
+      setIsSavingMark(false);
+    }
   };
 
 
@@ -394,9 +426,9 @@ export const ProfilePage = () => {
                                 <span className="text-[10px] font-mono text-textMuted w-7 text-right">{getGradePoint(marks).toFixed(1)}</span>
                               </div>
                             ) : <span className="text-xs text-textMuted/50 italic">— Missing</span>}
-                            {isVerified && (
+                            {canEditMarks && (
                               <button onClick={() => { setEditingMark(sub.id); setEditValue(marks !== null ? String(marks) : ''); }}
-                                className="p-1.5 text-textMuted/30 hover:text-brand-500 hover:bg-brand-500/10 rounded-sm transition-colors opacity-0 group-hover:opacity-100" title="Edit mark">
+                                className="p-1.5 text-textMuted/40 hover:text-brand-500 hover:bg-brand-500/10 rounded-sm transition-colors opacity-70 sm:opacity-0 sm:group-hover:opacity-100" title="Edit mark">
                                 <Edit3 size={12} />
                               </button>
                             )}
@@ -409,7 +441,7 @@ export const ProfilePage = () => {
               </div>
             </div>
           ))}
-          {!isVerified && (
+          {!canEditMarks && !isAdmin && (
             <div className="mt-4 p-4 bg-surfaceHighlight rounded-sm border border-border text-center">
               <p className="text-xs text-textMuted"><ShieldCheck size={14} className="inline mr-1 -mt-0.5" />Contact the admin to get <span className="font-bold text-textMain">verified</span> and enable mark editing.</p>
             </div>
@@ -458,7 +490,13 @@ export const ProfilePage = () => {
                     <p className="text-[10px] font-bold text-brand-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                       <Edit3 size={10} /> Edit Marks by Seat No (No Account Required)
                     </p>
-                    <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); setAdminSelectedUser(null); setAdminCustomSeatNo(adminCustomSeatInput.toUpperCase().trim()); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                    <form className="flex gap-2" onSubmit={(e) => {
+                      e.preventDefault();
+                      if (!adminCustomSeatInput.trim()) return;
+                      setAdminSelectedUser(null);
+                      setAdminCustomSeatNo(adminCustomSeatInput.toUpperCase().trim());
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}>
                       <input
                         type="text"
                         placeholder="e.g. CS-123456"
@@ -487,7 +525,16 @@ export const ProfilePage = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
-                            <button onClick={() => { setAdminSelectedUser(u); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                            <button onClick={() => {
+                              if (!u.seat_no) {
+                                toast.error(`User ${u.full_name} has no seat number linked.`);
+                                return;
+                              }
+                              setAdminCustomSeatNo('');
+                              setAdminCustomSeatInput('');
+                              setAdminSelectedUser(u);
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
                               className="p-1.5 bg-brand-500/10 text-brand-500 hover:bg-brand-500/20 rounded-sm border border-brand-500/30 transition-colors" title="Manage Marks">
                               <Edit3 size={14} />
                             </button>

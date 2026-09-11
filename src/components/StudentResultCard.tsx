@@ -79,26 +79,46 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
     setIsSavingMarks(true);
 
     try {
-      const targetSeatNo = student['Seat No'];
+      const targetSeatNo = String(student['Seat No'] || student['seat_no'] || '').toUpperCase().trim();
+      if (!targetSeatNo) {
+        toast.error('Missing seat number.');
+        return;
+      }
+
       const updates: Record<string, any> = {};
       
       Object.entries(editedMarks).forEach(([subId, markVal]) => {
+        const cleanKey = subId.toLowerCase().replace('-', '');
         if (markVal !== '' && markVal !== null && markVal !== undefined) {
-          updates[subId] = Number(markVal);
+          updates[cleanKey] = Number(markVal);
         } else {
-          updates[subId] = null; // Explicitly allow empty/missing/unannounced marks
+          updates[cleanKey] = null; // Explicitly allow empty/missing/unannounced marks
         }
       });
 
-      const { error } = await supabase
+      // 1. Try updating via Supabase directly
+      const { error: sbError } = await supabase
         .from('student_results')
         .update(updates)
         .eq('seat_no', targetSeatNo);
 
-      if (error) throw error;
+      if (sbError) {
+        // 2. Fallback via /api/update-marks serverless endpoint
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch('/api/update-marks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ seat_no: targetSeatNo, marks_payload: updates }),
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || sbError.message || 'Failed to update marks.');
+        }
+      }
 
       setStudent(prev => ({ ...prev, ...updates }));
       setIsEditing(false);
+      triggerConfetti();
       toast.success('Marks updated successfully! 🎉');
     } catch (err: any) {
       toast.error(err.message || 'Failed to update marks.');
