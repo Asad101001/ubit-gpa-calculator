@@ -174,20 +174,27 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         .update(updates)
         .eq('id', userId);
 
-      if (error) {
-        // Fallback for visibility toggle
-        if (updates.show_results_publicly !== undefined) {
-          const { data: { session } } = await supabase.auth.getSession();
-          const res = await fetch('/api/update-visibility', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-            body: JSON.stringify({ show_results_publicly: updates.show_results_publicly }),
-          });
-          if (res.ok) {
-            await get().fetchProfile(userId);
-            return { error: null };
-          }
+      if (updates.show_results_publicly !== undefined) {
+        const seatNo = previousProfile?.seat_no || get().profile?.seat_no;
+        if (seatNo) {
+          await supabase
+            .from('student_results')
+            .update({ is_hidden: !updates.show_results_publicly })
+            .eq('seat_no', seatNo.toUpperCase().trim());
         }
+
+        // Also notify /api/update-visibility edge handler
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          fetch('/api/update-visibility', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+            body: JSON.stringify({ show_results_publicly: updates.show_results_publicly }),
+          }).catch(() => null);
+        }
+      }
+
+      if (error) {
         if (previousProfile) set({ profile: previousProfile });
         return { error: error.message };
       }

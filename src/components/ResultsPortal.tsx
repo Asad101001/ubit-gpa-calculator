@@ -97,15 +97,21 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
           localStorage.setItem('hidden_seats', JSON.stringify(Array.from(hidden)));
         }
 
-        // 2. Fetch hidden profiles from Supabase if possible
+        // 2. Fetch profiles from Supabase to sync visibility
         try {
           const { data: profiles } = await supabase
             .from('profiles')
-            .select('seat_no, show_results_publicly')
-            .eq('show_results_publicly', false);
+            .select('seat_no, show_results_publicly');
           if (profiles && Array.isArray(profiles)) {
             profiles.forEach((p: any) => { 
-              if (p.seat_no) hidden.add(String(p.seat_no).toUpperCase()); 
+              if (p.seat_no) {
+                const s = String(p.seat_no).toUpperCase().trim();
+                if (p.show_results_publicly === false) {
+                  hidden.add(s);
+                } else {
+                  hidden.delete(s);
+                }
+              }
             });
             localStorage.setItem('hidden_seats', JSON.stringify(Array.from(hidden)));
           }
@@ -117,9 +123,11 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
           const json = await res.json();
           if (json.length > 0) {
             const formatted = json.map((row: any) => {
-              const seatNo = row.seat_no;
-              if (row.is_hidden && seatNo) {
-                hidden.add(String(seatNo).toUpperCase());
+              const seatNo = row.seat_no ? String(row.seat_no).toUpperCase().trim() : '';
+              if (row.is_hidden) {
+                if (seatNo) hidden.add(seatNo);
+              } else {
+                if (seatNo) hidden.delete(seatNo);
               }
               const mappedRow: any = {
                 'Seat No': seatNo,

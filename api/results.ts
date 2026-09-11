@@ -19,7 +19,7 @@ export default async function handler(req: Request) {
           'Authorization': `Bearer ${supabaseKey}`,
         },
       }),
-      fetch(`${supabaseUrl}/rest/v1/profiles?select=seat_no,show_results_publicly&show_results_publicly=eq.false`, {
+      fetch(`${supabaseUrl}/rest/v1/profiles?select=seat_no,show_results_publicly`, {
         headers: {
           'apikey': serviceKey,
           'Authorization': `Bearer ${serviceKey}`,
@@ -33,21 +33,28 @@ export default async function handler(req: Request) {
     }
 
     const data = await resultsRes.json();
-    const hiddenSeatNos = new Set<string>();
+    const profileVisibilityMap = new Map<string, boolean>();
 
     if (profilesRes && profilesRes.ok) {
-      const hiddenProfiles = await profilesRes.json().catch(() => []);
-      if (Array.isArray(hiddenProfiles)) {
-        hiddenProfiles.forEach((p: any) => {
-          if (p.seat_no) hiddenSeatNos.add(String(p.seat_no).toUpperCase());
+      const allProfiles = await profilesRes.json().catch(() => []);
+      if (Array.isArray(allProfiles)) {
+        allProfiles.forEach((p: any) => {
+          if (p.seat_no) {
+            profileVisibilityMap.set(String(p.seat_no).toUpperCase().trim(), !!p.show_results_publicly);
+          }
         });
       }
     }
 
-    // Attach is_hidden flag — client handles masking in the UI
+    // Attach is_hidden flag:
+    // If a user has a registered profile, their show_results_publicly preference is authoritative.
+    // If they have no profile, fall back to student_results.is_hidden.
     const enrichedData = data.map((row: any) => {
-      const seatNo = row.seat_no ? String(row.seat_no).toUpperCase() : '';
-      const isHidden = (seatNo && hiddenSeatNos.has(seatNo)) || !!row.is_hidden;
+      const seatNo = row.seat_no ? String(row.seat_no).toUpperCase().trim() : '';
+      let isHidden = !!row.is_hidden;
+      if (seatNo && profileVisibilityMap.has(seatNo)) {
+        isHidden = !profileVisibilityMap.get(seatNo);
+      }
       return { ...row, is_hidden: isHidden };
     });
 
