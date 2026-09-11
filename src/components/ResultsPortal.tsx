@@ -118,48 +118,57 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
           }
         } catch { /* profiles table policy fallback */ }
 
-        const res = await fetch('/api/results');
-
-        if (res.ok) {
-          const json = await res.json();
-          if (json.length > 0) {
-            const formatted = json.map((row: any) => {
-              const seatNo = row.seat_no ? String(row.seat_no).toUpperCase().trim() : '';
-              if (row.is_hidden) {
-                if (seatNo) hidden.add(seatNo);
-              } else {
-                if (seatNo) hidden.delete(seatNo);
-              }
-              const mappedRow: any = {
-                'Seat No': seatNo,
-                'Name': row.name,
-                'is_hidden': !!row.is_hidden,
-              };
-              
-              SUBJECTS_DATA.forEach(sub => {
-                if (row[sub.id] !== undefined && row[sub.id] !== null && row[sub.id] !== '') {
-                  mappedRow[sub.id] = row[sub.id];
-                } else {
-                  mappedRow[sub.id] = 'Results Unannounced';
-                }
-              });
-              
-              return mappedRow;
-            });
-            setHiddenSeatNos(hidden);
-            setData(formatted);
-            setIsLoading(false);
-            return;
+        let json: any = null;
+        try {
+          const res = await fetch('/api/results');
+          const contentType = res.headers.get('content-type') || '';
+          if (res.ok && (contentType.includes('application/json') || res.status === 200)) {
+            const text = await res.text();
+            if (text.trim().startsWith('[') || text.trim().startsWith('{')) {
+              json = JSON.parse(text);
+            }
           }
+        } catch {
+          // Local dev or API unreachable, will proceed to fallback
+        }
+
+        if (json && Array.isArray(json) && json.length > 0) {
+          const formatted = json.map((row: any) => {
+            const seatNo = row.seat_no ? String(row.seat_no).toUpperCase().trim() : '';
+            if (row.is_hidden) {
+              if (seatNo) hidden.add(seatNo);
+            } else {
+              if (seatNo) hidden.delete(seatNo);
+            }
+            const mappedRow: any = {
+              'Seat No': seatNo,
+              'Name': row.name,
+              'is_hidden': !!row.is_hidden,
+            };
+            
+            SUBJECTS_DATA.forEach(sub => {
+              if (row[sub.id] !== undefined && row[sub.id] !== null && row[sub.id] !== '') {
+                mappedRow[sub.id] = row[sub.id];
+              } else {
+                mappedRow[sub.id] = 'Results Unannounced';
+              }
+            });
+            
+            return mappedRow;
+          });
+          setHiddenSeatNos(hidden);
+          setData(formatted);
+          setIsLoading(false);
+          return;
         }
 
         // Fallback to local JSON snapshot for local dev / offline testing
         try {
           const fallbackRes = await fetch('/fallback-results.json');
           if (fallbackRes.ok) {
-            const json = await fallbackRes.json();
-            if (Array.isArray(json) && json.length > 0) {
-              const formatted = json.map((row: any) => {
+            const fallbackJson = await fallbackRes.json();
+            if (Array.isArray(fallbackJson) && fallbackJson.length > 0) {
+              const formatted = fallbackJson.map((row: any) => {
                 const mappedRow: any = { 'Seat No': row.seat_no, 'Name': row.name, 'is_hidden': false };
                 SUBJECTS_DATA.forEach(sub => {
                   if (row[sub.id] !== undefined && row[sub.id] !== null && row[sub.id] !== '') {
@@ -181,8 +190,8 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
         setData([]);
         setError("No data found or database connection issue.");
       } catch (e) {
-        console.error("Failed to fetch from API.", e);
-        setError("Could not connect to the live database.");
+        console.error("Failed to load results.", e);
+        setError("Could not connect to the database.");
         setData([]);
       }
       setIsLoading(false);
@@ -418,7 +427,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
 
       {/* ── BATCH OVERVIEW METRIC CARDS ── */}
       <div className="mb-6 sm:mb-8">
-        <BatchStatsCards students={data} />
+        <BatchStatsCards />
       </div>
 
       <div className="glass rounded-[2rem] p-4 sm:p-6 md:p-8 relative overflow-hidden shadow-xl">

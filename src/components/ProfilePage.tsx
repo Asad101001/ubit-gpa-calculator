@@ -70,10 +70,19 @@ export const ProfilePage = () => {
 
         // Fallback to public API (covers edge cases / local dev)
         let resultsData: any[] | null = null;
-        const res = await fetch('/api/results');
-        if (res.ok) {
-          resultsData = await res.json();
-        } else {
+        try {
+          const res = await fetch('/api/results');
+          const contentType = res.headers.get('content-type') || '';
+          if (res.ok && (contentType.includes('application/json') || res.status === 200)) {
+            const rawText = await res.text();
+            if (rawText.trim().startsWith('[') || rawText.trim().startsWith('{')) {
+              resultsData = JSON.parse(rawText);
+            }
+          }
+        } catch {
+          // Local dev or API unreachable, will proceed to fallback
+        }
+        if (!resultsData) {
           const fallbackRes = await fetch('/fallback-results.json');
           if (fallbackRes.ok) resultsData = await fallbackRes.json();
         }
