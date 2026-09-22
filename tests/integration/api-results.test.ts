@@ -48,7 +48,7 @@ describe('Edge Serverless Handler: /api/results', () => {
 
     const res = await resultsHandler(req);
     expect(res.status).toBe(200);
-    expect(res.headers.get('Cache-Control')).toContain('no-store');
+    expect(res.headers.get('Cache-Control')).toContain('s-maxage');
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
 
     const data = await res.json();

@@ -17,7 +17,8 @@
     "preview": "vite preview",
     "db:dump": "node scripts/dump-db.cjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:load": "vitest run tests/load/stress-benchmark.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.7",

@@ -31,7 +31,7 @@ describe('Edge Serverless Handler: /api/submit', () => {
     const res = await submitHandler(req);
     expect(res.status).toBe(400);
     const json = await res.json();
-    expect(json.error).toBe('Missing required fields');
+    expect(json.error).toBe('Name is required');
   });
 
   it('should accept valid leaderboard submission and upsert with IP address', async () => {
@@ -69,6 +69,7 @@ describe('Edge Serverless Handler: /api/submit', () => {
       cgpa: 3.85,
       gpa1: 3.80,
       gpa2: 3.90,
+      gpa3: null,
       ip_address: '192.168.1.50'
     });
   });

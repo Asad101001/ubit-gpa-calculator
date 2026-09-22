@@ -13,16 +13,8 @@ def optimize():
         img.save(logo_path, 'PNG', optimize=True)
         print(f"Optimized {logo_path}: {os.path.getsize(logo_path)/1024:.1f} KB")
 
-    # 2. Optimize ubit_logo.jpg
-    logo_jpg = os.path.join(images_dir, 'ubit_logo.jpg')
-    if os.path.exists(logo_jpg):
-        img = Image.open(logo_jpg).convert('RGB')
-        img = img.resize((300, 300), Image.Resampling.LANCZOS)
-        img.save(logo_jpg, 'JPEG', quality=85, optimize=True)
-        print(f"Optimized {logo_jpg}: {os.path.getsize(logo_jpg)/1024:.1f} KB")
-
-    # 3. Optimize background images (ubit_building_night.jpg, campus_bg.jpg, ubit_building_day.jpg)
-    bg_files = ['ubit_building_night.jpg', 'campus_bg.jpg', 'ubit_building_day.jpg', 'ubit_tech_bg.jpg']
+    # 2. Optimize background images (ubit_building_night.jpg, campus_bg.jpg)
+    bg_files = ['ubit_building_night.jpg', 'campus_bg.jpg']
     for bf in bg_files:
         fp = os.path.join(images_dir, bf)
         if os.path.exists(fp):
