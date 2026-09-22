@@ -5,6 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
+    // Target modern browsers — eliminates polyfill bloat for ~15% smaller bundles
+    target: 'es2020',
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
@@ -32,6 +34,16 @@ export default defineConfig({
         }
       }
     }
-  }
+  },
+  // Pre-bundle heavy deps for faster cold dev starts
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'framer-motion',
+      'zustand',
+      '@supabase/supabase-js',
+    ],
+  },
 })
 

@@ -207,21 +207,25 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, currentCgpa }: 
   }, [suggestions, allGrades, currentVal]);
 
   const futureSemesterAnalysis = useMemo(() => {
-    if (completedCredits === 0 || !targetVal) return null;
+    if (completedCredits === 0 || !targetVal || targetVal <= 0 || isNaN(targetVal)) return null;
 
     const currentTotalQP = currentVal * completedCredits;
-    const futureCreditsPerSem = 18;
+    const futureCreditsPerSem = 18; // Standard UBIT semester load
     const totalFutureCredits = remainingSemesters * futureCreditsPerSem;
+
+    // Guard against division-by-zero (remainingSemesters === 0)
+    if (totalFutureCredits === 0) return null;
+
     const totalProgramCredits = completedCredits + totalFutureCredits;
 
     const requiredTotalQP = targetVal * totalProgramCredits;
     const requiredFutureQP = requiredTotalQP - currentTotalQP;
     const requiredAvgGpa = requiredFutureQP / totalFutureCredits;
 
-    const isPossible = requiredAvgGpa <= 4.0;
+    const isPossible = isFinite(requiredAvgGpa) && requiredAvgGpa <= 4.0;
 
     return {
-      requiredAvgGpa: Math.max(0, requiredAvgGpa),
+      requiredAvgGpa: Math.max(0, isFinite(requiredAvgGpa) ? requiredAvgGpa : 4.01),
       totalProgramCredits,
       totalFutureCredits,
       isPossible,

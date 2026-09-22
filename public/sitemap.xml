@@ -1,42 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+  xsi:schemaLocation="
+    http://www.sitemaps.org/schemas/sitemap/0.9
+    http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd
+  ">
+
+  <!-- ══ Primary App Shell ══ -->
   <url>
     <loc>https://ubit-results-28.vercel.app/</loc>
-    <lastmod>2026-08-29T11:45:00+00:00</lastmod>
+    <lastmod>2026-09-22T00:00:00+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
+    <image:image>
+      <image:loc>https://ubit-results-28.vercel.app/images/og-preview.png</image:loc>
+      <image:caption>UBIT GPA Calculator showing CGPA 3.87 with class leaderboard and grade tools</image:caption>
+      <image:title>UBIT GPA Calculator &amp; Results Portal</image:title>
+    </image:image>
   </url>
+
+  <!-- ══ Results Portal ══ -->
   <url>
     <loc>https://ubit-results-28.vercel.app/#results</loc>
-    <lastmod>2026-08-29T11:45:00+00:00</lastmod>
+    <lastmod>2026-09-22T00:00:00+00:00</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.90</priority>
+    <priority>0.95</priority>
   </url>
+
+  <!-- ══ GPA Calculator ══ -->
   <url>
     <loc>https://ubit-results-28.vercel.app/#calculator</loc>
-    <lastmod>2026-08-29T11:45:00+00:00</lastmod>
+    <lastmod>2026-09-22T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- ══ Target CGPA Advisor ══ -->
+  <url>
+    <loc>https://ubit-results-28.vercel.app/#target-advisor</loc>
+    <lastmod>2026-09-22T00:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
+
+  <!-- ══ Analytics ══ -->
+  <url>
+    <loc>https://ubit-results-28.vercel.app/#analytics</loc>
+    <lastmod>2026-09-22T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- ══ Leaderboard ══ -->
+  <url>
+    <loc>https://ubit-results-28.vercel.app/#leaderboard</loc>
+    <lastmod>2026-09-22T00:00:00+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- ══ Grading Reference ══ -->
   <url>
     <loc>https://ubit-results-28.vercel.app/#grading</loc>
-    <lastmod>2026-08-29T11:45:00+00:00</lastmod>
+    <lastmod>2026-09-22T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
+    <priority>0.65</priority>
   </url>
+
+  <!-- ══ Privacy Policy ══ -->
   <url>
     <loc>https://ubit-results-28.vercel.app/#privacy</loc>
-    <lastmod>2026-08-29T11:45:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.60</priority>
-  </url>
-  <url>
-    <loc>https://ubit-results-28.vercel.app/#terms</loc>
-    <lastmod>2026-08-29T11:45:00+00:00</lastmod>
+    <lastmod>2026-09-22T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.50</priority>
   </url>
+
+  <!-- ══ Terms of Use ══ -->
+  <url>
+    <loc>https://ubit-results-28.vercel.app/#terms</loc>
+    <lastmod>2026-09-22T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.45</priority>
+  </url>
+
 </urlset>

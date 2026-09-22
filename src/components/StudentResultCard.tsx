@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Calculator, AlertTriangle, Send, Loader2, Edit3, Save, X, CheckCircle, XCircle, Lock } from 'lucide-react';
+import { Download, Calculator, AlertTriangle, Send, Loader2, Edit3, Save, X, CheckCircle, XCircle, Lock, Share2 } from 'lucide-react';
 
 import { toast } from 'react-hot-toast';
+import { shareNative, shareWhatsApp, copyToClipboard, buildCGPAShareText } from '../lib/shareUtils';
 
 
 import { getGradePoint, getLetterGrade as getLetterGradeUtil, getMarkColor } from '../lib/utils';
@@ -169,14 +170,21 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
 
   const calcSemStats = (subs: typeof SUBJECTS_META) => {
     let qp = 0, cr = 0;
-    let missing = false;
+    let missingCount = 0;
     subs.forEach(s => {
       const raw = isEditing ? editedMarks[s.id] : student[s.id];
       const m = raw !== undefined && raw !== '' && !isNaN(Number(raw)) ? Number(raw) : null;
       if (m !== null) { qp += getGradePoint(m) * s.credits; cr += s.credits; }
-      else { missing = true; }
+      else { missingCount++; }
     });
-    return { gpa: cr > 0 && !missing ? (qp / cr).toFixed(2) : '—', qp, cr, missing };
+    // Show partial GPA with * when some marks are missing (better UX than blank '—')
+    const rawGpa = cr > 0 ? (qp / cr) : null;
+    const gpaStr = rawGpa === null
+      ? '—'
+      : missingCount > 0
+        ? rawGpa.toFixed(2) + '*'
+        : rawGpa.toFixed(2);
+    return { gpa: gpaStr, qp, cr, missing: missingCount > 0, rawGpa };
   };
 
   const countValidMarks = (subs: typeof SUBJECTS_META) => {
@@ -199,13 +207,17 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
   const totalEnteredCr = s1Stats.cr + s2Stats.cr + s3Stats.cr;
   const currentCalculatedCgpa = totalEnteredCr > 0 ? (totalEnteredQP / totalEnteredCr).toFixed(3) : '—';
 
-  // Concrete condition:
-  // 1. Both Sem 1 (6) & Sem 2 (6) are full, and Sem 3 has 0 entries (solid historical 1st year complete)
-  // OR
-  // 2. All 3 Semesters are completely filled (6 + 6 + 6 = 18 courses)
-  const isConcrete = (s1Count === 6 && s2Count === 6 && s3Count === 0) || (s1Count === 6 && s2Count === 6 && s3Count === 6);
-  const isPartialSem3 = s1Count === 6 && s2Count === 6 && s3Count > 0 && s3Count < 6;
-  const missingCount = (s1Count < 6 ? 6 - s1Count : 0) + (s2Count < 6 ? 6 - s2Count : 0);
+  // Concrete CGPA condition:
+  // Uses actual course list lengths instead of hardcoded 6, so adding/removing courses never breaks this.
+  const sem1Total = sem1Subs.length;  // currently 6
+  const sem2Total = sem2Subs.length;  // currently 6
+  const sem3Total = sem3Subs.length;  // currently 6
+
+  const isConcrete = (s1Count === sem1Total && s2Count === sem2Total && s3Count === 0)
+    || (s1Count === sem1Total && s2Count === sem2Total && s3Count === sem3Total);
+  const isPartialSem3 = s1Count === sem1Total && s2Count === sem2Total && s3Count > 0 && s3Count < sem3Total;
+  const missingCount = (s1Count < sem1Total ? sem1Total - s1Count : 0)
+    + (s2Count < sem2Total ? sem2Total - s2Count : 0);
 
 
   const handlePrefill = () => {
@@ -448,11 +460,32 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
 
         </div>
 
-        {/* Small Report Link */}
-        <div className="flex justify-end mt-3">
+        {/* Share & Report links */}
+        <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
+          {canViewMarks ? (
+            <button
+              onClick={async () => {
+                const payload = buildCGPAShareText(currentCalculatedCgpa, student.name);
+                const shared = await shareNative(payload);
+                if (!shared) {
+                  const ok = await copyToClipboard(window.location.href);
+                  if (ok) {
+                    toast.success('Result link copied to clipboard! 🚀');
+                  } else {
+                    shareWhatsApp(payload);
+                  }
+                }
+              }}
+              className="text-[11px] font-bold text-gray-700 hover:text-black flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-gray-300 hover:border-black bg-gray-50 transition-colors cursor-pointer"
+              aria-label="Share student result"
+            >
+              <Share2 size={12} />
+              <span>Share Result</span>
+            </button>
+          ) : <div />}
           <button
             onClick={() => setIsReportModalOpen(true)}
-            className="text-[11px] font-bold text-red-600 hover:text-red-800 flex items-center gap-1 underline"
+            className="text-[11px] font-bold text-red-600 hover:text-red-800 flex items-center gap-1 underline cursor-pointer"
           >
             <AlertTriangle size={12} />
             <span>Report missing/erroneous mark</span>
@@ -510,12 +543,12 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
           <div className="px-5 py-3 bg-surfaceHighlight/30 border-t border-border/30 flex items-center gap-2">
             {!canViewMarks ? (
               <span className="text-xs text-textMuted flex items-center gap-1 font-semibold"><Lock size={12} /> Status hidden for private record</span>
-            ) : Number(stats.gpa) >= 2.0 ? (
-              <><CheckCircle size={14} className="text-green-600" /><span className="text-xs font-semibold text-green-700">Passing</span></>
-            ) : stats.gpa === '—' ? (
-              <span className="text-xs text-textMuted">No marks recorded</span>
+            ) : s1Stats.rawGpa !== null && Number(s1Stats.rawGpa) >= 2.0 ? (
+              <><CheckCircle size={14} className="text-green-600" /><span className="text-xs font-semibold text-green-700">Passing{s1Stats.missing ? ' (Partial)' : ''}</span></>
+            ) : s1Stats.rawGpa !== null && Number(s1Stats.rawGpa) < 2.0 ? (
+              <><XCircle size={14} className="text-red-500" /><span className="text-xs font-semibold text-red-600">Below passing threshold{s1Stats.missing ? ' (Partial)' : ''}</span></>
             ) : (
-              <><XCircle size={14} className="text-red-500" /><span className="text-xs font-semibold text-red-600">Below passing threshold</span></>
+              <span className="text-xs text-textMuted">No marks recorded</span>
             )}
           </div>
         </motion.div>

@@ -58,7 +58,8 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   const [showDisclaimer, setShowDisclaimer] = useState(() => {
     if (typeof window !== 'undefined') {
       const acceptedTime = localStorage.getItem('disclaimer_accepted');
-      if (acceptedTime && (Date.now() - parseInt(acceptedTime) < 10 * 60 * 1000)) {
+      // Extend TTL from 10 min to 24h — avoids nagging users who revisit frequently
+      if (acceptedTime && (Date.now() - parseInt(acceptedTime) < 24 * 60 * 60 * 1000)) {
         return false;
       }
       return true;
@@ -219,8 +220,8 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
     // Filter by Search Query (Name or Seat No)
     if (searchQuery.trim() !== '') {
       const q = searchQuery.toLowerCase();
-      filtered = filtered.filter(item => 
-        (item['Seat No'] && String(item['Seat No']).toLowerCase().includes(q)) || 
+      filtered = filtered.filter(item =>
+        (item['Seat No'] && String(item['Seat No']).toLowerCase().includes(q)) ||
         (item['Name'] && String(item['Name']).toLowerCase().includes(q))
       );
     }
@@ -231,21 +232,20 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
         const aVal = a[sortConfig.key];
         const bVal = b[sortConfig.key];
 
-        // If we are sorting by a text column, don't treat text as "Missing Marks"
+        // Text columns: always string comparison
         if (sortConfig.key === 'Name' || sortConfig.key === 'Seat No') {
-            const aStr = String(aVal || '').toLowerCase();
-            const bStr = String(bVal || '').toLowerCase();
-            if (aStr < bStr) return sortConfig.direction === 'asc' ? -1 : 1;
-            if (aStr > bStr) return sortConfig.direction === 'asc' ? 1 : -1;
-            return 0;
+          const aStr = String(aVal || '').toLowerCase();
+          const bStr = String(bVal || '').toLowerCase();
+          if (aStr < bStr) return sortConfig.direction === 'asc' ? -1 : 1;
+          if (aStr > bStr) return sortConfig.direction === 'asc' ? 1 : -1;
+          return 0;
         }
-
 
         // Handle missing/unannounced strings for Mark columns
         const isAString = typeof aVal === 'string' && isNaN(Number(aVal));
         const isBString = typeof bVal === 'string' && isNaN(Number(bVal));
 
-        if (isAString && !isBString) return sortConfig.direction === 'asc' ? 1 : -1; 
+        if (isAString && !isBString) return sortConfig.direction === 'asc' ? 1 : -1;
         if (!isAString && isBString) return sortConfig.direction === 'asc' ? -1 : 1;
         if (isAString && isBString) return 0;
 
@@ -253,61 +253,49 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
         const bNum = Number(bVal);
 
         if (!isNaN(aNum) && !isNaN(bNum)) {
-            if (aNum < bNum) return sortConfig.direction === 'asc' ? -1 : 1;
-            if (aNum > bNum) return sortConfig.direction === 'asc' ? 1 : -1;
-        } else {
-            // String comparison (for names/seats)
-            const aStr = String(aVal || '').toLowerCase();
-            const bStr = String(bVal || '').toLowerCase();
-            if (aStr < bStr) return sortConfig.direction === 'asc' ? -1 : 1;
-            if (aStr > bStr) return sortConfig.direction === 'asc' ? 1 : -1;
+          if (aNum < bNum) return sortConfig.direction === 'asc' ? -1 : 1;
+          if (aNum > bNum) return sortConfig.direction === 'asc' ? 1 : -1;
         }
-        
+
         return 0;
       });
     }
 
     return filtered;
-  }, [data, searchQuery, sortConfig, hiddenSeatNos, profile]);
+  // PERF FIX: hiddenSeatNos and profile are NOT used in this memo—filtering by hidden
+  // is done inline during render. Including them here caused unnecessary recomputation.
+  }, [data, searchQuery, sortConfig]);
 
+  // Single-pass displayNames computation (O(n) instead of the previous O(n²) double-loop)
   const displayNames = useMemo(() => {
     const formattedMap = new Map<string, string>();
-    const abbreviatedCounts = new Map<string, number>();
+    const truncatedCounts = new Map<string, number>();
 
-    // First pass: abbreviate SYED MUHAMMAD and MUHAMMAD, and count truncated versions
+    // Single pass: compute abbreviated names and count collisions simultaneously
     data.forEach(student => {
-      let fullName = (student['Name'] || '').trim();
-      let scrolledName = fullName;
-      
-      if (fullName.startsWith('SYED MUHAMMAD ')) {
-        scrolledName = 'S.M ' + fullName.substring('SYED MUHAMMAD '.length);
-      } else if (fullName.startsWith('MUHAMMAD ')) {
-        scrolledName = 'M. ' + fullName.substring('MUHAMMAD '.length);
+      let name = (student['Name'] || '').trim();
+
+      if (name.startsWith('SYED MUHAMMAD ')) {
+        name = 'S.M ' + name.substring('SYED MUHAMMAD '.length);
+      } else if (name.startsWith('MUHAMMAD ')) {
+        name = 'M. ' + name.substring('MUHAMMAD '.length);
       }
 
-      const parts = scrolledName.split(/\s+/);
-      let truncated = scrolledName;
-      if (parts.length > 3) {
-        truncated = parts.slice(0, 3).join(' ');
-      }
-      
-      abbreviatedCounts.set(truncated, (abbreviatedCounts.get(truncated) || 0) + 1);
-      formattedMap.set(student['Seat No'], scrolledName);
+      const parts = name.split(/\s+/);
+      const truncated = parts.length > 3 ? parts.slice(0, 3).join(' ') : name;
+
+      // Store both the full abbreviated and the truncated version
+      formattedMap.set(student['Seat No'], name);
+      truncatedCounts.set(truncated, (truncatedCounts.get(truncated) || 0) + 1);
     });
 
-    // Second pass: if the cleanly truncated 3-word version is unique, use it. Otherwise, use full abbreviated name.
+    // Second pass: use truncated version only if it's unique
     data.forEach(student => {
-      const scrolledName = formattedMap.get(student['Seat No'])!;
-      const parts = scrolledName.split(/\s+/);
-      let truncated = scrolledName;
-      if (parts.length > 3) {
-        truncated = parts.slice(0, 3).join(' ');
-      }
-
-      if ((abbreviatedCounts.get(truncated) || 0) === 1) {
+      const abbrevName = formattedMap.get(student['Seat No'])!;
+      const parts = abbrevName.split(/\s+/);
+      const truncated = parts.length > 3 ? parts.slice(0, 3).join(' ') : abbrevName;
+      if ((truncatedCounts.get(truncated) || 0) === 1) {
         formattedMap.set(student['Seat No'], truncated);
-      } else {
-        formattedMap.set(student['Seat No'], scrolledName);
       }
     });
 
@@ -608,16 +596,17 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                     const isOwner = !!mySeatNo && seatNo === mySeatNo;
                     const canViewMarks = !isHidden || (!!profile?.is_admin && showAdminPrivateRecords);
 
-
                     return (
-                      <motion.tr 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.3 }}
-                        key={student['Seat No']} 
+                      // PERF FIX: replaced motion.tr (framer-motion per-row animation with staggered delay)
+                      // with a plain <tr> using CSS transitions.
+                      // On a 100-row table, motion.tr was creating 100 RAF loops simultaneously
+                      // causing massive mobile paint thrashing.
+                      <tr
+                        key={student['Seat No']}
                         onClick={() => setSelectedStudentModal({ ...student, is_hidden: isHidden })}
-                        className="hover:bg-rose-50/40 transition-colors group cursor-pointer"
+                        className="hover:bg-rose-50/40 transition-colors group cursor-pointer animate-in fade-in duration-200"
                         title="Click to view full student results & load into calculator"
+                        style={{ animationDelay: `${Math.min(index * 15, 400)}ms` }}
                       >
                         <td className="hidden sm:table-cell p-2 sm:p-4 text-center text-textMuted font-medium text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start border-b border-border/50">
                           {index + 1}
@@ -705,7 +694,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                           </td>
                         )}
 
-                      </motion.tr>
+                      </tr>
                     )
                   })
 

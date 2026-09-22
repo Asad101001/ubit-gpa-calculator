@@ -51,7 +51,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ isLoading: false });
     }
 
-    supabase.auth.onAuthStateChange(async (_event, session) => {
+    // Register auth state change listener exactly once.
+    // The returned subscription MUST be stored and unsubscribed on cleanup
+    // to prevent memory leaks on HMR / component remounts.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       set({ user: session?.user ?? null, session });
       if (session?.user) {
         await get().fetchProfile(session.user.id);
@@ -59,6 +62,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ profile: null });
       }
     });
+
+    // Store unsubscribe fn for future cleanup (React strict mode / HMR safe)
+    (get as any)._authSubscription = subscription;
   },
 
   signIn: async (email, password) => {
@@ -81,7 +87,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const cleanEmail = email.trim().toLowerCase();
       const cleanSeatNo = seatNo.toUpperCase().trim();
 
-      // 1. Account Deduplication Check: Ensure Seat No is not claimed by another user
+      // 1. Account deduplication: ensure seat number not already claimed
       if (cleanSeatNo) {
         const { data: existingSeat } = await supabase
           .from('profiles')
@@ -96,14 +102,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
       }
 
-      // 2. Perform Supabase Sign Up
-      const { data, error } = await supabase.auth.signUp({ 
-        email: cleanEmail, 
+      // 2. Perform Supabase sign-up
+      const { data, error } = await supabase.auth.signUp({
+        email: cleanEmail,
         password,
         options: {
           data: {
             full_name: fullName.trim(),
-            seat_no: cleanSeatNo || null
+            seat_no: cleanSeatNo || null,
           }
         }
       });
@@ -138,7 +144,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-
   signOut: async () => {
     await supabase.auth.signOut();
     set({ user: null, session: null, profile: null });
@@ -164,6 +169,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (!userId) return { error: 'Not authenticated' };
 
     const previousProfile = get().profile;
+    // Optimistic update
     if (previousProfile) {
       set({ profile: { ...previousProfile, ...updates } });
     }
@@ -174,30 +180,30 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         .update(updates)
         .eq('id', userId);
 
-      if (updates.show_results_publicly !== undefined) {
-        const seatNo = previousProfile?.seat_no || get().profile?.seat_no;
-        if (seatNo) {
-          await supabase
-            .from('student_results')
-            .update({ is_hidden: !updates.show_results_publicly })
-            .eq('seat_no', seatNo.toUpperCase().trim());
-        }
+      if (error) {
+        // Rollback on failure
+        if (previousProfile) set({ profile: previousProfile });
+        return { error: error.message };
+      }
 
-        // Also notify /api/update-visibility edge handler
+      // Sync visibility via the dedicated API endpoint if toggling public visibility.
+      // This ensures student_results.is_hidden stays in sync via service key.
+      // We do NOT do a direct SDK update on student_results here to avoid double-writes.
+      if (updates.show_results_publicly !== undefined) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.access_token) {
           fetch('/api/update-visibility', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
             body: JSON.stringify({ show_results_publicly: updates.show_results_publicly }),
-          }).catch(() => null);
+          }).catch((err) => console.warn('update-visibility sync failed:', err));
         }
       }
 
-      if (error) {
-        if (previousProfile) set({ profile: previousProfile });
-        return { error: error.message };
-      }
+      // Re-fetch profile from DB to ensure consistency
       await get().fetchProfile(userId);
       return { error: null };
     } catch (e: any) {
@@ -205,8 +211,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return { error: e.message || 'Update failed' };
     }
   },
-
-
 
   openAuthModal: (mode = 'signin') => set({ isAuthModalOpen: true, authModalMode: mode }),
   closeAuthModal: () => set({ isAuthModalOpen: false }),

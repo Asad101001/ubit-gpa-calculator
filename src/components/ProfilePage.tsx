@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, ShieldCheck, LogOut, Edit3, Check, X, Loader2, Users, ChevronDown, ArrowLeft, Search, Trash2 } from 'lucide-react';
+import { Shield, ShieldCheck, LogOut, Edit3, Check, X, Loader2, Users, ChevronDown, ArrowLeft, Search, Trash2, Download, Eye, EyeOff, Mail, RefreshCw, BarChart3 } from 'lucide-react';
 
 import { toast } from 'react-hot-toast';
 import { useAuthStore, type Profile } from '../store/useAuthStore';
@@ -40,7 +40,9 @@ export const ProfilePage = () => {
     : adminCustomSeatNo || profile?.seat_no || '')?.toUpperCase().trim();
 
   const isOwner = !!profile?.seat_no && !!currentTargetSeatNo && profile.seat_no.toUpperCase().trim() === currentTargetSeatNo;
-  const canEditMarks = isAdmin || isOwner || isVerified;
+  // SECURITY FIX: verified users can only edit their own marks (not any seat).
+  // Previously `isVerified` alone allowed any verified user to edit anyone's marks.
+  const canEditMarks = isAdmin || isOwner;
 
   useEffect(() => {
     const fetchStudentData = async () => {
@@ -131,9 +133,11 @@ export const ProfilePage = () => {
     const s2Count = semS[2].count;
     const s3Count = semS[3].count;
 
-    const isConcrete = (s1Count === 6 && s2Count === 6 && s3Count === 0) || (s1Count === 6 && s2Count === 6 && s3Count === 6);
-    const isPartialSem3 = s1Count === 6 && s2Count === 6 && s3Count > 0 && s3Count < 6;
-    const missingCount = (s1Count < 6 ? 6 - s1Count : 0) + (s2Count < 6 ? 6 - s2Count : 0);
+    const isConcrete = (s1Count === SEM1_COURSES.length && s2Count === SEM2_COURSES.length && s3Count === 0)
+      || (s1Count === SEM1_COURSES.length && s2Count === SEM2_COURSES.length && s3Count === SEM3_COURSES.length);
+    const isPartialSem3 = s1Count === SEM1_COURSES.length && s2Count === SEM2_COURSES.length && s3Count > 0 && s3Count < SEM3_COURSES.length;
+    const missingCount = (s1Count < SEM1_COURSES.length ? SEM1_COURSES.length - s1Count : 0)
+      + (s2Count < SEM2_COURSES.length ? SEM2_COURSES.length - s2Count : 0);
 
     return {
       cgpa: totalCR > 0 ? (totalQP / totalCR).toFixed(3) : '0.000',
@@ -176,7 +180,8 @@ export const ProfilePage = () => {
     }
 
     setIsSavingMark(true);
-    const cleanKey = subjectId.toLowerCase().replace('-', '');
+    // Fix: replace ALL hyphens in subject ID, not just the first one
+    const cleanKey = subjectId.toLowerCase().replace(/-/g, '');
 
     try {
       // 1. Direct Supabase update (fast and works locally in Vite and in prod)
@@ -241,10 +246,75 @@ export const ProfilePage = () => {
   };
 
   const adminDeleteUser = async (userId: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete the profile for ${name}? This action cannot be undone.`)) return;
-    const { error } = await supabase.from('profiles').delete().eq('id', userId);
-    if (!error) { toast.success(`User ${name} deleted.`); fetchAdminUsers(); }
-    else toast.error('Failed to delete user.');
+    if (!confirm(`Are you sure you want to FULLY DELETE the account for ${name}?\n\nThis removes both their profile AND their auth account. This cannot be undone.`)) return;
+    try {
+      // Call server endpoint which uses service key to delete from auth.users
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/admin-delete-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ target_user_id: userId }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        toast.success(`User ${name} fully deleted from auth and profiles.`);
+        fetchAdminUsers();
+      } else {
+        toast.error(result.error || 'Failed to delete user.');
+      }
+    } catch (e: any) {
+      toast.error(e?.message || 'Network error during delete.');
+    }
+  };
+
+  const adminSendPasswordReset = async (email: string, name: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) toast.error(`Failed to send reset email: ${error.message}`);
+      else toast.success(`Password reset email sent to ${name} (${email})`);
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to send reset email.');
+    }
+  };
+
+  const adminToggleUserVisibility = async (userId: string, currentVal: boolean, name: string) => {
+    const { error } = await supabase.from('profiles')
+      .update({ show_results_publicly: !currentVal })
+      .eq('id', userId);
+    if (!error) {
+      toast.success(`${name}: results are now ${!currentVal ? 'public' : 'hidden'}`);
+      fetchAdminUsers();
+    } else {
+      toast.error('Failed to update visibility.');
+    }
+  };
+
+  const handleBulkExport = () => {
+    if (adminUsers.length === 0) { toast.error('No users to export. Load users first.'); return; }
+    const headers = ['Full Name', 'Email', 'Seat No', 'Verified', 'Admin', 'Public', 'Created At'];
+    const rows = adminUsers.map(u => [
+      `"${u.full_name}"`,
+      `"${u.email}"`,
+      u.seat_no || '',
+      u.is_verified ? 'Yes' : 'No',
+      u.is_admin ? 'Yes' : 'No',
+      u.show_results_publicly ? 'Public' : 'Private',
+      new Date(u.created_at).toLocaleDateString('en-US'),
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ubit-users-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${adminUsers.length} users to CSV`);
   };
 
   const filteredAdminUsers = useMemo(() => {
@@ -468,7 +538,12 @@ export const ProfilePage = () => {
           className="bg-surface border-[2.5px] border-black rounded-sm overflow-hidden" style={brutalistBox}>
           <button onClick={() => { setIsAdminPanelOpen(!isAdminPanelOpen); if (!isAdminPanelOpen && adminUsers.length === 0) fetchAdminUsers(); }}
             className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-surfaceHighlight/30 transition-colors">
-            <h3 className="text-lg font-black text-textMain uppercase tracking-wider flex items-center gap-2"><Shield size={18} className="text-[#801618]" /> Admin Panel</h3>
+            <h3 className="text-lg font-black text-textMain uppercase tracking-wider flex items-center gap-2">
+              <Shield size={18} className="text-[#801618]" /> Admin Control Panel
+              <span className="text-xs font-bold text-textMuted normal-case tracking-normal ml-2">
+                {adminUsers.length > 0 && `${adminUsers.length} Users`}
+              </span>
+            </h3>
             <ChevronDown size={20} className={`text-textMuted transition-transform ${isAdminPanelOpen ? 'rotate-180' : ''}`} />
           </button>
           <AnimatePresence>
@@ -476,9 +551,35 @@ export const ProfilePage = () => {
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                 className="border-t-2 border-black overflow-hidden">
                 <div className="p-6 sm:p-8">
+                  {/* Admin Stats Summary */}
+                  {adminUsers.length > 0 && (() => {
+                    const totalUsers = adminUsers.length;
+                    const verifiedCount = adminUsers.filter(u => u.is_verified).length;
+                    const hiddenCount = adminUsers.filter(u => !u.show_results_publicly).length;
+                    const withSeatCount = adminUsers.filter(u => !!u.seat_no).length;
+                    return (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                        {[
+                          { label: 'Total Accounts', value: totalUsers, icon: <Users size={14} />, color: 'bg-blue-50 border-blue-200 text-blue-800' },
+                          { label: 'Verified', value: verifiedCount, icon: <ShieldCheck size={14} />, color: 'bg-green-50 border-green-200 text-green-800' },
+                          { label: 'Seat Linked', value: withSeatCount, icon: <BarChart3 size={14} />, color: 'bg-amber-50 border-amber-200 text-amber-800' },
+                          { label: 'Privacy On', value: hiddenCount, icon: <EyeOff size={14} />, color: 'bg-red-50 border-red-200 text-red-800' },
+                        ].map(({ label, value, icon, color }) => (
+                          <div key={label} className={`flex items-center gap-2 p-2.5 rounded-lg border-2 ${color}`}>
+                            {icon}
+                            <div>
+                              <p className="text-xs font-black">{value}</p>
+                              <p className="text-[9px] font-bold uppercase tracking-wide opacity-70">{label}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                     <span className="text-sm font-bold text-textMuted flex items-center gap-2"><Users size={14} /> Users ({filteredAdminUsers.length})</span>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <div className="relative">
                         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-textMuted" />
                         <input 
@@ -486,11 +587,17 @@ export const ProfilePage = () => {
                           placeholder="Search users..." 
                           value={adminSearchQuery}
                           onChange={e => setAdminSearchQuery(e.target.value)}
-                          className="pl-8 pr-3 py-1.5 bg-surface text-xs text-textMain border border-border rounded-sm focus:outline-none focus:border-brand-500 w-full sm:w-48"
+                          className="pl-8 pr-3 py-1.5 bg-surface text-xs text-textMain border border-border rounded-sm focus:outline-none focus:border-brand-500 w-full sm:w-44"
                         />
                       </div>
-                      <button onClick={fetchAdminUsers} disabled={isLoadingAdmin} className="text-xs font-bold text-brand-500 hover:underline shrink-0">
+                      <button onClick={fetchAdminUsers} disabled={isLoadingAdmin}
+                        className="flex items-center gap-1 text-xs font-bold text-brand-500 hover:underline shrink-0 disabled:opacity-50">
+                        <RefreshCw size={12} className={isLoadingAdmin ? 'animate-spin' : ''} />
                         {isLoadingAdmin ? 'Loading...' : 'Refresh'}
+                      </button>
+                      <button onClick={handleBulkExport}
+                        className="flex items-center gap-1 text-xs font-bold text-green-700 hover:underline shrink-0 px-2 py-1 bg-green-50 border border-green-300 rounded">
+                        <Download size={12} /> Export CSV
                       </button>
                     </div>
                   </div>
@@ -522,45 +629,67 @@ export const ProfilePage = () => {
                   : filteredAdminUsers.length === 0 ? <p className="text-textMuted text-sm text-center py-8">No users found.</p>
                   : <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
                       {filteredAdminUsers.map(u => (
-                        <div key={u.id} className="flex items-center justify-between p-3 bg-surfaceHighlight rounded-sm border border-border">
+                        <div key={u.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-surfaceHighlight rounded-sm border border-border">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-sm font-bold text-textMain truncate">{u.full_name}</span>
                               {u.is_admin && <span className="text-[9px] bg-[#801618]/15 text-[#801618] px-1.5 py-0.5 rounded-sm font-bold border border-[#801618]/30">ADMIN</span>}
+                              {!u.show_results_publicly && <span className="text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded-sm font-bold border border-red-300 flex items-center gap-0.5"><EyeOff size={8} /> Hidden</span>}
                             </div>
-                            <div className="flex items-center gap-3 mt-0.5">
+                            <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                               <span className="text-[10px] text-textMuted font-mono">{u.email}</span>
-                              {u.seat_no && <span className="text-[10px] text-textMuted font-mono">Seat: {u.seat_no}</span>}
+                              {u.seat_no && <span className="text-[10px] text-textMuted font-mono font-bold">📋 {u.seat_no}</span>}
+                              <span className="text-[9px] text-textMuted">{new Date(u.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 shrink-0">
+                          <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+                            {/* Edit Marks */}
                             <button onClick={() => {
-                              if (!u.seat_no) {
-                                toast.error(`User ${u.full_name} has no seat number linked.`);
-                                return;
-                              }
+                              if (!u.seat_no) { toast.error(`${u.full_name} has no seat number linked.`); return; }
                               setAdminCustomSeatNo('');
                               setAdminCustomSeatInput('');
                               setAdminSelectedUser(u);
                               window.scrollTo({ top: 0, behavior: 'smooth' });
                             }}
                               className="p-1.5 bg-brand-500/10 text-brand-500 hover:bg-brand-500/20 rounded-sm border border-brand-500/30 transition-colors" title="Manage Marks">
-                              <Edit3 size={14} />
+                              <Edit3 size={13} />
                             </button>
+                            {/* Toggle Visibility */}
+                            <button onClick={() => adminToggleUserVisibility(u.id, u.show_results_publicly, u.full_name)}
+                              className={`p-1.5 rounded-sm border transition-colors ${
+                                u.show_results_publicly
+                                  ? 'bg-green-50 text-green-700 border-green-300 hover:bg-green-100'
+                                  : 'bg-red-50 text-red-600 border-red-300 hover:bg-red-100'
+                              }`}
+                              title={u.show_results_publicly ? 'Results Public — click to hide' : 'Results Hidden — click to make public'}>
+                              {u.show_results_publicly ? <Eye size={13} /> : <EyeOff size={13} />}
+                            </button>
+                            {/* Verify */}
                             <button onClick={() => adminToggleVerified(u.id, u.is_verified)}
-                              className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-sm border-2 transition-all ${u.is_verified ? 'bg-green-500/10 text-green-700 border-green-500/30' : 'bg-surfaceHighlight text-textMuted border-border'}`}>
-                              <ShieldCheck size={12} /> {u.is_verified ? 'Verified' : 'Verify'}
+                              className={`flex items-center gap-1 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-sm border-2 transition-all ${
+                                u.is_verified ? 'bg-green-500/10 text-green-700 border-green-500/30' : 'bg-surfaceHighlight text-textMuted border-border'
+                              }`}>
+                              <ShieldCheck size={11} /> {u.is_verified ? 'Verified' : 'Verify'}
                             </button>
+                            {/* Admin Role (can't demote self) */}
                             {u.id !== profile.id && (
                               <button onClick={() => adminToggleRole(u.id, u.is_admin)}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-sm border-2 transition-all ${u.is_admin ? 'bg-[#801618]/15 text-[#801618] border-[#801618]/30' : 'bg-surfaceHighlight text-textMuted border-border'}`} title="Toggle Admin Role">
-                                <Shield size={12} /> {u.is_admin ? 'Admin' : 'Make Admin'}
+                                className={`flex items-center gap-1 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-sm border-2 transition-all ${
+                                  u.is_admin ? 'bg-[#801618]/15 text-[#801618] border-[#801618]/30' : 'bg-surfaceHighlight text-textMuted border-border'
+                                }`} title="Toggle Admin Role">
+                                <Shield size={11} /> {u.is_admin ? 'Admin' : 'Make Admin'}
                               </button>
                             )}
+                            {/* Password Reset */}
+                            <button onClick={() => adminSendPasswordReset(u.email, u.full_name)}
+                              className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-sm border border-blue-300 transition-colors" title="Send password reset email">
+                              <Mail size={13} />
+                            </button>
+                            {/* Delete (full auth + profile) */}
                             {u.id !== profile.id && (
                               <button onClick={() => adminDeleteUser(u.id, u.full_name)}
-                                className="p-1.5 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-sm border border-red-500/30 transition-colors" title="Delete Profile">
-                                <Trash2 size={14} />
+                                className="p-1.5 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-sm border border-red-500/30 transition-colors" title="Fully delete account (auth + profile)">
+                                <Trash2 size={13} />
                               </button>
                             )}
                           </div>

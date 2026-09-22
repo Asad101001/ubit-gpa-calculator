@@ -20,10 +20,12 @@ export default async function handler(req: Request) {
 
   const supabaseUrl = (globalThis as any).process?.env?.VITE_SUPABASE_URL ?? '';
   const supabaseKey = (globalThis as any).process?.env?.VITE_SUPABASE_ANON_KEY ?? '';
-  const serviceKey = (globalThis as any).process?.env?.SUPABASE_SERVICE_ROLE_KEY ?? (globalThis as any).process?.env?.VITE_SUPABASE_SERVICE_ROLE_KEY ?? '';
+  const serviceKey = (globalThis as any).process?.env?.SUPABASE_SERVICE_ROLE_KEY
+    ?? (globalThis as any).process?.env?.VITE_SUPABASE_SERVICE_ROLE_KEY
+    ?? '';
 
   try {
-    // Validate JWT
+    // ── Authentication ───────────────────────────────────────────────────────
     const authHeader = req.headers.get('authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Authentication required' }), {
@@ -32,7 +34,7 @@ export default async function handler(req: Request) {
       });
     }
 
-    const token = authHeader.replace('Bearer ', '');
+    const token = authHeader.replace('Bearer ', '').trim();
     const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
       headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${token}` },
     });
@@ -47,9 +49,16 @@ export default async function handler(req: Request) {
     const user = await userRes.json();
     const body = await req.json();
 
+    // ── Profile lookup via SERVICE KEY (bypass RLS for reliable reads) ───────
+    const profileAuthKey = serviceKey || supabaseKey;
     const profileRes = await fetch(
       `${supabaseUrl}/rest/v1/profiles?id=eq.${user.id}&select=*`,
-      { headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${token}` } }
+      {
+        headers: {
+          'apikey': profileAuthKey,
+          'Authorization': `Bearer ${profileAuthKey}`,
+        },
+      }
     );
 
     if (!profileRes.ok) {
@@ -77,6 +86,7 @@ export default async function handler(req: Request) {
       });
     }
 
+    // ── Authorization: only owner or admin may edit ───────────────────────────
     const cleanSeatNo = String(seat_no).toUpperCase().trim();
     const isOwner = profile.seat_no && profile.seat_no.toUpperCase().trim() === cleanSeatNo;
     const isAdmin = !!profile.is_admin;
@@ -88,51 +98,57 @@ export default async function handler(req: Request) {
       });
     }
 
-    // Valid subject IDs (Semesters 1, 2, and 3)
+    // ── Valid subject IDs (Semesters 1, 2, and 3) ────────────────────────────
     const validSubjects = [
       'cs351','cs353','cs355','cs357','cs359','cs361',
       'cs352','cs354','cs356','cs358','cs360','cs362',
-      'cs451','cs453','cs455','cs457','cs459','cs461'
+      'cs451','cs453','cs455','cs457','cs459','cs461',
     ];
 
     const patchPayload: Record<string, any> = {};
 
+    const normalizeSubjectKey = (raw: string): string =>
+      raw.toLowerCase().replace(/-/g, ''); // replace ALL hyphens, not just first
+
+    const parseMarkValue = (v: any): number | null => {
+      if (v === '' || v === null || v === undefined ||
+          v === 'Results Unannounced' || v === 'Marks Missing') {
+        return null;
+      }
+      const num = Number(v);
+      if (isNaN(num) || num < 0 || num > 100) return undefined as any; // sentinel for invalid
+      return num;
+    };
+
     if (marks_payload && typeof marks_payload === 'object') {
       // Batch mode
-      Object.entries(marks_payload).forEach(([k, v]) => {
-        const cleanKey = k.toLowerCase().replace('-', '');
-        if (validSubjects.includes(cleanKey)) {
-          if (v === '' || v === null || v === 'Results Unannounced' || v === 'Marks Missing' || v === undefined) {
-            patchPayload[cleanKey] = null;
-          } else {
-            const num = Number(v);
-            if (!isNaN(num) && num >= 0 && num <= 100) {
-              patchPayload[cleanKey] = num;
-            }
-          }
+      for (const [k, v] of Object.entries(marks_payload)) {
+        const cleanKey = normalizeSubjectKey(k);
+        if (!validSubjects.includes(cleanKey)) continue;
+        const parsed = parseMarkValue(v);
+        if (parsed === undefined) {
+          // Invalid value — skip silently (batch update is best-effort)
+          continue;
         }
-      });
+        patchPayload[cleanKey] = parsed;
+      }
     } else if (subject_id) {
       // Single subject mode
-      const cleanKey = String(subject_id).toLowerCase().replace('-', '');
+      const cleanKey = normalizeSubjectKey(String(subject_id));
       if (!validSubjects.includes(cleanKey)) {
         return new Response(JSON.stringify({ error: `Invalid subject: ${subject_id}` }), {
           status: 400,
           headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
         });
       }
-      if (marks === '' || marks === null || marks === 'Results Unannounced' || marks === 'Marks Missing' || marks === undefined) {
-        patchPayload[cleanKey] = null;
-      } else {
-        const num = Number(marks);
-        if (isNaN(num) || num < 0 || num > 100) {
-          return new Response(JSON.stringify({ error: 'Mark must be between 0 and 100, or empty' }), {
-            status: 400,
-            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-          });
-        }
-        patchPayload[cleanKey] = num;
+      const parsed = parseMarkValue(marks);
+      if (parsed === undefined) {
+        return new Response(JSON.stringify({ error: 'Mark must be between 0 and 100, or empty to clear' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        });
       }
+      patchPayload[cleanKey] = parsed;
     } else {
       return new Response(JSON.stringify({ error: 'Missing subject_id or marks_payload' }), {
         status: 400,
@@ -140,15 +156,22 @@ export default async function handler(req: Request) {
       });
     }
 
-    // Update the record in student_results
-    const authHeaderForUpdate = serviceKey ? `Bearer ${serviceKey}` : `Bearer ${token}`;
+    if (Object.keys(patchPayload).length === 0) {
+      return new Response(JSON.stringify({ success: true, updated: {}, message: 'No valid fields to update' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+
+    // ── Update via service key (bypasses RLS for full admin coverage) ─────────
+    const updateAuthKey = serviceKey || supabaseKey;
     const updateRes = await fetch(
       `${supabaseUrl}/rest/v1/student_results?seat_no=eq.${encodeURIComponent(cleanSeatNo)}`,
       {
         method: 'PATCH',
         headers: {
-          'apikey': serviceKey || supabaseKey,
-          'Authorization': authHeaderForUpdate,
+          'apikey': updateAuthKey,
+          'Authorization': `Bearer ${updateAuthKey}`,
           'Content-Type': 'application/json',
           'Prefer': 'return=minimal',
         },
@@ -172,4 +195,3 @@ export default async function handler(req: Request) {
     });
   }
 }
-

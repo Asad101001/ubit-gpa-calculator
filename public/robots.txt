@@ -1,6 +1,51 @@
+# ══════════════════════════════════════════════════════
+# UBIT GPA Calculator & Results Portal — robots.txt
+# https://ubit-results-28.vercel.app/
+# ══════════════════════════════════════════════════════
+
+# Allow all crawlers
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /*.json$
+Allow: /fallback-results.json
 
-# Host & Sitemap
-Host: https://ubit-results-28.vercel.app
+# Crawl delay for respectful bots
+Crawl-delay: 5
+
+# ── AI / LLM Crawlers ─────────────────────────────────
+# Allow AI answer engines to crawl for AEO
+User-agent: GPTBot
+Allow: /
+Crawl-delay: 10
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: ia_archiver
+Allow: /
+
+# Sitemaps
 Sitemap: https://ubit-results-28.vercel.app/sitemap.xml
+Sitemap: https://ubit-results-28.vercel.app/sitemap-pages.xml
+
+# Host
+Host: https://ubit-results-28.vercel.app

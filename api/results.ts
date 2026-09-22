@@ -3,15 +3,32 @@ export const config = {
 };
 
 export default async function handler(req: Request) {
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      },
+    });
+  }
+
   if (req.method !== 'GET') {
     return new Response('Method not allowed', { status: 405 });
   }
 
   const supabaseUrl = (globalThis as any).process?.env?.VITE_SUPABASE_URL ?? '';
   const supabaseKey = (globalThis as any).process?.env?.VITE_SUPABASE_ANON_KEY ?? '';
-  const serviceKey = (globalThis as any).process?.env?.SUPABASE_SERVICE_ROLE_KEY ?? (globalThis as any).process?.env?.VITE_SUPABASE_SERVICE_ROLE_KEY ?? supabaseKey;
+  // Service key: used for reading profiles (bypasses RLS row filters) 
+  const serviceKey = (globalThis as any).process?.env?.SUPABASE_SERVICE_ROLE_KEY
+    ?? (globalThis as any).process?.env?.VITE_SUPABASE_SERVICE_ROLE_KEY
+    ?? supabaseKey;
 
   try {
+    // Fetch student_results (anon key is fine — public read policy)
+    // Fetch profiles with service key to reliably get visibility settings under any RLS config
     const [resultsRes, profilesRes] = await Promise.all([
       fetch(`${supabaseUrl}/rest/v1/student_results?select=*`, {
         headers: {
@@ -26,7 +43,6 @@ export default async function handler(req: Request) {
         },
       }).catch(() => null),
     ]);
-
 
     if (!resultsRes.ok) {
       throw new Error('Failed to fetch results from database');
@@ -62,16 +78,18 @@ export default async function handler(req: Request) {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        // Short-lived CDN cache (60s) + stale-while-revalidate (5 min) for fast global reads
+        // Results change infrequently — no reason for no-store which penalises every user
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
         'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
       },
     });
 
   } catch (e: any) {
     return new Response(JSON.stringify({ error: e.message || 'Server error' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
   }
 }
-

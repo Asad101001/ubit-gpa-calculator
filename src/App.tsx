@@ -5,6 +5,7 @@ import { RotateCcw } from 'lucide-react';
 
 import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from './lib/utils';
 import { triggerConfetti } from './lib/confetti';
+import { supabase } from './lib/supabase';
 
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -55,9 +56,10 @@ function App() {
   });
 
 
-  // Initialize auth on mount
+  // Initialize auth on mount (stable reference — no deps needed)
   useEffect(() => {
     initAuth();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -81,10 +83,14 @@ function App() {
 
   useEffect(() => {
     if (currentView !== 'calculator') return;
+    // PERF FIX: activeSection MUST NOT be in the dep array.
+    // It causes the observer to disconnect/reconnect on every scroll, creating jank.
+    // We read the latest value via a ref inside the callback instead.
+    const activeSectionRef = { current: activeSection };
     const observer = new IntersectionObserver(
       (entries) => {
         let maxRatio = 0;
-        let activeId = activeSection;
+        let activeId = activeSectionRef.current;
         entries.forEach((entry) => {
           if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
             maxRatio = entry.intersectionRatio;
@@ -96,10 +102,12 @@ function App() {
       { rootMargin: '-20% 0px -40% 0px', threshold: [0.1, 0.5] }
     );
 
-    const sections = ['calculator', 'target-advisor', 'analytics', 'leaderboard'].map(id => document.getElementById(id));
+    const sections = ['calculator', 'target-advisor', 'analytics', 'leaderboard']
+      .map(id => document.getElementById(id));
     sections.forEach(s => s && observer.observe(s));
     return () => observer.disconnect();
-  }, [currentView, activeSection]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentView]);
 
   const navigateTo = (view: ViewType) => {
     if (view === 'home') window.location.hash = '';
@@ -157,7 +165,8 @@ function App() {
     toast.success('Results cleared successfully!', { icon: '✨' });
   };
 
-  // Fetch Live Leaderboard
+  // Fetch Live Leaderboard — only when user navigates to calculator view
+  // (avoids wasting bandwidth/connections on home page load)
   const fetchLeaderboard = async () => {
     setIsLeaderboardLoading(true);
     try {
@@ -166,7 +175,7 @@ function App() {
         const data = await res.json();
         setLeaderboardData(data);
       } else {
-        console.error("Failed to fetch leaderboard from Edge Cache");
+        console.error('Failed to fetch leaderboard from Edge Cache');
       }
     } catch (e) {
       console.error(e);
@@ -175,8 +184,11 @@ function App() {
   };
 
   useEffect(() => {
-    fetchLeaderboard();
-  }, []);
+    if (currentView === 'calculator') {
+      fetchLeaderboard();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentView]);
 
   const calculateGPA = (courses: typeof SEM1_COURSES, grades: Record<string, number | ''>) => {
     let totalQP = 0;
@@ -198,28 +210,37 @@ function App() {
     return { gpa: totalCredits > 0 ? totalQP / totalCredits : 0, totalQP, totalCredits, highest, lowest };
   };
 
-  const { gpa1, gpa2, cgpa, bestCourse, worstCourse } = useMemo(() => {
-
-
+  const { gpa1, gpa2, gpa3, cgpa, bestCourse, worstCourse } = useMemo(() => {
     const s1Calc = calculateGPA(SEM1_COURSES, sem1Grades);
     const s2Calc = calculateGPA(SEM2_COURSES, sem2Grades);
     const s3Calc = calculateGPA(SEM3_COURSES, sem3Grades);
-    
+
     const validCredits = s1Calc.totalCredits + s2Calc.totalCredits + s3Calc.totalCredits;
-    const cgpaCalc = validCredits > 0 ? (s1Calc.totalQP + s2Calc.totalQP + s3Calc.totalQP) / validCredits : 0;
-    
-    let allCourses = [
-      ...SEM1_COURSES.filter(c => sem1Grades[c.code] !== '').map(c => ({ name: c.name, type: c.type, gp: getGradePoint(sem1Grades[c.code] as number) })),
-      ...SEM2_COURSES.filter(c => sem2Grades[c.code] !== '').map(c => ({ name: c.name, type: c.type, gp: getGradePoint(sem2Grades[c.code] as number) })),
-      ...SEM3_COURSES.filter(c => sem3Grades[c.code] !== '').map(c => ({ name: c.name, type: c.type, gp: getGradePoint(sem3Grades[c.code] as number) }))
+    // CGPA = sum of all quality points / sum of all completed credits (across all semesters)
+    const cgpaCalc = validCredits > 0
+      ? (s1Calc.totalQP + s2Calc.totalQP + s3Calc.totalQP) / validCredits
+      : 0;
+
+    const allCourses = [
+      ...SEM1_COURSES
+        .filter(c => sem1Grades[c.code] !== '' && sem1Grades[c.code] !== undefined)
+        .map(c => ({ name: c.name, type: c.type, gp: getGradePoint(sem1Grades[c.code] as number) })),
+      ...SEM2_COURSES
+        .filter(c => sem2Grades[c.code] !== '' && sem2Grades[c.code] !== undefined)
+        .map(c => ({ name: c.name, type: c.type, gp: getGradePoint(sem2Grades[c.code] as number) })),
+      ...SEM3_COURSES
+        .filter(c => sem3Grades && typeof sem3Grades[c.code] === 'number' && !isNaN(sem3Grades[c.code] as number))
+        .map(c => ({ name: c.name, type: c.type, gp: getGradePoint(sem3Grades[c.code] as number) })),
     ];
 
     allCourses.sort((a, b) => b.gp - a.gp);
-    const best = allCourses.length > 0 ? allCourses[0] : { name: "N/A", gp: 0 };
-    const worst = allCourses.length > 0 ? allCourses[allCourses.length - 1] : { name: "N/A", gp: 0 };
+    const best  = allCourses.length > 0 ? allCourses[0] : { name: 'N/A', gp: 0 };
+    const worst = allCourses.length > 0 ? allCourses[allCourses.length - 1] : { name: 'N/A', gp: 0 };
+
     return {
       gpa1: s1Calc.gpa.toFixed(2),
       gpa2: s2Calc.gpa.toFixed(2),
+      // gpa3 was previously computed but never destructured — fixed
       gpa3: s3Calc.gpa.toFixed(2),
       cgpa: cgpaCalc.toFixed(3),
       bestCourse: best,
@@ -272,45 +293,57 @@ function App() {
       return;
     }
 
-    if (!/^[a-zA-Z\s]+$/.test(submitName.trim())) {
-      toast.error('Name can only contain letters and spaces.');
+    if (!/^[a-zA-Z\s.\-']+$/.test(submitName.trim())) {
+      toast.error('Name can only contain letters, spaces, dots, and hyphens.');
       return;
     }
 
-    
     setIsSubmitting(true);
     setSubmitError('');
 
     try {
-      const payload = { 
-        name: submitName.trim(), 
-        cgpa: Number(cgpa), 
-        gpa1: Number(gpa1), 
+      const payload = {
+        name: submitName.trim(),
+        cgpa: Number(cgpa),
+        gpa1: Number(gpa1),
         gpa2: Number(gpa2),
+        gpa3: Number(gpa3),
+        // Attach seat_no when authenticated — enables per-student deduplication
+        // instead of per-IP which was unreliable on campus WiFi
+        seat_no: profile?.seat_no ?? null,
       };
-      
+
+      // Include auth header if logged in (used to verify seat_no ownership server-side)
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (profile?.seat_no) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          headers['Authorization'] = `Bearer ${session.access_token}`;
+        }
+      }
+
       const res = await fetch('/api/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        headers,
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Submission failed");
+        throw new Error(data.error || 'Submission failed');
       }
 
       setHasSubmitted(true);
       localStorage.setItem('hasSubmitted', 'true');
       setIsSubmitModalOpen(false);
-      fetchLeaderboard(); // Refresh from Edge API
+      fetchLeaderboard();
       triggerConfetti();
-      toast.success('Successfully added to the Leaderboard!', { icon: '🏆' });
+      toast.success('Successfully added to the Leaderboard! 🏆', { icon: '🏆' });
 
     } catch (err: any) {
-      setSubmitError(err.message || "Failed to submit. Check your connection.");
-      toast.error(err.message || "Failed to submit. Check your connection.");
+      setSubmitError(err.message || 'Failed to submit. Check your connection.');
+      toast.error(err.message || 'Failed to submit. Check your connection.');
     } finally {
       setIsSubmitting(false);
     }

@@ -1,0 +1,116 @@
+# UBIT GPA Calculator & Results Portal
+# https://ubit-results-28.vercel.app/
+# llms.txt — Machine-readable site overview for AI agents and LLM crawlers
+# Format: https://llmstxt.org/
+
+> The UBIT GPA Calculator & Results Portal is the centralized academic portal
+> for BSCS Batch 2024–28 students at Umaer Basha Institute of Information
+> Technology (UBIT), Department of Computer Science, University of Karachi,
+> Pakistan. It provides GPA calculation, cumulative CGPA tracking, live class
+> results, a target CGPA advisor, subject analytics, and a class leaderboard.
+
+## About
+
+This portal was built by Muhammad Asad Khan (BSCS student, Batch 2024–28)
+and is maintained by the student community. It is free, open, and requires
+no installation — it runs entirely in a web browser.
+
+The site is built with React, TypeScript, Vite, Supabase, and Framer Motion.
+It is deployed on Vercel.
+
+## Key Features
+
+- **GPA Calculator**: Calculates per-semester GPA for Semester 1, 2, and 3
+  using UBIT's 4.0 grading scale. Inputs are marks (0–100) per subject.
+- **CGPA Calculator**: Computes cumulative CGPA across all entered semesters
+  using the formula: Total Quality Points ÷ Total Credit Hours.
+- **Live Results Portal**: Shows class-wide results with student names, seat
+  numbers, subject marks, computed GPA and CGPA. Searchable and sortable.
+- **Target CGPA Advisor**: Given your current CGPA and remaining semesters,
+  calculates the average GPA you need each future semester to hit your target.
+- **Subject Analytics**: Charts showing grade distribution, best/worst subjects,
+  and performance patterns across the class.
+- **Leaderboard**: Anonymous class ranking by CGPA. Students can submit their
+  calculated CGPA to the leaderboard. Tied to seat number for authenticated users.
+- **Privacy Controls**: Students can sign in and choose to hide their results
+  from the public class directory.
+- **Transcript Generator**: Generates a downloadable academic transcript PDF.
+
+## Grading Scale (UBIT 4.0 Scale)
+
+| Marks  | Letter | Grade Points |
+|--------|--------|--------------|
+| 90–100 | A      | 4.0          |
+| 80–89  | B+     | 3.5          |
+| 70–79  | B      | 3.0          |
+| 60–69  | C+     | 2.5          |
+| 50–59  | C      | 2.0          |
+| 40–49  | D      | 1.0          |
+| 0–39   | F      | 0.0          |
+
+Minimum passing CGPA: 2.0
+
+## BSCS Curriculum (Batch 2024–28)
+
+### Semester 1 (17 Credit Hours)
+- Introduction to Computing — 3 credits
+- Programming Fundamentals — 3 credits
+- Calculus & Analytical Geometry — 3 credits
+- Applied Physics — 3 credits
+- English Composition & Comprehension — 3 credits
+- Islamic Studies / Ethics — 2 credits
+
+### Semester 2 (17 Credit Hours)
+- Object Oriented Programming — 3 credits
+- Discrete Mathematics — 3 credits
+- Digital Logic Design — 3 credits
+- Technical & Business Writing — 3 credits
+- Linear Algebra — 3 credits
+- Pakistan Studies — 2 credits
+
+### Semester 3 (18 Credit Hours — Ongoing)
+- Data Structures — 3 credits
+- Database Systems — 3 credits
+- Computer Organization & Assembly Language — 3 credits
+- Probability & Statistics — 3 credits
+- Communication & Presentation Skills — 3 credits
+- Differential Equations — 3 credits
+
+## Institution
+
+- **Department**: Department of Computer Science (DCS)
+- **Institute**: Umaer Basha Institute of Information Technology (UBIT)
+- **University**: University of Karachi (UoK)
+- **Location**: University Road, Karachi, Sindh, Pakistan
+- **Website**: https://www.uok.edu.pk/faculties/computerscience/
+- **Program**: Bachelor of Science in Computer Science (BSCS)
+- **Batch**: 2024–2028
+
+## Pages
+
+- [Home](https://ubit-results-28.vercel.app/): Landing page with institution overview
+- [Results Portal](https://ubit-results-28.vercel.app/#results): Class-wide student results
+- [GPA Calculator](https://ubit-results-28.vercel.app/#calculator): Semester GPA & CGPA tools
+- [Target CGPA Advisor](https://ubit-results-28.vercel.app/#target-advisor): Future grade planner
+- [Analytics](https://ubit-results-28.vercel.app/#analytics): Performance charts
+- [Leaderboard](https://ubit-results-28.vercel.app/#leaderboard): Class ranking
+- [Grading Scale](https://ubit-results-28.vercel.app/#grading): Full grade reference
+- [Privacy Policy](https://ubit-results-28.vercel.app/#privacy): Data handling
+- [Terms of Use](https://ubit-results-28.vercel.app/#terms): Usage terms
+
+## API Endpoints (Public)
+
+- `GET /api/results` — Returns all student results (privacy-filtered)
+- `GET /api/leaderboard` — Returns top CGPA leaderboard entries
+
+## Contact / Feedback
+
+This portal is student-maintained. For issues or feedback, visit the portal
+and use the built-in feedback options, or contact the maintainer through
+the University of Karachi student community channels.
+
+## License & Data
+
+Results data is sourced from official UBIT announcements and entered by
+students/admins. This portal is not officially affiliated with or endorsed
+by the University of Karachi administration.
