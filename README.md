@@ -132,6 +132,18 @@ erDiagram
 
 ---
 
+## 📑 Official Examination Marksheets Archive
+
+All authentic, original university examination marksheets and ledgers issued by the **Department of Computer Science (UBIT), University of Karachi** are tracked in the [`Results/`](Results/) directory and served live via the web portal's **Official Marksheets Archive Modal**:
+
+- **Semester 1**: CS-353 (ICT), CS-355 (Calculus), CS-357 (Physics), CS-359 (English), CS-361 (Islamic Studies)
+- **Semester 2**: CS-352 (OOP), CS-354 (DLD), CS-356 (Linear Algebra), CS-358 (Discrete), CS-360 (Comm. Skills), CS-362 (Pakistan Studies)
+- **Semester 3**: CS-451 (Data Structures), CS-455 (Assembly Language — *Late Mr. Taha Bin Niaz / Examined by Mr. Mukesh Kumar Rathi*), CS-457 (Multivariable Calculus), CS-459 (Probability & Statistics), CS-461 (Urdu)
+
+> 📘 For a full catalogue of documents, instructors, and formats, see the [Results Archive Documentation](docs/RESULTS_ARCHIVE.md).
+
+---
+
 ## 💻 Tech Stack
 - **Frontend**: React 19, TypeScript, Vite, Zustand
 - **Backend & Database**: Supabase (PostgreSQL 15, GoTrue Auth, Row-Level Security)

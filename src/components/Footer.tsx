@@ -80,6 +80,20 @@ export const Footer = ({ navigateTo }: { navigateTo?: (view: ViewType) => void }
               </li>
               <li>
                 <button 
+                  onClick={() => {
+                    navigateTo?.('results');
+                    setTimeout(() => {
+                      const btn = document.querySelector('button[title*="scanned marksheets"]') as HTMLButtonElement;
+                      if (btn) btn.click();
+                    }, 150);
+                  }}
+                  className="hover:text-black hover:underline transition-colors text-left flex items-center gap-1.5 py-0.5 text-[#801618]"
+                >
+                  <span className="text-[#801618] font-black">›</span> Official Marksheets (PDF Archive)
+                </button>
+              </li>
+              <li>
+                <button 
                   onClick={() => navigateTo?.('profile')}
                   className="hover:text-black hover:underline transition-colors text-left flex items-center gap-1.5 py-0.5"
                 >

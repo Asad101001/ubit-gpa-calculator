@@ -1,11 +1,13 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, ChevronDown, ChevronUp, FileText, Filter, ArrowLeft, AlertTriangle, Pencil, X, Lock } from 'lucide-react';
+import { Search, ChevronDown, ChevronUp, FileText, Filter, ArrowLeft, AlertTriangle, Pencil, X, Lock, ExternalLink } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 
 import { StudentResultCard, getMarkColor } from './StudentResultCard';
 import { useAuthStore } from '../store/useAuthStore';
 import { supabase } from '../lib/supabase';
+import { OfficialMarksheetsModal } from './OfficialMarksheetsModal';
+import { getMarksheetBySubject } from '../lib/resultsArchive';
 
 const SUBJECTS_DATA = [
   // 1st Semester
@@ -53,6 +55,11 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>({ key: 'Seat No', direction: 'asc' });
   const [isScrolled, setIsScrolled] = useState(false);
   const [selectedStudentModal, setSelectedStudentModal] = useState<any | null>(null);
+  const [isMarksheetsModalOpen, setIsMarksheetsModalOpen] = useState(false);
+
+  const currentSubjectDoc = useMemo(() => {
+    return selectedSubject !== ALL_SUBJECTS ? getMarksheetBySubject(selectedSubject) : undefined;
+  }, [selectedSubject]);
 
 
   const [showDisclaimer, setShowDisclaimer] = useState(() => {
@@ -389,20 +396,31 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
               </button>
             </h2>
 
-            {profile?.is_admin && (
+            <div className="flex items-center gap-2 flex-wrap">
               <button
-                onClick={() => setShowAdminPrivateRecords(!showAdminPrivateRecords)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black border-2 transition-all shadow-[2px_2px_0px_0px_#000] active:scale-95 ${
-                  showAdminPrivateRecords 
-                    ? 'bg-red-500 text-white border-black' 
-                    : 'bg-white hover:bg-rose-50 text-black border-black'
-                }`}
-                title="Admin mode: toggle to preview hidden private records"
+                onClick={() => setIsMarksheetsModalOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-[#801618] text-white hover:bg-[#9b1b1e] border-2 border-black transition-all shadow-[2px_2px_0px_0px_#000] active:scale-95 cursor-pointer"
+                title="View authentic, scanned marksheets issued by Department of Computer Science"
               >
-                <Lock size={12} />
-                <span>{showAdminPrivateRecords ? 'Admin: Showing Private Records' : 'Public View (Private Hidden)'}</span>
+                <FileText size={13} strokeWidth={2.5} />
+                <span>View Official Marksheets (PDF Archive)</span>
               </button>
-            )}
+
+              {profile?.is_admin && (
+                <button
+                  onClick={() => setShowAdminPrivateRecords(!showAdminPrivateRecords)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black border-2 transition-all shadow-[2px_2px_0px_0px_#000] active:scale-95 ${
+                    showAdminPrivateRecords 
+                      ? 'bg-red-500 text-white border-black' 
+                      : 'bg-white hover:bg-rose-50 text-black border-black'
+                  }`}
+                  title="Admin mode: toggle to preview hidden private records"
+                >
+                  <Lock size={12} />
+                  <span>{showAdminPrivateRecords ? 'Admin: Showing Private Records' : 'Public View (Private Hidden)'}</span>
+                </button>
+              )}
+            </div>
           </div>
           <p className="text-textMuted font-medium max-w-xl text-sm sm:text-base mt-1">
             Browse and filter academic results
@@ -447,35 +465,57 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
             />
           </div>
           
-          <div className="lg:w-[40%] relative group">
-            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-textMuted/50 w-5 h-5 group-focus-within:text-brand-500 transition-colors z-10" />
-            <select 
-              value={selectedSubject}
-              onChange={(e) => {
-                setSelectedSubject(e.target.value);
-                setSortConfig({ key: e.target.value === ALL_SUBJECTS ? 'Seat No' : 'Name', direction: 'asc' });
-              }}
-              className="w-full pl-12 pr-10 py-3.5 rounded-2xl border border-border bg-surface/60 focus:bg-surface text-textMain outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all font-medium appearance-none shadow-sm cursor-pointer relative"
-              disabled={searchQuery.trim() !== ''}
-            >
-              <option value={ALL_SUBJECTS} className="font-bold text-brand-600">{ALL_SUBJECTS}</option>
-              <optgroup label="1st Semester">
-                {SUBJECTS_DATA.filter(s => s.semester === 1).map(sub => (
-                  <option key={sub.id} value={sub.id}>{sub.code} - {sub.name}</option>
-                ))}
-              </optgroup>
-              <optgroup label="2nd Semester">
-                {SUBJECTS_DATA.filter(s => s.semester === 2).map(sub => (
-                  <option key={sub.id} value={sub.id}>{sub.code} - {sub.name}</option>
-                ))}
-              </optgroup>
-              <optgroup label="3rd Semester (In Progress)">
-                {SUBJECTS_DATA.filter(s => s.semester === 3).map(sub => (
-                  <option key={sub.id} value={sub.id}>{sub.code} - {sub.name}</option>
-                ))}
-              </optgroup>
-            </select>
-            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-textMuted/50 w-5 h-5 pointer-events-none group-focus-within:text-brand-500 transition-colors" />
+          <div className="lg:w-[40%] flex flex-col">
+            <div className="relative group">
+              <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-textMuted/50 w-5 h-5 group-focus-within:text-brand-500 transition-colors z-10" />
+              <select 
+                value={selectedSubject}
+                onChange={(e) => {
+                  setSelectedSubject(e.target.value);
+                  setSortConfig({ key: e.target.value === ALL_SUBJECTS ? 'Seat No' : 'Name', direction: 'asc' });
+                }}
+                className="w-full pl-12 pr-10 py-3.5 rounded-2xl border border-border bg-surface/60 focus:bg-surface text-textMain outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all font-medium appearance-none shadow-sm cursor-pointer relative"
+                disabled={searchQuery.trim() !== ''}
+              >
+                <option value={ALL_SUBJECTS} className="font-bold text-brand-600">{ALL_SUBJECTS}</option>
+                <optgroup label="1st Semester">
+                  {SUBJECTS_DATA.filter(s => s.semester === 1).map(sub => (
+                    <option key={sub.id} value={sub.id}>{sub.code} - {sub.name}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="2nd Semester">
+                  {SUBJECTS_DATA.filter(s => s.semester === 2).map(sub => (
+                    <option key={sub.id} value={sub.id}>{sub.code} - {sub.name}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="3rd Semester (In Progress)">
+                  {SUBJECTS_DATA.filter(s => s.semester === 3).map(sub => (
+                    <option key={sub.id} value={sub.id}>{sub.code} - {sub.name}</option>
+                  ))}
+                </optgroup>
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-textMuted/50 w-5 h-5 pointer-events-none group-focus-within:text-brand-500 transition-colors" />
+            </div>
+
+            {currentSubjectDoc && (
+              <div className="mt-2.5 flex items-center justify-between px-3.5 py-2 bg-gradient-to-r from-red-50 to-amber-50 border-2 border-black rounded-xl shadow-[2px_2px_0px_0px_#000]">
+                <div className="flex items-center gap-2 min-w-0">
+                  <FileText size={14} className="text-[#801618] shrink-0" strokeWidth={2.5} />
+                  <span className="text-[11px] font-bold text-gray-800 truncate">
+                    Official marksheet for {currentSubjectDoc.code}
+                  </span>
+                </div>
+                <a
+                  href={currentSubjectDoc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#801618] text-white rounded-lg text-[10px] font-black hover:bg-[#9b1b1e] border border-black shadow-[1px_1px_0px_0px_#000] shrink-0 transition-transform active:scale-95"
+                >
+                  <ExternalLink size={10} strokeWidth={2.5} />
+                  <span>Open {currentSubjectDoc.fileType.toUpperCase()}</span>
+                </a>
+              </div>
+            )}
           </div>
         </div>
         
@@ -743,6 +783,12 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Official Marksheets Modal */}
+      <OfficialMarksheetsModal
+        isOpen={isMarksheetsModalOpen}
+        onClose={() => setIsMarksheetsModalOpen(false)}
+      />
     </section>
   );
 };
