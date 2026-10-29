@@ -6,7 +6,9 @@ import {
   getMarkPdfColor, 
   SEM1_COURSES, 
   SEM2_COURSES, 
-  SEM3_COURSES 
+  SEM3_COURSES,
+  SEM4_COURSES,
+  SEM5_COURSES 
 } from '../../src/lib/utils';
 
 describe('UBIT Official Grading Scale (getGradePoint)', () => {
@@ -167,11 +169,23 @@ describe('Course Catalogs Integrity', () => {
     expect(totalCredits).toBe(18);
   });
 
+  it('Semester 4 courses should have exactly 18 credit hours and 6 courses', () => {
+    expect(SEM4_COURSES).toHaveLength(6);
+    const totalCredits = SEM4_COURSES.reduce((sum, c) => sum + c.credits, 0);
+    expect(totalCredits).toBe(18);
+  });
+
+  it('Semester 5 courses should have exactly 18 credit hours and 6 courses', () => {
+    expect(SEM5_COURSES).toHaveLength(6);
+    const totalCredits = SEM5_COURSES.reduce((sum, c) => sum + c.credits, 0);
+    expect(totalCredits).toBe(18);
+  });
+
   it('Course codes and IDs must be completely unique across all semesters', () => {
-    const allCourses = [...SEM1_COURSES, ...SEM2_COURSES, ...SEM3_COURSES];
+    const allCourses = [...SEM1_COURSES, ...SEM2_COURSES, ...SEM3_COURSES, ...SEM4_COURSES, ...SEM5_COURSES];
     const codes = new Set(allCourses.map(c => c.code));
     const ids = new Set(allCourses.map(c => c.id));
-    expect(codes.size).toBe(18);
-    expect(ids.size).toBe(18);
+    expect(codes.size).toBe(30);
+    expect(ids.size).toBe(30);
   });
 });

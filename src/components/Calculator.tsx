@@ -3,12 +3,21 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { 
   Code2, Cpu, Binary, BookOpen, MessageSquare, Sparkles, Plus, Minus, 
-  ChevronDown, GraduationCap, Award, BookMarked, Trophy
+  ChevronDown, GraduationCap, Award, BookMarked, Trophy, Database,
+  Briefcase, Network, Smartphone, Eye, ExternalLink
 } from 'lucide-react';
 
-import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
+import { 
+  getGradePoint, 
+  SEM1_COURSES, 
+  SEM2_COURSES, 
+  SEM3_COURSES, 
+  SEM4_COURSES, 
+  SEM5_COURSES 
+} from '../lib/utils';
 import { validateMarks } from '../lib/validation';
 import { TentativeCGPA } from './TentativeCGPA';
+import { Semester5Modal } from './Semester5Modal';
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 24, scale: 0.98 },
@@ -19,11 +28,16 @@ const itemVariants: Variants = {
 };
 
 const getCourseIcon = (courseCode: string, type: string) => {
-  if (courseCode === 'CS-354' || courseCode === 'CS-455') return Cpu;
+  if (courseCode === 'CS-452') return Database;
+  if (courseCode === 'CS-354' || courseCode === 'CS-454' || courseCode === 'CS-455' || courseCode === 'CS-553') return Cpu;
+  if (courseCode === 'CS-458') return Briefcase;
+  if (courseCode === 'CS-460') return Network;
+  if (courseCode === 'CS-575') return Smartphone;
+  if (courseCode === 'CS-551') return Sparkles;
+  if (courseCode === 'CS-456' || type === 'Math') return Binary;
   if (type === 'Programming') return Code2;
-  if (type === 'Math') return Binary;
   if (courseCode === 'CS-359' || courseCode === 'CS-360') return MessageSquare;
-  if (courseCode === 'CS-361' || courseCode === 'CS-362' || courseCode === 'CS-461') return BookOpen;
+  if (courseCode === 'CS-361' || courseCode === 'CS-362' || courseCode === 'CS-461' || courseCode === 'CS-462' || courseCode === 'CS-559') return BookOpen;
   return Sparkles;
 };
 
@@ -139,24 +153,28 @@ export const Calculator = ({
   sem1Grades, setSem1Grades, 
   sem2Grades, setSem2Grades,
   sem3Grades, setSem3Grades,
+  sem4Grades, setSem4Grades,
   cgpa,
 }: any) => {
 
-  const [isSem4Expanded, setIsSem4Expanded] = useState(false);
+  const [isSem5Expanded, setIsSem5Expanded] = useState(false);
+  const [isSem5ModalOpen, setIsSem5ModalOpen] = useState(false);
+  const [selectedSem5Code, setSelectedSem5Code] = useState<string | null>(null);
 
-  const getSemStats = (courses: any[], grades: Record<string, number | ''>) => {
+  const getSemStats = (courses: any[], grades: Record<string, number | ''> | undefined) => {
     let totalQP = 0;
     let totalCredits = 0;
     let filledCount = 0;
-    courses.forEach(c => {
-      const val = grades[c.code];
-      if (typeof val === 'number' && !isNaN(val)) {
-        totalQP += getGradePoint(val) * c.credits;
-        totalCredits += c.credits;
-        filledCount++;
-      }
-
-    });
+    if (grades) {
+      courses.forEach(c => {
+        const val = grades[c.code];
+        if (typeof val === 'number' && !isNaN(val)) {
+          totalQP += getGradePoint(val) * c.credits;
+          totalCredits += c.credits;
+          filledCount++;
+        }
+      });
+    }
     const gpa = totalCredits > 0 ? (totalQP / totalCredits).toFixed(2) : '—';
     const isComplete = filledCount === courses.length;
     return { gpa, totalQP, totalCredits, filledCount, isComplete };
@@ -165,274 +183,405 @@ export const Calculator = ({
   const s1Stats = getSemStats(SEM1_COURSES, sem1Grades);
   const s2Stats = getSemStats(SEM2_COURSES, sem2Grades);
   const s3Stats = getSemStats(SEM3_COURSES, sem3Grades);
+  const s4Stats = getSemStats(SEM4_COURSES, sem4Grades);
 
-  const totalCompletedCr = s1Stats.totalCredits + s2Stats.totalCredits + s3Stats.totalCredits;
-  const totalCompletedCount = s1Stats.filledCount + s2Stats.filledCount + s3Stats.filledCount;
+  const totalCompletedCr = s1Stats.totalCredits + s2Stats.totalCredits + s3Stats.totalCredits + s4Stats.totalCredits;
+  const totalCompletedCount = s1Stats.filledCount + s2Stats.filledCount + s3Stats.filledCount + s4Stats.filledCount;
 
-  // Concrete CGPA: Sem 1 & 2 full with 0 Sem 3 OR all 18 complete
-  const isConcrete = (s1Stats.filledCount === 6 && s2Stats.filledCount === 6 && s3Stats.filledCount === 0) || 
-                     (s1Stats.filledCount === 6 && s2Stats.filledCount === 6 && s3Stats.filledCount === 6);
-  const isPartialSem3 = s1Stats.filledCount === 6 && s2Stats.filledCount === 6 && s3Stats.filledCount > 0 && s3Stats.filledCount < 6;
-  const missingCount = (s1Stats.filledCount < 6 ? 6 - s1Stats.filledCount : 0) + (s2Stats.filledCount < 6 ? 6 - s2Stats.filledCount : 0);
+  // Concrete CGPA: Sem 1 & 2 full with 0 Sem 3 OR all full
+  const isConcrete = (s1Stats.filledCount === 6 && s2Stats.filledCount === 6 && s3Stats.filledCount === 0 && s4Stats.filledCount === 0) || 
+                     (s1Stats.filledCount === 6 && s2Stats.filledCount === 6 && s3Stats.filledCount === 6 && s4Stats.filledCount === 6);
+  const isPartial = totalCompletedCount > 0 && !isConcrete;
+  const missingCount = (s1Stats.filledCount < 6 ? 6 - s1Stats.filledCount : 0) + 
+                       (s2Stats.filledCount < 6 ? 6 - s2Stats.filledCount : 0);
+
+  const openCourseInSem5Modal = (code: string) => {
+    setSelectedSem5Code(code);
+    setIsSem5ModalOpen(true);
+  };
 
   return (
-    <motion.div 
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, margin: "-50px" }}
-      className="grid grid-cols-1 xl:grid-cols-2 gap-8 relative z-10"
-      variants={{
-        hidden: { opacity: 0 },
-        show: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } }
-      }}
-    >
-      {/* ── SEMESTER 1 CARD ── */}
+    <>
+      <Semester5Modal 
+        isOpen={isSem5ModalOpen}
+        onClose={() => setIsSem5ModalOpen(false)}
+        selectedCourseCode={selectedSem5Code}
+      />
+
       <motion.div 
-        variants={itemVariants}
-        whileHover={{ y: -3 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between"
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-50px" }}
+        className="grid grid-cols-1 xl:grid-cols-2 gap-8 relative z-10"
+        variants={{
+          hidden: { opacity: 0 },
+          show: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } }
+        }}
       >
-        <div>
-          <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#801618] border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-white shadow-[2px_2px_0px_0px_#000]">
+        {/* ── SEMESTER 1 CARD ── */}
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -3 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between"
+        >
+          <div>
+            <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#801618] border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-white shadow-[2px_2px_0px_0px_#000]">
+                  01
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester One</h2>
+                    <GraduationCap size={16} className="text-[#801618] hidden sm:inline" />
+                  </div>
+                  <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2 sm:space-y-2.5 relative z-10">
+              {SEM1_COURSES.map((course) => (
+                <CourseSelect 
+                  key={course.code} course={course} value={sem1Grades[course.code]}
+                  onChange={(val: number | '') => setSem1Grades((prev: any) => ({ ...prev, [course.code]: val }))}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Semester 1 GPA Pill */}
+          <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-rose-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-[#801618] border-2 border-black flex items-center justify-center font-mono font-black text-xs text-white shadow-[1px_1px_0px_0px_#000]">
                 01
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester One</h2>
-                  <GraduationCap size={16} className="text-[#801618] hidden sm:inline" />
-                </div>
-                <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
+                <span className="text-xs font-black uppercase text-black tracking-wide">Semester 1 GPA</span>
+                <p className="text-[10px] font-bold text-gray-600">{s1Stats.filledCount} of 6 courses ({s1Stats.totalCredits}/18 Cr)</p>
               </div>
             </div>
-          </div>
-          <div className="space-y-2 sm:space-y-2.5 relative z-10">
-            {SEM1_COURSES.map((course) => (
-              <CourseSelect 
-                key={course.code} course={course} value={sem1Grades[course.code]}
-                onChange={(val: number | '') => setSem1Grades((prev: any) => ({ ...prev, [course.code]: val }))}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Semester 1 GPA Pill Directly Below Courses */}
-        <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-rose-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-[#801618] border-2 border-black flex items-center justify-center font-mono font-black text-xs text-white shadow-[1px_1px_0px_0px_#000]">
-              01
-            </div>
-            <div>
-              <span className="text-xs font-black uppercase text-black tracking-wide">Semester 1 GPA</span>
-              <p className="text-[10px] font-bold text-gray-600">{s1Stats.filledCount} of 6 courses ({s1Stats.totalCredits}/18 Cr)</p>
+            <div className="px-3 py-1 rounded-xl bg-black text-white border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#801618]">
+              {s1Stats.filledCount > 0 ? (s1Stats.isComplete ? s1Stats.gpa : `${s1Stats.gpa}*`) : '—'}
             </div>
           </div>
-          <div className="px-3 py-1 rounded-xl bg-black text-white border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#801618]">
-            {s1Stats.filledCount > 0 ? (s1Stats.isComplete ? s1Stats.gpa : `${s1Stats.gpa}*`) : '—'}
-          </div>
-        </div>
-      </motion.div>
+        </motion.div>
 
-      {/* ── SEMESTER 2 CARD ── */}
-      <motion.div 
-        variants={itemVariants}
-        whileHover={{ y: -3 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between"
-      >
-        <div>
-          <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#801618] border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-white shadow-[2px_2px_0px_0px_#000]">
+        {/* ── SEMESTER 2 CARD ── */}
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -3 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between"
+        >
+          <div>
+            <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#801618] border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-white shadow-[2px_2px_0px_0px_#000]">
+                  02
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Two</h2>
+                    <Award size={16} className="text-[#801618] hidden sm:inline" />
+                  </div>
+                  <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2 sm:space-y-2.5 relative z-10">
+              {SEM2_COURSES.map((course) => (
+                <CourseSelect 
+                  key={course.code} course={course} value={sem2Grades[course.code]}
+                  onChange={(val: number | '') => setSem2Grades((prev: any) => ({ ...prev, [course.code]: val }))}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Semester 2 GPA Pill */}
+          <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-rose-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-[#801618] border-2 border-black flex items-center justify-center font-mono font-black text-xs text-white shadow-[1px_1px_0px_0px_#000]">
                 02
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Two</h2>
-                  <Award size={16} className="text-[#801618] hidden sm:inline" />
-                </div>
-                <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
+                <span className="text-xs font-black uppercase text-black tracking-wide">Semester 2 GPA</span>
+                <p className="text-[10px] font-bold text-gray-600">{s2Stats.filledCount} of 6 courses ({s2Stats.totalCredits}/18 Cr)</p>
               </div>
             </div>
-          </div>
-          <div className="space-y-2 sm:space-y-2.5 relative z-10">
-            {SEM2_COURSES.map((course) => (
-              <CourseSelect 
-                key={course.code} course={course} value={sem2Grades[course.code]}
-                onChange={(val: number | '') => setSem2Grades((prev: any) => ({ ...prev, [course.code]: val }))}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Semester 2 GPA Pill Directly Below Courses */}
-        <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-rose-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-[#801618] border-2 border-black flex items-center justify-center font-mono font-black text-xs text-white shadow-[1px_1px_0px_0px_#000]">
-              02
-            </div>
-            <div>
-              <span className="text-xs font-black uppercase text-black tracking-wide">Semester 2 GPA</span>
-              <p className="text-[10px] font-bold text-gray-600">{s2Stats.filledCount} of 6 courses ({s2Stats.totalCredits}/18 Cr)</p>
+            <div className="px-3 py-1 rounded-xl bg-black text-white border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#801618]">
+              {s2Stats.filledCount > 0 ? (s2Stats.isComplete ? s2Stats.gpa : `${s2Stats.gpa}*`) : '—'}
             </div>
           </div>
-          <div className="px-3 py-1 rounded-xl bg-black text-white border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#801618]">
-            {s2Stats.filledCount > 0 ? (s2Stats.isComplete ? s2Stats.gpa : `${s2Stats.gpa}*`) : '—'}
-          </div>
-        </div>
-      </motion.div>
+        </motion.div>
 
-      {/* ── SEMESTER 3 CARD ── */}
-      <motion.div 
-        variants={itemVariants}
-        whileHover={{ y: -3 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden xl:col-span-2 max-w-3xl mx-auto w-full flex flex-col justify-between"
-      >
-        <div>
-          <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#801618] border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-white shadow-[2px_2px_0px_0px_#000]">
+        {/* ── SEMESTER 3 CARD ── */}
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -3 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between"
+        >
+          <div>
+            <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#801618] border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-white shadow-[2px_2px_0px_0px_#000]">
+                  03
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Three</h2>
+                    <BookMarked size={16} className="text-[#801618] hidden sm:inline" />
+                  </div>
+                  <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2 sm:space-y-2.5 relative z-10">
+              {SEM3_COURSES.map((course) => (
+                <CourseSelect 
+                  key={course.code} course={course} value={sem3Grades[course.code]}
+                  onChange={(val: number | '') => setSem3Grades((prev: any) => ({ ...prev, [course.code]: val }))}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Semester 3 GPA Pill */}
+          <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-rose-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-[#801618] border-2 border-black flex items-center justify-center font-mono font-black text-xs text-white shadow-[1px_1px_0px_0px_#000]">
                 03
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Three</h2>
-                  <BookMarked size={16} className="text-[#801618] hidden sm:inline" />
-                </div>
-                <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
+                <span className="text-xs font-black uppercase text-black tracking-wide">Semester 3 GPA</span>
+                <p className="text-[10px] font-bold text-gray-600">{s3Stats.filledCount} of 6 courses ({s3Stats.totalCredits}/18 Cr)</p>
               </div>
             </div>
-          </div>
-          <div className="space-y-2 sm:space-y-2.5 relative z-10">
-            {SEM3_COURSES.map((course) => (
-              <CourseSelect 
-                key={course.code} course={course} value={sem3Grades[course.code]}
-                onChange={(val: number | '') => setSem3Grades((prev: any) => ({ ...prev, [course.code]: val }))}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Semester 3 GPA Pill Directly Below Courses */}
-        <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-rose-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-[#801618] border-2 border-black flex items-center justify-center font-mono font-black text-xs text-white shadow-[1px_1px_0px_0px_#000]">
-              03
-            </div>
-            <div>
-              <span className="text-xs font-black uppercase text-black tracking-wide">Semester 3 GPA</span>
-              <p className="text-[10px] font-bold text-gray-600">{s3Stats.filledCount} of 6 courses ({s3Stats.totalCredits}/18 Cr)</p>
+            <div className="px-3 py-1 rounded-xl bg-black text-white border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#801618]">
+              {s3Stats.filledCount > 0 ? (s3Stats.isComplete ? s3Stats.gpa : `${s3Stats.gpa}*`) : '—'}
             </div>
           </div>
-          <div className="px-3 py-1 rounded-xl bg-black text-white border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#801618]">
-            {s3Stats.filledCount > 0 ? (s3Stats.isComplete ? s3Stats.gpa : `${s3Stats.gpa}*`) : '—'}
-          </div>
-        </div>
-      </motion.div>
+        </motion.div>
 
-      {/* ── SEMESTER 4 — EXPANDING PILL (Last Present Semester) ── */}
-      <motion.div 
-        variants={itemVariants}
-        className="xl:col-span-2 max-w-3xl mx-auto w-full"
-      >
-        <div 
-          onClick={() => setIsSem4Expanded(!isSem4Expanded)}
-          className="glass rounded-2xl sm:rounded-full px-5 sm:px-8 py-3.5 sm:py-4 flex items-center justify-between cursor-pointer hover:bg-rose-50/60 transition-all border-2 border-black shadow-[3px_3px_0px_0px_#000] group active:translate-x-0.5 active:translate-y-0.5"
+        {/* ── SEMESTER 4 CARD (Exams Approaching) ── */}
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -3 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between border-2 border-[#801618]/40 shadow-[4px_4px_0px_0px_#000]"
         >
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-8 h-8 rounded-lg bg-[#801618] border-2 border-black flex items-center justify-center text-xs sm:text-sm font-mono font-black text-white shadow-[1.5px_1.5px_0px_0px_#000] group-hover:scale-105 transition-transform">
-              04
-            </div>
-            <h2 className="text-sm sm:text-lg font-black text-textMain tracking-tight">Semester Four</h2>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 text-[9.5px] sm:text-xs font-mono font-bold text-white uppercase tracking-wider bg-[#801618] px-2.5 sm:px-3 py-1 rounded-md border border-black shadow-[1px_1px_0px_0px_#000]">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              Upcoming
-            </span>
-            <div className={`text-black transition-transform duration-300 ${isSem4Expanded ? 'rotate-180' : ''}`}>
-              <ChevronDown size={18} strokeWidth={2.5} />
-            </div>
-          </div>
-        </div>
-
-        <AnimatePresence>
-          {isSem4Expanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0, marginTop: 0 }}
-              animate={{ height: 'auto', opacity: 1, marginTop: 16 }}
-              exit={{ height: 0, opacity: 0, marginTop: 0 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="overflow-hidden"
-            >
-              <div className="glass rounded-[2rem] p-6 sm:p-10 relative overflow-hidden border border-[#801618]/30 shadow-[0_0_40px_rgba(128,22,24,0.1)]">
-                 <div className="absolute inset-0 pointer-events-none opacity-20 sm:opacity-40 overflow-hidden flex flex-col justify-center gap-8 -rotate-12 scale-150 mix-blend-overlay">
-                   {[...Array(6)].map((_, i) => (
-                     <div key={i} className="w-full h-12 bg-[#801618] text-white font-black text-2xl tracking-widest uppercase flex items-center overflow-hidden" style={{ transform: i % 2 === 0 ? 'translateX(-10%)' : 'translateX(-5%)' }}>
-                       <div className="flex whitespace-nowrap animate-tape-scroll" style={{ animationDirection: i % 2 === 0 ? 'normal' : 'reverse', animationDuration: '4s' }}>
-                         {[...Array(10)].map((_, j) => (
-                           <span key={j} className="px-4">🎓 SEMESTER JUST STARTED 🎓</span>
-                         ))}
-                       </div>
-                     </div>
-                   ))}
+          <div>
+            <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#801618] border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-white shadow-[2px_2px_0px_0px_#000]">
+                  04
                 </div>
-                
-                <div className="relative z-10 flex flex-col items-center justify-center text-center py-8">
-                  <div className="w-16 h-16 rounded-full bg-[#801618]/20 border border-[#801618]/40 flex items-center justify-center mb-4">
-                    <svg className="w-8 h-8 text-[#801618]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Four</h2>
+                    <span className="flex items-center gap-1 text-[9px] sm:text-[10px] font-mono font-bold bg-[#801618] text-white px-2 py-0.5 rounded border border-black uppercase tracking-wider">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                      Exams Approaching
+                    </span>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-black text-textMain mb-2 uppercase tracking-tight">Hold Your Horses</h3>
-                  <p className="text-textMuted font-medium max-w-md mx-auto">Bro, the semester literally just started. No results yet — go touch some grass first.</p>
+                  <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+            </div>
 
-      {/* ── OVERALL CUMULATIVE CGPA PILL (Above Advisor) ── */}
-      <motion.div
-        variants={itemVariants}
-        className="xl:col-span-2 max-w-3xl mx-auto w-full p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-[#801618] border-2 border-black shadow-[5px_5px_0px_0px_#000] flex flex-col sm:flex-row items-center justify-between gap-4"
-      >
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_0px_#000] flex-shrink-0">
-            <Trophy size={22} strokeWidth={2.5} />
+            <div className="space-y-2 sm:space-y-2.5 relative z-10">
+              {SEM4_COURSES.map((course) => (
+                <CourseSelect 
+                  key={course.code} course={course} value={sem4Grades ? sem4Grades[course.code] : ''}
+                  onChange={(val: number | '') => setSem4Grades && setSem4Grades((prev: any) => ({ ...prev, [course.code]: val }))}
+                />
+              ))}
+            </div>
           </div>
-          <div className="text-center sm:text-left">
-            <div className="flex items-center gap-2 justify-center sm:justify-start">
-              <span className="text-sm sm:text-base font-black text-white uppercase tracking-tight">
-                Cumulative CGPA
-              </span>
-              {isConcrete && (
-                <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-white text-[#801618] border border-black">
-                  Official
+
+          {/* Semester 4 GPA Pill */}
+          <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-rose-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-[#801618] border-2 border-black flex items-center justify-center font-mono font-black text-xs text-white shadow-[1px_1px_0px_0px_#000]">
+                04
+              </div>
+              <div>
+                <span className="text-xs font-black uppercase text-black tracking-wide">Semester 4 GPA</span>
+                <p className="text-[10px] font-bold text-gray-600">{s4Stats.filledCount} of 6 courses ({s4Stats.totalCredits}/18 Cr)</p>
+              </div>
+            </div>
+            <div className="px-3 py-1 rounded-xl bg-black text-white border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#801618]">
+              {s4Stats.filledCount > 0 ? (s4Stats.isComplete ? s4Stats.gpa : `${s4Stats.gpa}*`) : '—'}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* ── SEMESTER 5 CARD (Upcoming - Modals & Course Details) ── */}
+        <motion.div 
+          variants={itemVariants}
+          className="xl:col-span-2 max-w-4xl mx-auto w-full"
+        >
+          <div 
+            onClick={() => setIsSem5Expanded(!isSem5Expanded)}
+            className="glass rounded-2xl sm:rounded-3xl px-5 sm:px-8 py-4 sm:py-5 flex items-center justify-between cursor-pointer hover:bg-rose-50/60 transition-all border-2 border-black shadow-[4px_4px_0px_0px_#000] group active:translate-x-0.5 active:translate-y-0.5"
+          >
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 rounded-xl bg-black text-white border-2 border-black flex items-center justify-center text-sm sm:text-base font-mono font-black shadow-[2px_2px_0px_0px_#801618] group-hover:scale-105 transition-transform">
+                05
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base sm:text-xl font-black text-textMain tracking-tight">Semester Five (BS 3rd Year)</h2>
+                  <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono font-bold bg-amber-400 text-black border border-black rounded uppercase">
+                    Yet to Start
+                  </span>
+                </div>
+                <p className="text-[10px] sm:text-xs font-mono font-bold text-gray-500 uppercase tracking-wider mt-0.5">
+                  18 Total Credit Hours • AI, OS, HCI, InfoSec, Civics, Mobile App Dev
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedSem5Code('CS-551');
+                  setIsSem5ModalOpen(true);
+                }}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#801618] hover:bg-[#9b1b1e] text-white text-xs font-black rounded-xl border border-black shadow-[2px_2px_0px_0px_#000] active:scale-95 transition-all"
+              >
+                <Eye size={13} strokeWidth={2.5} />
+                <span>Open Modals</span>
+              </button>
+              <div className={`text-black transition-transform duration-300 ${isSem5Expanded ? 'rotate-180' : ''}`}>
+                <ChevronDown size={20} strokeWidth={2.5} />
+              </div>
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {isSem5Expanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                animate={{ height: 'auto', opacity: 1, marginTop: 16 }}
+                exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="glass rounded-[2rem] p-5 sm:p-8 border-2 border-black shadow-[4px_4px_0px_0px_#801618]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-5 border-b-2 border-black/10">
+                    <div>
+                      <h3 className="text-lg sm:text-xl font-black text-textMain tracking-tight">
+                        Semester 5 Subjects & Credit Allocation
+                      </h3>
+                      <p className="text-xs text-gray-600 font-medium mt-0.5">
+                        Click any subject card below to view its syllabus, theory/lab split, prerequisites, and breakdown modal.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedSem5Code('CS-551');
+                        setIsSem5ModalOpen(true);
+                      }}
+                      className="flex items-center justify-center gap-2 px-4 py-2 bg-[#801618] text-white rounded-xl font-black text-xs border-2 border-black shadow-[2px_2px_0px_0px_#000] active:scale-95 transition-all shrink-0"
+                    >
+                      <ExternalLink size={14} strokeWidth={2.5} />
+                      <span>Explore Full Curriculum Modal</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                    {SEM5_COURSES.map((course) => {
+                      const Icon = getCourseIcon(course.code, course.type);
+                      return (
+                        <div
+                          key={course.code}
+                          onClick={() => openCourseInSem5Modal(course.code)}
+                          className="bg-white hover:bg-rose-50/70 p-4 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000] cursor-pointer transition-all hover:-translate-y-1 group flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-mono text-xs font-black bg-gray-100 group-hover:bg-[#801618] group-hover:text-white px-2 py-0.5 rounded border border-black/20 transition-colors">
+                                {course.code}
+                              </span>
+                              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-black text-white">
+                                {course.credits} Cr
+                              </span>
+                            </div>
+
+                            <div className="flex items-start gap-2.5 mt-2">
+                              <div className="p-2 rounded-xl bg-rose-50 border border-black/10 group-hover:bg-[#801618] group-hover:text-white transition-colors shrink-0">
+                                <Icon size={16} strokeWidth={2.5} />
+                              </div>
+                              <div>
+                                <h4 className="text-xs sm:text-sm font-black text-black leading-snug group-hover:text-[#801618] transition-colors">
+                                  {course.name}
+                                </h4>
+                                <span className="text-[10px] text-gray-500 font-medium block mt-0.5">
+                                  {course.type} • Instructor: {course.instructor}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-3 pt-2.5 border-t border-black/10 flex items-center justify-between text-[10px] font-bold text-gray-600">
+                            <span>Inspect Syllabus</span>
+                            <span className="text-[#801618] group-hover:translate-x-0.5 transition-transform">→</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* ── OVERALL CUMULATIVE CGPA PILL ── */}
+        <motion.div
+          variants={itemVariants}
+          className="xl:col-span-2 max-w-4xl mx-auto w-full p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-[#801618] border-2 border-black shadow-[5px_5px_0px_0px_#000] flex flex-col sm:flex-row items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_0px_#000] flex-shrink-0">
+              <Trophy size={22} strokeWidth={2.5} />
+            </div>
+            <div className="text-center sm:text-left">
+              <div className="flex items-center gap-2 justify-center sm:justify-start">
+                <span className="text-sm sm:text-base font-black text-white uppercase tracking-tight">
+                  Cumulative CGPA
                 </span>
-              )}
+                {isConcrete && (
+                  <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-white text-[#801618] border border-black">
+                    Official
+                  </span>
+                )}
+              </div>
+              <p className="text-xs font-bold text-white/90 mt-0.5">
+                {totalCompletedCr} of 72 Credit Hours Completed ({totalCompletedCount} Subjects Entered)
+              </p>
             </div>
-            <p className="text-xs font-bold text-white/90 mt-0.5">
-              {totalCompletedCr} of 54 Credit Hours Completed ({totalCompletedCount} Subjects Entered)
-            </p>
           </div>
-        </div>
 
-        <div className="flex items-center gap-3">
-          {isConcrete ? (
-            <div className="px-5 py-2 rounded-xl bg-white text-[#801618] border-2 border-black font-mono font-black text-2xl sm:text-3xl shadow-[3px_3px_0px_0px_#000] tracking-tight">
-              {cgpa}
-            </div>
-          ) : (
-            <div className="px-4 py-2 rounded-xl bg-white text-black border-2 border-black shadow-[3px_3px_0px_0px_#000]">
-              <TentativeCGPA cgpa={cgpa} isPartialSem3={isPartialSem3} missingCount={missingCount} size="sm" />
-            </div>
-          )}
-        </div>
+          <div className="flex items-center gap-3">
+            {isConcrete ? (
+              <div className="px-5 py-2 rounded-xl bg-white text-[#801618] border-2 border-black font-mono font-black text-2xl sm:text-3xl shadow-[3px_3px_0px_0px_#000] tracking-tight">
+                {cgpa}
+              </div>
+            ) : (
+              <div className="px-4 py-2 rounded-xl bg-white text-black border-2 border-black shadow-[3px_3px_0px_0px_#000]">
+                <TentativeCGPA cgpa={cgpa} isPartialSem3={isPartial} missingCount={missingCount} size="sm" />
+              </div>
+            )}
+          </div>
+        </motion.div>
       </motion.div>
-    </motion.div>
+    </>
   );
 };
-

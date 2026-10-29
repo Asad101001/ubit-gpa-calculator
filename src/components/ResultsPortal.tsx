@@ -33,12 +33,28 @@ const SUBJECTS_DATA = [
   { id: "cs457", code: "CS-457", name: "Multivariable Calculus", teacher: "Mr. Muhammad Aslam", semester: 3 },
   { id: "cs459", code: "CS-459", name: "Probability & Statistics", teacher: "Dr. Humera Bashir", semester: 3 },
   { id: "cs461", code: "CS-461", name: "Urdu", teacher: "Mr. M. Salman", semester: 3 },
+
+  // 4th Semester (Exams Approaching)
+  { id: "cs452", code: "CS-452", name: "Database Management Systems", teacher: "Dr. S. M. Khalid", semester: 4 },
+  { id: "cs454", code: "CS-454", name: "Computer Architecture", teacher: "Mr. Farid Alvi", subTeacher: "Mr. Hussaini", semester: 4 },
+  { id: "cs456", code: "CS-456", name: "Theory of Automata", teacher: "Ms. Madiha Khurram (Sec A)", subTeacher: "Ms. Sameen Ather (Sec B)", semester: 4 },
+  { id: "cs458", code: "CS-458", name: "Software Project Management", teacher: "Dr. Humera Azam", semester: 4 },
+  { id: "cs460", code: "CS-460", name: "Data Communication and Networking", teacher: "Mr. Mukesh Kumar Rathi", semester: 4 },
+  { id: "cs462", code: "CS-462", name: "Introduction to Management", teacher: "Ms. Ayema Nighat Lodhi", semester: 4 },
+
+  // 5th Semester (Upcoming - BS 3rd Year)
+  { id: "cs551", code: "CS-551", name: "Artificial Intelligence", teacher: "TBA", semester: 5 },
+  { id: "cs553", code: "CS-553", name: "Operating System", teacher: "TBA", semester: 5 },
+  { id: "cs555", code: "CS-555", name: "HCI & Computer Graphics", teacher: "TBA", semester: 5 },
+  { id: "cs557", code: "CS-557", name: "Information Security", teacher: "TBA", semester: 5 },
+  { id: "cs559", code: "CS-559", name: "Civics & Community Engagement", teacher: "TBA", semester: 5 },
+  { id: "cs575", code: "CS-575", name: "Mobile Application Development", teacher: "TBA", semester: 5 },
 ];
 
 const ALL_SUBJECTS = "All Subjects Overview";
 
 interface ResultsPortalProps {
-  onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>) => void;
+  onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>, s4?: Record<string, number | ''>) => void;
 }
 
 export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
@@ -490,6 +506,16 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                 </optgroup>
                 <optgroup label="3rd Semester (In Progress)">
                   {SUBJECTS_DATA.filter(s => s.semester === 3).map(sub => (
+                    <option key={sub.id} value={sub.id}>{sub.code} - {sub.name}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="4th Semester (Exams Approaching)">
+                  {SUBJECTS_DATA.filter(s => s.semester === 4).map(sub => (
+                    <option key={sub.id} value={sub.id}>{sub.code} - {sub.name}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="5th Semester (Upcoming - BS 3rd Year)">
+                  {SUBJECTS_DATA.filter(s => s.semester === 5).map(sub => (
                     <option key={sub.id} value={sub.id}>{sub.code} - {sub.name}</option>
                   ))}
                 </optgroup>

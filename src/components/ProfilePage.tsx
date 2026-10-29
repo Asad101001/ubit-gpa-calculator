@@ -5,13 +5,15 @@ import { Shield, ShieldCheck, LogOut, Edit3, Check, X, Loader2, Users, ChevronDo
 import { toast } from 'react-hot-toast';
 import { useAuthStore, type Profile } from '../store/useAuthStore';
 import { supabase } from '../lib/supabase';
-import { getGradePoint, getLetterGrade, getMarkColor, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
+import { getGradePoint, getLetterGrade, getMarkColor, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES, SEM4_COURSES, SEM5_COURSES } from '../lib/utils';
 import { TentativeCGPA } from './TentativeCGPA';
 
 const SUBJECTS_META = [
   ...SEM1_COURSES.map(c => ({ id: c.code.toLowerCase().replace('-', ''), code: c.code, name: c.name, credits: c.credits, sem: 1 })),
   ...SEM2_COURSES.map(c => ({ id: c.code.toLowerCase().replace('-', ''), code: c.code, name: c.name, credits: c.credits, sem: 2 })),
   ...SEM3_COURSES.map(c => ({ id: c.code.toLowerCase().replace('-', ''), code: c.code, name: c.name, credits: c.credits, sem: 3 })),
+  ...SEM4_COURSES.map(c => ({ id: c.code.toLowerCase().replace('-', ''), code: c.code, name: c.name, credits: c.credits, sem: 4 })),
+  ...SEM5_COURSES.map(c => ({ id: c.code.toLowerCase().replace('-', ''), code: c.code, name: c.name, credits: c.credits, sem: 5 })),
 ];
 
 
