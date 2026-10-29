@@ -11,6 +11,7 @@ interface CourseEntry {
   credits: number;
   type: string;
   instructor: string;
+  subInstructor?: string;
 }
 
 function computeSemStats(courses: CourseEntry[], student: Record<string, any>) {
@@ -144,7 +145,7 @@ export function generateTranscriptPDF(student: Record<string, any>): void {
         String(sub.credits),
         hasMarks ? String(marks) : '—',
         hasMarks ? getLetterGrade(marks!) : '—',
-        sub.instructor,
+        sub.subInstructor ? `${sub.instructor} (${sub.subInstructor})` : sub.instructor,
       ];
     });
 

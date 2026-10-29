@@ -27,7 +27,7 @@ const SUBJECTS_DATA = [
   // 3rd Semester (In Progress)
   { id: "cs451", code: "CS-451", name: "Data Structures", teacher: "Ms. Maryam Feroze", semester: 3 },
   { id: "cs453", code: "CS-453", name: "Software Engineering", teacher: "Dr. Shaista Raees", semester: 3 },
-  { id: "cs455", code: "CS-455", name: "Computer Organization", teacher: "Mr. Taha Bin Niaz", semester: 3 },
+  { id: "cs455", code: "CS-455", name: "Computer Organization", teacher: "Mr. Taha Bin Niaz (Late)", subTeacher: "Mr. Mukesh Kumar Rathi", semester: 3 },
   { id: "cs457", code: "CS-457", name: "Multivariable Calculus", teacher: "Mr. Muhammad Aslam", semester: 3 },
   { id: "cs459", code: "CS-459", name: "Probability & Statistics", teacher: "Dr. Humera Bashir", semester: 3 },
   { id: "cs461", code: "CS-461", name: "Urdu", teacher: "Mr. M. Salman", semester: 3 },

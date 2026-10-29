@@ -61,11 +61,16 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
             <div className="font-bold text-textMain group-hover:text-black transition-colors text-[13px] sm:text-[14px] leading-tight flex items-center">
               <span className="line-clamp-2 w-full pr-1">{course.name}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-medium text-textMuted mt-0.5 truncate">
-              <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-gray-100 text-gray-700 border border-gray-300">
+            <div className="flex items-start gap-1.5 text-[10px] sm:text-[11px] font-medium text-textMuted mt-0.5">
+              <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-gray-100 text-gray-700 border border-gray-300 shrink-0 mt-0.5">
                 {course.credits} Cr
               </span>
-              <span className="truncate">{course.instructor}</span>
+              <div className="flex flex-col min-w-0 leading-tight">
+                <span className="truncate">{course.instructor}</span>
+                {course.subInstructor && (
+                  <span className="text-[9px] text-gray-500 font-normal truncate mt-0.5">{course.subInstructor}</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
