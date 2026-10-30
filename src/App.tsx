@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
 import { RotateCcw } from 'lucide-react';
 
-import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES, SEM4_COURSES } from './lib/utils';
+import { getGradePoint, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES, SEM4_COURSES, SEM5_COURSES } from './lib/utils';
 import { triggerConfetti } from './lib/confetti';
 import { supabase } from './lib/supabase';
 
@@ -148,6 +148,10 @@ function App() {
     const saved = localStorage.getItem('sem4Grades');
     return saved ? JSON.parse(saved) : SEM4_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {});
   });
+  const [sem5Grades, setSem5Grades] = useState<Record<string, number | ''>>(() => {
+    const saved = localStorage.getItem('sem5Grades');
+    return saved ? JSON.parse(saved) : SEM5_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {});
+  });
 
   // Sync to LocalStorage
   useEffect(() => {
@@ -166,11 +170,16 @@ function App() {
     localStorage.setItem('sem4Grades', JSON.stringify(sem4Grades));
   }, [sem4Grades]);
 
+  useEffect(() => {
+    localStorage.setItem('sem5Grades', JSON.stringify(sem5Grades));
+  }, [sem5Grades]);
+
   const clearGrades = () => {
     setSem1Grades(SEM1_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
     setSem2Grades(SEM2_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
     setSem3Grades(SEM3_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
     setSem4Grades(SEM4_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
+    setSem5Grades(SEM5_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
     toast.success('Results cleared successfully!', { icon: '✨' });
   };
 
@@ -224,11 +233,12 @@ function App() {
     const s2Calc = calculateGPA(SEM2_COURSES, sem2Grades);
     const s3Calc = calculateGPA(SEM3_COURSES, sem3Grades);
     const s4Calc = calculateGPA(SEM4_COURSES, sem4Grades);
+    const s5Calc = calculateGPA(SEM5_COURSES, sem5Grades);
 
-    const validCredits = s1Calc.totalCredits + s2Calc.totalCredits + s3Calc.totalCredits + s4Calc.totalCredits;
+    const validCredits = s1Calc.totalCredits + s2Calc.totalCredits + s3Calc.totalCredits + s4Calc.totalCredits + s5Calc.totalCredits;
     // CGPA = sum of all quality points / sum of all completed credits (across all semesters)
     const cgpaCalc = validCredits > 0
-      ? (s1Calc.totalQP + s2Calc.totalQP + s3Calc.totalQP + s4Calc.totalQP) / validCredits
+      ? (s1Calc.totalQP + s2Calc.totalQP + s3Calc.totalQP + s4Calc.totalQP + s5Calc.totalQP) / validCredits
       : 0;
 
     const allCourses = [
@@ -244,6 +254,9 @@ function App() {
       ...SEM4_COURSES
         .filter(c => sem4Grades && typeof sem4Grades[c.code] === 'number' && !isNaN(sem4Grades[c.code] as number))
         .map(c => ({ name: c.name, type: c.type, gp: getGradePoint(sem4Grades[c.code] as number) })),
+      ...SEM5_COURSES
+        .filter(c => sem5Grades && typeof sem5Grades[c.code] === 'number' && !isNaN(sem5Grades[c.code] as number))
+        .map(c => ({ name: c.name, type: c.type, gp: getGradePoint(sem5Grades[c.code] as number) })),
     ];
 
     allCourses.sort((a, b) => b.gp - a.gp);
@@ -255,11 +268,12 @@ function App() {
       gpa2: s2Calc.gpa.toFixed(2),
       gpa3: s3Calc.gpa.toFixed(2),
       gpa4: s4Calc.gpa.toFixed(2),
+      gpa5: s5Calc.gpa.toFixed(2),
       cgpa: cgpaCalc.toFixed(3),
       bestCourse: best,
       worstCourse: worst,
     };
-  }, [sem1Grades, sem2Grades, sem3Grades, sem4Grades]);
+  }, [sem1Grades, sem2Grades, sem3Grades, sem4Grades, sem5Grades]);
 
   const chartData = useMemo(() => {
     return [
@@ -298,9 +312,16 @@ function App() {
         semester: 'Sem 4',
         gpa: getGradePoint(sem4Grades[c.code] as number),
         isFilled: true,
+      })),
+      ...SEM5_COURSES.filter(c => sem5Grades && typeof sem5Grades[c.code] === 'number' && !isNaN(sem5Grades[c.code] as number)).map(c => ({
+        name: c.code,
+        fullname: c.name,
+        semester: 'Sem 5',
+        gpa: getGradePoint(sem5Grades[c.code] as number),
+        isFilled: true,
       }))
     ];
-  }, [sem1Grades, sem2Grades, sem3Grades, sem4Grades]);
+  }, [sem1Grades, sem2Grades, sem3Grades, sem4Grades, sem5Grades]);
 
 
 
@@ -479,7 +500,7 @@ function App() {
               />
             </div>
 
-            <main className="pb-24 md:pb-16 pt-16 sm:pt-20">
+            <main className="pb-32 sm:pb-24 pt-16 sm:pt-20">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 <AnimatePresence mode="wait" initial={false}>
@@ -494,7 +515,8 @@ function App() {
                           Object.values(sem1Grades).some(v => v !== '') || 
                           Object.values(sem2Grades).some(v => v !== '') ||
                           Object.values(sem3Grades).some(v => v !== '') ||
-                          Object.values(sem4Grades).some(v => v !== '')
+                          Object.values(sem4Grades).some(v => v !== '') ||
+                          Object.values(sem5Grades).some(v => v !== '')
                         }
                       />
                     </motion.div>
@@ -529,6 +551,7 @@ function App() {
                             sem2Grades={sem2Grades} setSem2Grades={setSem2Grades}
                             sem3Grades={sem3Grades} setSem3Grades={setSem3Grades}
                             sem4Grades={sem4Grades} setSem4Grades={setSem4Grades}
+                            sem5Grades={sem5Grades} setSem5Grades={setSem5Grades}
                             cgpa={cgpa}
                           />
                         </section>
@@ -538,6 +561,7 @@ function App() {
                           sem2Grades={sem2Grades}
                           sem3Grades={sem3Grades}
                           sem4Grades={sem4Grades}
+                          sem5Grades={sem5Grades}
                           currentCgpa={cgpa}
                         />
 
@@ -561,11 +585,12 @@ function App() {
                     <motion.div key="results" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
                       <Suspense fallback={<ViewFallback />}>
                         <ResultsPortal
-                          onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>, s4?: Record<string, number | ''>) => {
+                          onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>, s4?: Record<string, number | ''>, s5?: Record<string, number | ''>) => {
                             setSem1Grades(s1);
                             setSem2Grades(s2);
                             setSem3Grades(s3 || SEM3_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
                             setSem4Grades(s4 || SEM4_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
+                            setSem5Grades(s5 || SEM5_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
                             navigateTo('calculator');
                             setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100);
                           }}

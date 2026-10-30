@@ -37,7 +37,7 @@ const SUBJECTS_DATA = [
   // 4th Semester (Exams Approaching)
   { id: "cs452", code: "CS-452", name: "Database Management Systems", teacher: "Dr. S. M. Khalid", semester: 4 },
   { id: "cs454", code: "CS-454", name: "Computer Architecture", teacher: "Mr. Farid Alvi", subTeacher: "Mr. Hussaini", semester: 4 },
-  { id: "cs456", code: "CS-456", name: "Theory of Automata", teacher: "Ms. Madiha Khurram (Sec A)", subTeacher: "Ms. Sameen Ather (Sec B)", semester: 4 },
+  { id: "cs456", code: "CS-456", name: "Theory of Automata", teacher: "Ms. Madiha Khurram", semester: 4 },
   { id: "cs458", code: "CS-458", name: "Software Project Management", teacher: "Dr. Humera Azam", semester: 4 },
   { id: "cs460", code: "CS-460", name: "Data Communication and Networking", teacher: "Mr. Mukesh Kumar Rathi", semester: 4 },
   { id: "cs462", code: "CS-462", name: "Introduction to Management", teacher: "Ms. Ayema Nighat Lodhi", semester: 4 },
@@ -477,7 +477,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
               placeholder="Search by Name or Seat Number..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-border bg-surface/60 focus:bg-surface text-textMain outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all font-medium shadow-sm placeholder:text-textMuted/50"
+              className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-border bg-surface/60 focus:bg-surface text-textMain outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all font-medium shadow-sm placeholder:text-textMuted/50 text-base sm:text-sm touch-manipulation"
             />
           </div>
           
@@ -490,7 +490,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                   setSelectedSubject(e.target.value);
                   setSortConfig({ key: e.target.value === ALL_SUBJECTS ? 'Seat No' : 'Name', direction: 'asc' });
                 }}
-                className="w-full pl-12 pr-10 py-3.5 rounded-2xl border border-border bg-surface/60 focus:bg-surface text-textMain outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all font-medium appearance-none shadow-sm cursor-pointer relative"
+                className="w-full pl-12 pr-10 py-3.5 rounded-2xl border border-border bg-surface/60 focus:bg-surface text-textMain outline-none focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all font-medium appearance-none shadow-sm cursor-pointer relative text-base sm:text-sm touch-manipulation"
                 disabled={searchQuery.trim() !== ''}
               >
                 <option value={ALL_SUBJECTS} className="font-bold text-brand-600">{ALL_SUBJECTS}</option>
@@ -560,15 +560,15 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
           />
         ) : (
           <div 
-            className="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-2xl border border-border bg-surface/40 shadow-inner relative overscroll-contain snap-x snap-mandatory"
+            className="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-2xl border border-border bg-surface/40 shadow-inner relative overscroll-contain touch-pan-x touch-pan-y"
             onScroll={(e) => setIsScrolled(e.currentTarget.scrollLeft > 5)}
           >
             <table className="w-full text-left border-separate border-spacing-0 whitespace-nowrap">
               <thead className="sticky top-0 z-40 shadow-sm">
                 <tr className="bg-surfaceHighlight shadow-sm">
-                  <th className="hidden sm:table-cell p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] text-center bg-surfaceHighlight sticky top-0 z-20 snap-start border-b border-border">#</th>
+                  <th className="hidden sm:table-cell p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] text-center bg-surfaceHighlight sticky top-0 z-20 border-b border-border">#</th>
                   <th 
-                    className="hidden sm:table-cell p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[90px] sm:min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors bg-surfaceHighlight sticky top-0 z-20 snap-start border-b border-border"
+                    className="hidden sm:table-cell p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[90px] sm:min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors bg-surfaceHighlight sticky top-0 z-20 border-b border-border"
                     onClick={() => handleSort('Seat No')}
                   >
                     <div className="flex items-center gap-1 sm:gap-2">
@@ -576,7 +576,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                     </div>
                   </th>
                   <th 
-                    className="p-2 sm:p-4 font-bold text-textMuted text-[10px] sm:text-sm transition-colors min-w-[210px] max-w-[210px] sm:min-w-[200px] sm:max-w-none sticky top-0 left-0 z-30 bg-surfaceHighlight shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border"
+                    className="p-2 sm:p-4 font-bold text-textMuted text-[10px] sm:text-sm transition-colors min-w-[210px] max-w-[210px] sm:min-w-[200px] sm:max-w-none sticky top-0 left-0 z-30 bg-surfaceHighlight shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] border-b border-border"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 w-full">
                       <div className="flex items-center gap-1 cursor-pointer hover:text-brand-500 transition-colors" onClick={() => handleSort('Name')}>
@@ -605,7 +605,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                       return (
                         <th
                           key={sub.id}
-                          className={`p-1 px-1.5 sm:p-4 font-bold text-[10px] sm:text-sm cursor-pointer hover:opacity-80 transition-opacity border-l border-b ${colClass} sticky top-0 z-10 snap-start`}
+                          className={`p-1 px-1.5 sm:p-4 font-bold text-[10px] sm:text-sm cursor-pointer hover:opacity-80 transition-opacity border-l border-b ${colClass} sticky top-0 z-10`}
                           onClick={() => handleSort(sub.id)}
                         >
                           <div className="flex flex-col items-end gap-0.5 sm:gap-1">
@@ -623,7 +623,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                     })
                   ) : (
                     <th 
-                      className="p-2 sm:p-4 font-bold text-brand-600 text-xs sm:text-sm cursor-pointer hover:bg-brand-500/20 transition-colors bg-brand-500/10 sticky top-0 z-10 snap-start border-b border-brand-500/20"
+                      className="p-2 sm:p-4 font-bold text-brand-600 text-xs sm:text-sm cursor-pointer hover:bg-brand-500/20 transition-colors bg-brand-500/10 sticky top-0 z-10 border-b border-brand-500/20"
                       onClick={() => handleSort(effectiveSubject)}
                     >
                       <div className="flex items-center justify-end gap-1 sm:gap-2">
@@ -674,13 +674,13 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                         title="Click to view full student results & load into calculator"
                         style={{ animationDelay: `${Math.min(index * 15, 400)}ms` }}
                       >
-                        <td className="hidden sm:table-cell p-2 sm:p-4 text-center text-textMuted font-medium text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start border-b border-border/50">
+                        <td className="hidden sm:table-cell p-2 sm:p-4 text-center text-textMuted font-medium text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 border-b border-border/50">
                           {index + 1}
                         </td>
-                        <td className="hidden sm:table-cell p-2 sm:p-4 font-mono text-xs sm:text-sm text-textMuted font-bold min-w-[90px] sm:min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 snap-start border-b border-border/50">
+                        <td className="hidden sm:table-cell p-2 sm:p-4 font-mono text-xs sm:text-sm text-textMuted font-bold min-w-[90px] sm:min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 border-b border-border/50">
                           {student['Seat No']}
                         </td>
-                        <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[210px] max-w-[210px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] snap-start border-b border-border/50">
+                        <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[210px] max-w-[210px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] border-b border-border/50">
                           <div className="flex items-center justify-between gap-1 w-full h-full">
                             <div className="flex flex-col min-w-0 flex-1">
                               <span className="truncate leading-tight font-bold group-hover:text-[#801618] transition-colors flex items-center gap-1.5" title={student['Name']}>
@@ -718,7 +718,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                             const isMissing = mark === undefined || mark === null || mark === '' || (typeof mark === 'string' && isNaN(Number(mark)));
                             const unannounced = mark === "Results Unannounced" || mark === undefined || mark === null || mark === '';
                             return (
-                              <td key={sub.id} className={`p-1 px-1.5 sm:p-4 text-right border-l border-b border-border/30 snap-start ${!canViewMarks ? 'bg-gray-50/40' : ''}`}>
+                              <td key={sub.id} className={`p-1 px-1.5 sm:p-4 text-right border-l border-b border-border/30 ${!canViewMarks ? 'bg-gray-50/40' : ''}`}>
                                 {!canViewMarks ? (
                                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] sm:text-[9.5px] font-mono font-bold bg-gray-100 text-gray-500 border border-gray-200" title="Marks hidden by student">
                                     <Lock size={8} className="opacity-70" />
@@ -737,7 +737,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                             );
                           })
                         ) : (
-                          <td className="p-1 px-1.5 sm:p-4 text-right bg-brand-500/5 group-hover:bg-brand-500/10 transition-colors snap-start border-b border-border/30">
+                          <td className="p-1 px-1.5 sm:p-4 text-right bg-brand-500/5 group-hover:bg-brand-500/10 transition-colors border-b border-border/30">
                             {(() => {
                               const mark = student[effectiveSubject];
                               const isMissing = mark === undefined || mark === null || mark === '' || (typeof mark === 'string' && isNaN(Number(mark)));

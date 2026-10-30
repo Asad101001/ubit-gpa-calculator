@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Target, ChevronDown, ChevronUp, Lightbulb, CheckCircle2, Sparkles, Calculator, RefreshCw, AlertCircle, Award } from 'lucide-react';
-import { getGradePoint, getMarkColor, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES, SEM4_COURSES } from '../lib/utils';
+import { getGradePoint, getMarkColor, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES, SEM4_COURSES, SEM5_COURSES } from '../lib/utils';
 import { validateTargetCgpa } from '../lib/validation';
 import { triggerConfetti } from '../lib/confetti';
 
 
 
-const ALL_COURSES = [...SEM1_COURSES, ...SEM2_COURSES, ...SEM3_COURSES, ...SEM4_COURSES];
+const ALL_COURSES = [...SEM1_COURSES, ...SEM2_COURSES, ...SEM3_COURSES, ...SEM4_COURSES, ...SEM5_COURSES];
 const GRADE_BOUNDARIES = [50, 53, 54, 55, 56, 57, 61, 64, 68, 71, 75, 80, 85];
 
 interface TargetCGPAProps {
@@ -15,6 +15,7 @@ interface TargetCGPAProps {
   sem2Grades: Record<string, number | ''>;
   sem3Grades: Record<string, number | ''>;
   sem4Grades?: Record<string, number | ''>;
+  sem5Grades?: Record<string, number | ''>;
   currentCgpa: string;
 }
 
@@ -39,7 +40,7 @@ interface CourseSuggestion {
   qpGain: number;
 }
 
-export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, sem4Grades, currentCgpa }: TargetCGPAProps) => {
+export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, sem4Grades, sem5Grades, currentCgpa }: TargetCGPAProps) => {
   const [targetCgpa, setTargetCgpa] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [mode, setMode] = useState<'improvement' | 'future'>('improvement');
@@ -49,8 +50,8 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, sem4Grades, cur
   const [remainingSemesters, setRemainingSemesters] = useState(4);
 
   const allGrades: Record<string, number | ''> = useMemo(() => ({
-    ...sem1Grades, ...sem2Grades, ...sem3Grades, ...(sem4Grades || {})
-  }), [sem1Grades, sem2Grades, sem3Grades, sem4Grades]);
+    ...sem1Grades, ...sem2Grades, ...sem3Grades, ...(sem4Grades || {}), ...(sem5Grades || {})
+  }), [sem1Grades, sem2Grades, sem3Grades, sem4Grades, sem5Grades]);
 
   const currentVal = parseFloat(currentCgpa) || 0;
   const targetVal = validateTargetCgpa(targetCgpa).parsed || 0;
@@ -87,8 +88,8 @@ export const TargetCGPA = ({ sem1Grades, sem2Grades, sem3Grades, sem4Grades, cur
 
 
     // Sem 1 and Sem 2 are finalized official records.
-    // Active Semester 3 & Semester 4 courses can be improved in existing marks mode.
-    [...SEM3_COURSES, ...SEM4_COURSES].forEach(c => {
+    // Active Semester 3, 4 & 5 courses can be improved in existing marks mode.
+    [...SEM3_COURSES, ...SEM4_COURSES, ...SEM5_COURSES].forEach(c => {
       const marks = allGrades[c.code];
       if (marks !== '' && marks !== undefined && !isNaN(Number(marks))) {
         const isExcludedByUser = excludedCourses[c.code];

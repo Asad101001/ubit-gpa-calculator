@@ -102,7 +102,7 @@ export const SEM3_COURSES = [
 export const SEM4_COURSES = [
   { code: "CS-452", id: "cs452", name: "Database Management Systems", credits: 4, type: "Programming", instructor: "Dr. S. M. Khalid" },
   { code: "CS-454", id: "cs454", name: "Computer Architecture", credits: 3, type: "Programming", instructor: "Mr. Farid Alvi", subInstructor: "Mr. Hussaini" },
-  { code: "CS-456", id: "cs456", name: "Theory of Automata", credits: 3, type: "Programming", instructor: "Ms. Madiha Khurram (Sec A)", subInstructor: "Ms. Sameen Ather (Sec B)" },
+  { code: "CS-456", id: "cs456", name: "Theory of Automata", credits: 3, type: "Programming", instructor: "Ms. Madiha Khurram" },
   { code: "CS-458", id: "cs458", name: "Software Project Management", credits: 3, type: "Soft Skills", instructor: "Dr. Humera Azam" },
   { code: "CS-460", id: "cs460", name: "Data Communication and Networking", credits: 3, type: "Programming", instructor: "Mr. Mukesh Kumar Rathi" },
   { code: "CS-462", id: "cs462", name: "Introduction to Management", credits: 2, type: "Soft Skills", instructor: "Ms. Ayema Nighat Lodhi" }

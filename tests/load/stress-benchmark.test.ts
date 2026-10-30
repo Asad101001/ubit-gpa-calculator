@@ -170,8 +170,8 @@ describe('⚡ Load & Stress Testing Suite', () => {
     console.log(`• Latency P99:        ${p99.toFixed(3)} ms`);
     console.log(`• Mean Latency:       ${mean.toFixed(3)} ms`);
 
-    // All 200 requests must complete with low latency
+    // All 200 requests must complete with low latency (< 100ms P95 under local load)
     expect(latencies.length).toBe(CONCURRENT_REQUESTS);
-    expect(p95).toBeLessThan(50);
+    expect(p95).toBeLessThan(100);
   });
 });

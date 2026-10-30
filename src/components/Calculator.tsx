@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { motion, AnimatePresence, type Variants } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { 
   Code2, Cpu, Binary, BookOpen, MessageSquare, Sparkles, Plus, Minus, 
-  ChevronDown, GraduationCap, Award, BookMarked, Trophy, Database,
-  Briefcase, Network, Smartphone, Eye, ExternalLink
+  GraduationCap, Award, BookMarked, Trophy, Database,
+  Briefcase, Network, Smartphone
 } from 'lucide-react';
 
 import { 
@@ -88,7 +88,7 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 shrink-0 w-full sm:w-auto mt-1 sm:mt-0">
           <div className="flex items-center">
             <button
               onClick={() => {
@@ -96,7 +96,7 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
                 if (val > 0) onChange(val - 1);
               }}
               aria-label="Decrease marks"
-              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-l-lg bg-gray-100 hover:bg-[#801618] hover:text-white border-2 border-black border-r-0 text-black font-black text-sm active:bg-[#9b1b1e] transition-colors select-none"
+              className="w-9 h-9 sm:w-9 sm:h-9 flex items-center justify-center rounded-l-lg bg-gray-100 hover:bg-[#801618] hover:text-white border-2 border-black border-r-0 text-black font-black text-sm active:bg-[#9b1b1e] transition-colors select-none touch-manipulation"
             >
               <Minus size={13} strokeWidth={3} />
             </button>
@@ -108,7 +108,7 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
               onChange={(e) => handleDirectChange(e.target.value)}
               onWheel={(e) => e.currentTarget.blur()}
               placeholder="0"
-              className="w-12 sm:w-14 h-8 sm:h-9 bg-white text-black py-0 px-1 border-y-2 border-black font-mono font-black text-xs sm:text-sm focus:outline-none placeholder:text-gray-400 text-center"
+              className="w-12 sm:w-14 h-9 sm:h-9 bg-white text-black py-0 px-1 border-y-2 border-black font-mono font-black text-base sm:text-sm focus:outline-none placeholder:text-gray-400 text-center touch-manipulation"
             />
             <button
               onClick={() => {
@@ -116,12 +116,12 @@ export const CourseSelect = ({ course, value, onChange }: any) => {
                 if (val < 100) onChange(val + 1);
               }}
               aria-label="Increase marks"
-              className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-r-lg bg-gray-100 hover:bg-[#801618] hover:text-white border-2 border-black border-l-0 text-black font-black text-sm active:bg-[#9b1b1e] transition-colors select-none"
+              className="w-9 h-9 sm:w-9 sm:h-9 flex items-center justify-center rounded-r-lg bg-gray-100 hover:bg-[#801618] hover:text-white border-2 border-black border-l-0 text-black font-black text-sm active:bg-[#9b1b1e] transition-colors select-none touch-manipulation"
             >
               <Plus size={13} strokeWidth={3} />
             </button>
           </div>
-          <div className="w-12 sm:w-14 h-8 sm:h-9 text-center rounded-lg bg-rose-50/70 border-2 border-black font-mono font-black text-black flex flex-col justify-center shadow-[1.5px_1.5px_0px_0px_#000]">
+          <div className="w-12 sm:w-14 h-9 sm:h-9 text-center rounded-lg bg-rose-50/70 border-2 border-black font-mono font-black text-black flex flex-col justify-center shadow-[1.5px_1.5px_0px_0px_#000]">
             <span className="text-[7.5px] sm:text-[8px] uppercase tracking-wider text-gray-600 leading-none mb-0.5">GP</span>
             <span className="text-xs sm:text-sm leading-none">{value === '' ? '-' : gp.toFixed(1)}</span>
           </div>
@@ -154,10 +154,10 @@ export const Calculator = ({
   sem2Grades, setSem2Grades,
   sem3Grades, setSem3Grades,
   sem4Grades, setSem4Grades,
+  sem5Grades, setSem5Grades,
   cgpa,
 }: any) => {
 
-  const [isSem5Expanded, setIsSem5Expanded] = useState(false);
   const [isSem5ModalOpen, setIsSem5ModalOpen] = useState(false);
   const [selectedSem5Code, setSelectedSem5Code] = useState<string | null>(null);
 
@@ -184,21 +184,23 @@ export const Calculator = ({
   const s2Stats = getSemStats(SEM2_COURSES, sem2Grades);
   const s3Stats = getSemStats(SEM3_COURSES, sem3Grades);
   const s4Stats = getSemStats(SEM4_COURSES, sem4Grades);
+  const s5Stats = getSemStats(SEM5_COURSES, sem5Grades);
 
-  const totalCompletedCr = s1Stats.totalCredits + s2Stats.totalCredits + s3Stats.totalCredits + s4Stats.totalCredits;
-  const totalCompletedCount = s1Stats.filledCount + s2Stats.filledCount + s3Stats.filledCount + s4Stats.filledCount;
+  const totalCompletedCr = s1Stats.totalCredits + s2Stats.totalCredits + s3Stats.totalCredits + s4Stats.totalCredits + s5Stats.totalCredits;
+  const totalCompletedCount = s1Stats.filledCount + s2Stats.filledCount + s3Stats.filledCount + s4Stats.filledCount + s5Stats.filledCount;
 
-  // Concrete CGPA: Sem 1 & 2 full with 0 Sem 3 OR all full
-  const isConcrete = (s1Stats.filledCount === 6 && s2Stats.filledCount === 6 && s3Stats.filledCount === 0 && s4Stats.filledCount === 0) || 
-                     (s1Stats.filledCount === 6 && s2Stats.filledCount === 6 && s3Stats.filledCount === 6 && s4Stats.filledCount === 6);
+  // Concrete CGPA: completed milestones (Sem 1 & 2 full, Sem 1-3 full, Sem 1-4 full, or Sem 1-5 full)
+  const isConcrete = (
+    s1Stats.filledCount === 6 && s2Stats.filledCount === 6 && (
+      (s3Stats.filledCount === 0 && s4Stats.filledCount === 0 && s5Stats.filledCount === 0) || 
+      (s3Stats.filledCount === 6 && s4Stats.filledCount === 0 && s5Stats.filledCount === 0) ||
+      (s3Stats.filledCount === 6 && s4Stats.filledCount === 6 && s5Stats.filledCount === 0) ||
+      (s3Stats.filledCount === 6 && s4Stats.filledCount === 6 && s5Stats.filledCount === 6)
+    )
+  );
   const isPartial = totalCompletedCount > 0 && !isConcrete;
   const missingCount = (s1Stats.filledCount < 6 ? 6 - s1Stats.filledCount : 0) + 
                        (s2Stats.filledCount < 6 ? 6 - s2Stats.filledCount : 0);
-
-  const openCourseInSem5Modal = (code: string) => {
-    setSelectedSem5Code(code);
-    setIsSem5ModalOpen(true);
-  };
 
   return (
     <>
@@ -212,7 +214,7 @@ export const Calculator = ({
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-50px" }}
-        className="grid grid-cols-1 xl:grid-cols-2 gap-8 relative z-10"
+        className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8 relative z-10"
         variants={{
           hidden: { opacity: 0 },
           show: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } }
@@ -223,7 +225,7 @@ export const Calculator = ({
           variants={itemVariants}
           whileHover={{ y: -3 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between"
+          className="glass rounded-2xl sm:rounded-[2.5rem] p-3.5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between"
         >
           <div>
             <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
@@ -272,7 +274,7 @@ export const Calculator = ({
           variants={itemVariants}
           whileHover={{ y: -3 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between"
+          className="glass rounded-2xl sm:rounded-[2.5rem] p-3.5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between"
         >
           <div>
             <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
@@ -321,7 +323,7 @@ export const Calculator = ({
           variants={itemVariants}
           whileHover={{ y: -3 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between"
+          className="glass rounded-2xl sm:rounded-[2.5rem] p-3.5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between"
         >
           <div>
             <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
@@ -370,7 +372,7 @@ export const Calculator = ({
           variants={itemVariants}
           whileHover={{ y: -3 }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          className="glass rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between border-2 border-[#801618]/40 shadow-[4px_4px_0px_0px_#000]"
+          className="glass rounded-2xl sm:rounded-[2.5rem] p-3.5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between border-2 border-[#801618]/40 shadow-[4px_4px_0px_0px_#000]"
         >
           <div>
             <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
@@ -379,7 +381,7 @@ export const Calculator = ({
                   04
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Four</h2>
                     <span className="flex items-center gap-1 text-[9px] sm:text-[10px] font-mono font-bold bg-[#801618] text-white px-2 py-0.5 rounded border border-black uppercase tracking-wider">
                       <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
@@ -418,129 +420,69 @@ export const Calculator = ({
           </div>
         </motion.div>
 
-        {/* ── SEMESTER 5 CARD (Upcoming - Modals & Course Details) ── */}
+        {/* ── SEMESTER 5 CARD (BS 3rd Year - Interactive Calculator) ── */}
         <motion.div 
           variants={itemVariants}
-          className="xl:col-span-2 max-w-4xl mx-auto w-full"
+          whileHover={{ y: -3 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+          className="glass rounded-2xl sm:rounded-[2.5rem] p-3.5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between border-2 border-black shadow-[4px_4px_0px_0px_#000] xl:col-span-2 max-w-3xl mx-auto w-full"
         >
-          <div 
-            onClick={() => setIsSem5Expanded(!isSem5Expanded)}
-            className="glass rounded-2xl sm:rounded-3xl px-5 sm:px-8 py-4 sm:py-5 flex items-center justify-between cursor-pointer hover:bg-rose-50/60 transition-all border-2 border-black shadow-[4px_4px_0px_0px_#000] group active:translate-x-0.5 active:translate-y-0.5"
-          >
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-10 h-10 rounded-xl bg-black text-white border-2 border-black flex items-center justify-center text-sm sm:text-base font-mono font-black shadow-[2px_2px_0px_0px_#801618] group-hover:scale-105 transition-transform">
-                05
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-base sm:text-xl font-black text-textMain tracking-tight">Semester Five (BS 3rd Year)</h2>
-                  <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono font-bold bg-amber-400 text-black border border-black rounded uppercase">
-                    Yet to Start
-                  </span>
+          <div>
+            <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-700 border-2 border-black flex items-center justify-center font-mono text-base sm:text-lg font-black text-white shadow-[2px_2px_0px_0px_#000]">
+                  05
                 </div>
-                <p className="text-[10px] sm:text-xs font-mono font-bold text-gray-500 uppercase tracking-wider mt-0.5">
-                  18 Total Credit Hours • AI, OS, HCI, InfoSec, Civics, Mobile App Dev
-                </p>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-xl sm:text-2xl font-black text-textMain tracking-tight">Semester Five</h2>
+                    <span className="flex items-center gap-1 text-[9px] sm:text-[10px] font-mono font-bold bg-amber-400 text-black px-2 py-0.5 rounded border border-black uppercase tracking-wider">
+                      BS 3rd Year • Upcoming
+                    </span>
+                  </div>
+                  <p className="text-[10px] sm:text-xs font-mono font-bold text-textMuted uppercase tracking-wider mt-0.5">18 Total Credit Hours</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
+
               <button
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
+                onClick={() => {
                   setSelectedSem5Code('CS-551');
                   setIsSem5ModalOpen(true);
                 }}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#801618] hover:bg-[#9b1b1e] text-white text-xs font-black rounded-xl border border-black shadow-[2px_2px_0px_0px_#000] active:scale-95 transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-black hover:bg-neutral-800 text-white text-xs font-black rounded-xl border border-black shadow-[2px_2px_0px_0px_#801618] active:scale-95 transition-all shrink-0"
               >
-                <Eye size={13} strokeWidth={2.5} />
-                <span>Open Modals</span>
+                <BookOpen size={13} strokeWidth={2.5} />
+                <span className="hidden sm:inline">Syllabus Outlines</span>
+                <span className="sm:hidden">Syllabus</span>
               </button>
-              <div className={`text-black transition-transform duration-300 ${isSem5Expanded ? 'rotate-180' : ''}`}>
-                <ChevronDown size={20} strokeWidth={2.5} />
-              </div>
+            </div>
+
+            <div className="space-y-2 sm:space-y-2.5 relative z-10">
+              {SEM5_COURSES.map((course) => (
+                <CourseSelect 
+                  key={course.code} course={course} value={sem5Grades ? sem5Grades[course.code] : ''}
+                  onChange={(val: number | '') => setSem5Grades && setSem5Grades((prev: any) => ({ ...prev, [course.code]: val }))}
+                />
+              ))}
             </div>
           </div>
 
-          <AnimatePresence>
-            {isSem5Expanded && (
-              <motion.div
-                initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                animate={{ height: 'auto', opacity: 1, marginTop: 16 }}
-                exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                className="overflow-hidden"
-              >
-                <div className="glass rounded-[2rem] p-5 sm:p-8 border-2 border-black shadow-[4px_4px_0px_0px_#801618]">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-5 border-b-2 border-black/10">
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-black text-textMain tracking-tight">
-                        Semester 5 Subjects & Credit Allocation
-                      </h3>
-                      <p className="text-xs text-gray-600 font-medium mt-0.5">
-                        Click any subject card below to view its syllabus, theory/lab split, prerequisites, and breakdown modal.
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedSem5Code('CS-551');
-                        setIsSem5ModalOpen(true);
-                      }}
-                      className="flex items-center justify-center gap-2 px-4 py-2 bg-[#801618] text-white rounded-xl font-black text-xs border-2 border-black shadow-[2px_2px_0px_0px_#000] active:scale-95 transition-all shrink-0"
-                    >
-                      <ExternalLink size={14} strokeWidth={2.5} />
-                      <span>Explore Full Curriculum Modal</span>
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                    {SEM5_COURSES.map((course) => {
-                      const Icon = getCourseIcon(course.code, course.type);
-                      return (
-                        <div
-                          key={course.code}
-                          onClick={() => openCourseInSem5Modal(course.code)}
-                          className="bg-white hover:bg-rose-50/70 p-4 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000] cursor-pointer transition-all hover:-translate-y-1 group flex flex-col justify-between"
-                        >
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="font-mono text-xs font-black bg-gray-100 group-hover:bg-[#801618] group-hover:text-white px-2 py-0.5 rounded border border-black/20 transition-colors">
-                                {course.code}
-                              </span>
-                              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-black text-white">
-                                {course.credits} Cr
-                              </span>
-                            </div>
-
-                            <div className="flex items-start gap-2.5 mt-2">
-                              <div className="p-2 rounded-xl bg-rose-50 border border-black/10 group-hover:bg-[#801618] group-hover:text-white transition-colors shrink-0">
-                                <Icon size={16} strokeWidth={2.5} />
-                              </div>
-                              <div>
-                                <h4 className="text-xs sm:text-sm font-black text-black leading-snug group-hover:text-[#801618] transition-colors">
-                                  {course.name}
-                                </h4>
-                                <span className="text-[10px] text-gray-500 font-medium block mt-0.5">
-                                  {course.type} • Instructor: {course.instructor}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="mt-3 pt-2.5 border-t border-black/10 flex items-center justify-between text-[10px] font-bold text-gray-600">
-                            <span>Inspect Syllabus</span>
-                            <span className="text-[#801618] group-hover:translate-x-0.5 transition-transform">→</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Semester 5 GPA Pill */}
+          <div className="mt-5 pt-3.5 border-t-2 border-black/10 flex items-center justify-between bg-purple-50/90 p-3 sm:p-3.5 rounded-2xl border-2 border-black shadow-[2px_2px_0px_0px_#000]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-purple-700 border-2 border-black flex items-center justify-center font-mono font-black text-xs text-white shadow-[1px_1px_0px_0px_#000]">
+                05
+              </div>
+              <div>
+                <span className="text-xs font-black uppercase text-black tracking-wide">Semester 5 GPA</span>
+                <p className="text-[10px] font-bold text-gray-600">{s5Stats.filledCount} of 6 courses ({s5Stats.totalCredits}/18 Cr)</p>
+              </div>
+            </div>
+            <div className="px-3 py-1 rounded-xl bg-black text-white border-2 border-black font-mono font-black text-base sm:text-lg shadow-[1.5px_1.5px_0px_0px_#801618]">
+              {s5Stats.filledCount > 0 ? (s5Stats.isComplete ? s5Stats.gpa : `${s5Stats.gpa}*`) : '—'}
+            </div>
+          </div>
         </motion.div>
 
         {/* ── OVERALL CUMULATIVE CGPA PILL ── */}
@@ -564,7 +506,7 @@ export const Calculator = ({
                 )}
               </div>
               <p className="text-xs font-bold text-white/90 mt-0.5">
-                {totalCompletedCr} of 72 Credit Hours Completed ({totalCompletedCount} Subjects Entered)
+                {totalCompletedCr} of 90 Credit Hours Completed ({totalCompletedCount} Subjects Entered)
               </p>
             </div>
           </div>
