@@ -8,6 +8,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { supabase } from '../lib/supabase';
 import { OfficialMarksheetsModal } from './OfficialMarksheetsModal';
 import { getMarksheetBySubject } from '../lib/resultsArchive';
+import { SECTION_A_SEATS } from '../lib/sectionA';
 
 const SUBJECTS_DATA = [
   // 1st Semester
@@ -184,7 +185,11 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
         const isMyProfileHidden = profile?.show_results_publicly === false;
 
         if (json && Array.isArray(json) && json.length > 0) {
-          const formatted = json.map((row: any) => {
+          const sectionAOnly = json.filter((row: any) => {
+            const seatNo = row.seat_no ? String(row.seat_no).toUpperCase().trim() : '';
+            return SECTION_A_SEATS.has(seatNo);
+          });
+          const formatted = sectionAOnly.map((row: any) => {
             const seatNo = row.seat_no ? String(row.seat_no).toUpperCase().trim() : '';
             if (row.is_hidden && seatNo) {
               hidden.add(seatNo);
@@ -222,7 +227,11 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
           if (fallbackRes.ok) {
             const fallbackJson = await fallbackRes.json();
             if (Array.isArray(fallbackJson) && fallbackJson.length > 0) {
-              const formatted = fallbackJson.map((row: any) => {
+              const sectionAOnly = fallbackJson.filter((row: any) => {
+                const seatNo = row.seat_no ? String(row.seat_no).toUpperCase().trim() : '';
+                return SECTION_A_SEATS.has(seatNo);
+              });
+              const formatted = sectionAOnly.map((row: any) => {
                 const seatNo = row.seat_no ? String(row.seat_no).toUpperCase().trim() : '';
                 const isRowHidden = (seatNo && hidden.has(seatNo)) || !!row.is_hidden || (seatNo === mySeat && isMyProfileHidden);
                 if (isRowHidden && seatNo) {

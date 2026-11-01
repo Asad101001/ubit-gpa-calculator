@@ -2,6 +2,25 @@ export const config = {
   runtime: 'edge',
 };
 
+// Official Section A Roster (75 enrolled students)
+const SECTION_A_SEATS = new Set([
+  'B24110006001', 'B24110006002', 'B24110006005', 'B24110006007', 'B24110006009',
+  'B24110006010', 'B24110006014', 'B24110006015', 'B24110006018', 'B24110006019',
+  'B24110006022', 'B24110006023', 'B24110006024', 'B24110006026', 'B24110006027',
+  'B24110006030', 'B24110006031', 'B24110006034', 'B24110006037', 'B24110006038',
+  'B24110006039', 'B24110006043', 'B24110006044', 'B24110006050', 'B24110006051',
+  'B24110006054', 'B24110006055', 'B24110006058', 'B24110006059', 'B24110006063',
+  'B24110006066', 'B24110006067', 'B24110006070', 'B24110006071', 'B24110006074',
+  'B24110006078', 'B24110006079', 'B24110006082', 'B24110006083', 'B24110006086',
+  'B24110006087', 'B24110006090', 'B24110006091', 'B24110006094', 'B24110006098',
+  'B24110006099', 'B24110006102', 'B24110006106', 'B24110006107', 'B24110006108',
+  'B24110006111', 'B24110006114', 'B24110006115', 'B24110006119', 'B24110006122',
+  'B24110006123', 'B24110006125', 'B24110006126', 'B24110006130', 'B24110006131',
+  'B24110006134', 'B24110006135', 'B24110006138', 'B24110006139', 'B24110006142',
+  'B24110006143', 'B24110006146', 'B24110006147', 'B24110006151', 'B24110006154',
+  'B24110006155', 'B24110006158', 'B24110006159', 'B24110006162', 'B24110006166'
+]);
+
 export default async function handler(req: Request) {
   // CORS preflight
   if (req.method === 'OPTIONS') {
@@ -74,7 +93,13 @@ export default async function handler(req: Request) {
       return { ...row, is_hidden: isHidden };
     });
 
-    return new Response(JSON.stringify(enrichedData), {
+    // Filter strictly to official Section A roster (~75 students)
+    const sectionAData = enrichedData.filter((row: any) => {
+      const seatNo = row.seat_no ? String(row.seat_no).toUpperCase().trim() : '';
+      return SECTION_A_SEATS.has(seatNo);
+    });
+
+    return new Response(JSON.stringify(sectionAData), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',

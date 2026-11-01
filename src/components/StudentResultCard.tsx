@@ -23,6 +23,13 @@ const SEM3_META = SEM3_COURSES.map(c => ({ ...c, sem: 3 }));
 const SEM4_META = SEM4_COURSES.map(c => ({ ...c, sem: 4 }));
 const SEM5_META = SEM5_COURSES.map(c => ({ ...c, sem: 5 }));
 
+// Valid database column subjects (Semesters 1, 2, and 3 - 18 courses)
+const VALID_DB_SUBJECTS = new Set([
+  'cs351', 'cs353', 'cs355', 'cs357', 'cs359', 'cs361',
+  'cs352', 'cs354', 'cs356', 'cs358', 'cs360', 'cs362',
+  'cs451', 'cs453', 'cs455', 'cs457', 'cs459', 'cs461',
+]);
+
 // Use canonical grade helper
 const getLetterGrade = getLetterGradeUtil;
 export { getMarkColor };
@@ -75,9 +82,9 @@ export const StudentResultCard = ({
   useEffect(() => {
     if (initialIsEditing && canEdit) {
       const initial: Record<string, number | ''> = {};
-      [...SUBJECTS_META, ...SEM3_META, ...SEM4_META, ...SEM5_META].forEach(s => {
+      [...SUBJECTS_META, ...SEM3_META].forEach(s => {
         const val = student[s.id];
-        initial[s.id] = (val !== undefined && val !== null && !isNaN(Number(val))) ? Number(val) : '';
+        initial[s.id] = (val !== undefined && val !== null && val !== '' && !isNaN(Number(val))) ? Number(val) : '';
       });
       setEditedMarks(initial);
       setIsEditing(true);
@@ -96,9 +103,9 @@ export const StudentResultCard = ({
     }
 
     const initial: Record<string, number | ''> = {};
-    [...SUBJECTS_META, ...SEM3_META, ...SEM4_META, ...SEM5_META].forEach(s => {
+    [...SUBJECTS_META, ...SEM3_META].forEach(s => {
       const val = student[s.id];
-      initial[s.id] = (val !== undefined && val !== null && !isNaN(Number(val))) ? Number(val) : '';
+      initial[s.id] = (val !== undefined && val !== null && val !== '' && !isNaN(Number(val))) ? Number(val) : '';
     });
     setEditedMarks(initial);
     setIsEditing(true);
@@ -118,13 +125,21 @@ export const StudentResultCard = ({
       const updates: Record<string, any> = {};
       
       Object.entries(editedMarks).forEach(([subId, markVal]) => {
-        const cleanKey = subId.toLowerCase().replace('-', '');
-        if (markVal !== '' && markVal !== null && markVal !== undefined) {
-          updates[cleanKey] = Number(markVal);
-        } else {
-          updates[cleanKey] = null; // Explicitly allow empty/missing/unannounced marks
+        const cleanKey = subId.toLowerCase().replace(/-/g, '');
+        if (VALID_DB_SUBJECTS.has(cleanKey)) {
+          if (markVal !== '' && markVal !== null && markVal !== undefined) {
+            updates[cleanKey] = Number(markVal);
+          } else {
+            updates[cleanKey] = null; // Explicitly allow empty/missing/unannounced marks
+          }
         }
       });
+
+      if (Object.keys(updates).length === 0) {
+        setIsEditing(false);
+        setIsSavingMarks(false);
+        return;
+      }
 
       // 1. Try updating via Supabase directly
       const { error: sbError } = await supabase
@@ -717,7 +732,7 @@ export const StudentResultCard = ({
         </div>
         <div className="px-5">
           {sem4Subs.map((sub) => {
-            const raw = isEditing ? editedMarks[sub.id] : student[sub.id];
+            const raw = student[sub.id];
             const marks = raw !== undefined && raw !== null && raw !== '' && !isNaN(Number(raw)) ? Number(raw) : null;
             const gp = marks !== null ? getGradePoint(marks) : null;
             return (
@@ -734,25 +749,7 @@ export const StudentResultCard = ({
                   </div>
                 </div>
                 <span className="hidden sm:block text-[10px] text-textMuted shrink-0 w-24 text-center">{sub.credits} Credit Hours</span>
-                {isEditing ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={editedMarks[sub.id] ?? ''}
-                      onChange={(e) => {
-                        const val = e.target.value === '' ? '' : Math.min(100, Math.max(0, Number(e.target.value)));
-                        setEditedMarks(prev => ({ ...prev, [sub.id]: val }));
-                      }}
-                      placeholder="0-100"
-                      className="w-20 px-2 py-1 bg-white border-2 border-black rounded font-mono font-bold text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#801618] shadow-[1.5px_1.5px_0px_0px_#000]"
-                    />
-                    <span className="text-xs font-bold text-[#801618] w-10 text-right">
-                      {marks !== null ? `${getLetterGrade(marks)} (${gp})` : '—'}
-                    </span>
-                  </div>
-                ) : !canViewMarks ? (
+                {!canViewMarks ? (
                   <span className="shrink-0 flex items-center gap-1 text-xs font-bold text-rose-800/60 font-mono bg-rose-100/60 px-2.5 py-1 rounded-lg border border-rose-200">
                     <Lock size={11} className="opacity-70" /> Hidden by Student
                   </span>

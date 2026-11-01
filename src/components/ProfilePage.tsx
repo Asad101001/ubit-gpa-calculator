@@ -8,6 +8,12 @@ import { supabase } from '../lib/supabase';
 import { getGradePoint, getLetterGrade, getMarkColor, SEM1_COURSES, SEM2_COURSES, SEM3_COURSES, SEM4_COURSES, SEM5_COURSES } from '../lib/utils';
 import { TentativeCGPA } from './TentativeCGPA';
 
+const VALID_DB_SUBJECTS = new Set([
+  'cs351', 'cs353', 'cs355', 'cs357', 'cs359', 'cs361',
+  'cs352', 'cs354', 'cs356', 'cs358', 'cs360', 'cs362',
+  'cs451', 'cs453', 'cs455', 'cs457', 'cs459', 'cs461',
+]);
+
 const SUBJECTS_META = [
   ...SEM1_COURSES.map(c => ({ id: c.code.toLowerCase().replace('-', ''), code: c.code, name: c.name, credits: c.credits, sem: 1 })),
   ...SEM2_COURSES.map(c => ({ id: c.code.toLowerCase().replace('-', ''), code: c.code, name: c.name, credits: c.credits, sem: 2 })),
@@ -197,6 +203,12 @@ export const ProfilePage = () => {
     setIsSavingMark(true);
     // Fix: replace ALL hyphens in subject ID, not just the first one
     const cleanKey = subjectId.toLowerCase().replace(/-/g, '');
+
+    if (!VALID_DB_SUBJECTS.has(cleanKey)) {
+      toast.error('Only Semesters 1, 2, and 3 marks can be edited.');
+      setIsSavingMark(false);
+      return;
+    }
 
     try {
       // 1. Direct Supabase update (fast and works locally in Vite and in prod)
@@ -531,7 +543,7 @@ export const ProfilePage = () => {
                                 <span className="text-[10px] font-mono text-textMuted w-7 text-right">{getGradePoint(marks).toFixed(1)}</span>
                               </div>
                             ) : <span className="text-xs text-textMuted/50 italic">— Missing</span>}
-                            {canEditMarks && (
+                            {canEditMarks && sub.sem <= 3 && (
                               <button onClick={() => { setEditingMark(sub.id); setEditValue(marks !== null ? String(marks) : ''); }}
                                 className="p-1.5 text-textMuted/40 hover:text-brand-500 hover:bg-brand-500/10 rounded-sm transition-colors opacity-70 sm:opacity-0 sm:group-hover:opacity-100" title="Edit mark">
                                 <Edit3 size={12} />
