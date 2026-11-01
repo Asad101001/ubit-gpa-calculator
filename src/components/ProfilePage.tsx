@@ -158,8 +158,21 @@ export const ProfilePage = () => {
     setIsSavingVisibility(true);
     const newVal = !profile.show_results_publicly;
     const result = await updateProfile({ show_results_publicly: newVal });
-    if (result.error) toast.error('Failed to update visibility.');
-    else toast.success(newVal ? 'Results are now public.' : 'Results are now hidden.', { icon: newVal ? '👁️' : '🔒' });
+    if (result.error) {
+      toast.error('Failed to update visibility.');
+    } else {
+      if (profile.seat_no) {
+        const mySeat = profile.seat_no.toUpperCase().trim();
+        try {
+          const savedHidden = localStorage.getItem('hidden_seats');
+          const hiddenSet = new Set<string>(savedHidden ? JSON.parse(savedHidden) : []);
+          if (!newVal) hiddenSet.add(mySeat);
+          else hiddenSet.delete(mySeat);
+          localStorage.setItem('hidden_seats', JSON.stringify(Array.from(hiddenSet)));
+        } catch {}
+      }
+      toast.success(newVal ? 'Results are now public.' : 'Results are now hidden.', { icon: newVal ? '👁️' : '🔒' });
+    }
     setIsSavingVisibility(false);
   };
 
@@ -289,6 +302,17 @@ export const ProfilePage = () => {
       .update({ show_results_publicly: !currentVal })
       .eq('id', userId);
     if (!error) {
+      const targetUser = adminUsers.find(u => u.id === userId);
+      if (targetUser?.seat_no) {
+        const sNo = targetUser.seat_no.toUpperCase().trim();
+        try {
+          const savedHidden = localStorage.getItem('hidden_seats');
+          const hiddenSet = new Set<string>(savedHidden ? JSON.parse(savedHidden) : []);
+          if (currentVal) hiddenSet.add(sNo);
+          else hiddenSet.delete(sNo);
+          localStorage.setItem('hidden_seats', JSON.stringify(Array.from(hiddenSet)));
+        } catch {}
+      }
       toast.success(`${name}: results are now ${!currentVal ? 'public' : 'hidden'}`);
       fetchAdminUsers();
     } else {

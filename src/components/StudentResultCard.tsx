@@ -253,7 +253,7 @@ export const StudentResultCard = ({
 
 
   const handlePrefill = () => {
-    if (!onPrefill) return;
+    if (!onPrefill || !canViewMarks) return;
     const s1: Record<string, number | ''> = SEM1_COURSES.reduce((a, c) => ({ ...a, [c.code]: '' }), {});
     const s2: Record<string, number | ''> = SEM2_COURSES.reduce((a, c) => ({ ...a, [c.code]: '' }), {});
     const s3: Record<string, number | ''> = SEM3_COURSES.reduce((a, c) => ({ ...a, [c.code]: '' }), {});
@@ -552,7 +552,9 @@ export const StudentResultCard = ({
               <span className="text-sm font-black text-textMain uppercase tracking-wider">{label}</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-textMuted">{stats.cr} / {subs.reduce((a,s)=>a+s.credits,0)} Credit Hours</span>
+              <span className="text-xs text-textMuted">
+                {!canViewMarks ? `— / ${subs.reduce((a, s) => a + s.credits, 0)} Credit Hours` : `${stats.cr} / ${subs.reduce((a, s) => a + s.credits, 0)} Credit Hours`}
+              </span>
               <span className={`text-sm font-black px-3 py-1 rounded-lg border-2 ${badgeClass}`}>
                 {!canViewMarks ? (
                   <span className="flex items-center gap-1"><Lock size={12} /> GPA Hidden</span>
@@ -606,7 +608,9 @@ export const StudentResultCard = ({
             <span className="ml-2 px-2 py-0.5 text-[9px] font-bold bg-amber-200 text-amber-800 border border-amber-400 rounded uppercase tracking-wider">In Progress</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-amber-700">{s3Stats.cr} / {sem3Subs.reduce((a,s)=>a+s.credits,0)} Credit Hours</span>
+            <span className="text-xs text-amber-700">
+              {!canViewMarks ? `— / ${sem3Subs.reduce((a, s) => a + s.credits, 0)} Credit Hours` : `${s3Stats.cr} / ${sem3Subs.reduce((a, s) => a + s.credits, 0)} Credit Hours`}
+            </span>
             <span className="text-sm font-black px-3 py-1 rounded-lg border-2 text-amber-700 bg-amber-50 border-amber-300">
               {!canViewMarks ? (
                 <span className="flex items-center gap-1"><Lock size={12} /> GPA Hidden</span>
@@ -626,8 +630,8 @@ export const StudentResultCard = ({
         </div>
         <div className="px-5">
           {sem3Subs.map((sub) => {
-            const raw = student[sub.id];
-            const marks = raw !== undefined && raw !== null && !isNaN(Number(raw)) ? Number(raw) : null;
+            const raw = isEditing ? editedMarks[sub.id] : student[sub.id];
+            const marks = raw !== undefined && raw !== null && raw !== '' && !isNaN(Number(raw)) ? Number(raw) : null;
             const gp = marks !== null ? getGradePoint(marks) : null;
             return (
               <div key={sub.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 py-3 border-b border-amber-100/70 last:border-0">
@@ -639,7 +643,25 @@ export const StudentResultCard = ({
                   </div>
                 </div>
                 <span className="hidden sm:block text-[10px] text-textMuted shrink-0 w-24 text-center">{sub.credits} Credit Hours</span>
-                {!canViewMarks ? (
+                {isEditing ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={editedMarks[sub.id] ?? ''}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? '' : Math.min(100, Math.max(0, Number(e.target.value)));
+                        setEditedMarks(prev => ({ ...prev, [sub.id]: val }));
+                      }}
+                      placeholder="0-100"
+                      className="w-20 px-2 py-1 bg-white border-2 border-black rounded font-mono font-bold text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#801618] shadow-[1.5px_1.5px_0px_0px_#000]"
+                    />
+                    <span className="text-xs font-bold text-amber-700 w-10 text-right">
+                      {marks !== null ? `${getLetterGrade(marks)} (${gp})` : '—'}
+                    </span>
+                  </div>
+                ) : !canViewMarks ? (
                   <span className="shrink-0 flex items-center gap-1 text-xs font-bold text-amber-800/60 font-mono bg-amber-100/60 px-2.5 py-1 rounded-lg border border-amber-200">
                     <Lock size={11} className="opacity-70" /> Hidden by Student
                   </span>
@@ -695,8 +717,8 @@ export const StudentResultCard = ({
         </div>
         <div className="px-5">
           {sem4Subs.map((sub) => {
-            const raw = student[sub.id];
-            const marks = raw !== undefined && raw !== null && !isNaN(Number(raw)) ? Number(raw) : null;
+            const raw = isEditing ? editedMarks[sub.id] : student[sub.id];
+            const marks = raw !== undefined && raw !== null && raw !== '' && !isNaN(Number(raw)) ? Number(raw) : null;
             const gp = marks !== null ? getGradePoint(marks) : null;
             return (
               <div key={sub.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 py-3 border-b border-rose-100/70 last:border-0">
@@ -712,7 +734,29 @@ export const StudentResultCard = ({
                   </div>
                 </div>
                 <span className="hidden sm:block text-[10px] text-textMuted shrink-0 w-24 text-center">{sub.credits} Credit Hours</span>
-                {marks === null ? (
+                {isEditing ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={editedMarks[sub.id] ?? ''}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? '' : Math.min(100, Math.max(0, Number(e.target.value)));
+                        setEditedMarks(prev => ({ ...prev, [sub.id]: val }));
+                      }}
+                      placeholder="0-100"
+                      className="w-20 px-2 py-1 bg-white border-2 border-black rounded font-mono font-bold text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#801618] shadow-[1.5px_1.5px_0px_0px_#000]"
+                    />
+                    <span className="text-xs font-bold text-[#801618] w-10 text-right">
+                      {marks !== null ? `${getLetterGrade(marks)} (${gp})` : '—'}
+                    </span>
+                  </div>
+                ) : !canViewMarks ? (
+                  <span className="shrink-0 flex items-center gap-1 text-xs font-bold text-rose-800/60 font-mono bg-rose-100/60 px-2.5 py-1 rounded-lg border border-rose-200">
+                    <Lock size={11} className="opacity-70" /> Hidden by Student
+                  </span>
+                ) : marks === null ? (
                   <span className="shrink-0 sm:w-32 text-left sm:text-right text-[10px] text-[#801618] font-bold italic pr-2">
                     ⏳ Pending Exam
                   </span>

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Search, ChevronDown, ChevronUp, FileText, Filter, ArrowLeft, AlertTriangle, Pencil, X, Lock, ExternalLink } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -73,6 +73,30 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   const [selectedStudentModal, setSelectedStudentModal] = useState<any | null>(null);
   const [modalStartEditing, setModalStartEditing] = useState(false);
   const [isMarksheetsModalOpen, setIsMarksheetsModalOpen] = useState(false);
+
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const isTouchDragging = useRef(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    isTouchDragging.current = false;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartPos.current) return;
+    const dx = Math.abs(e.touches[0].clientX - touchStartPos.current.x);
+    const dy = Math.abs(e.touches[0].clientY - touchStartPos.current.y);
+    if (dx > 7 || dy > 7) {
+      isTouchDragging.current = true;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setTimeout(() => {
+      isTouchDragging.current = false;
+      touchStartPos.current = null;
+    }, 150);
+  };
 
   const currentSubjectDoc = useMemo(() => {
     return selectedSubject !== ALL_SUBJECTS ? getMarksheetBySubject(selectedSubject) : undefined;
@@ -156,18 +180,24 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
           // Local dev or API unreachable, will proceed to fallback
         }
 
+        const mySeat = String(profile?.seat_no || '').toUpperCase().trim();
+        const isMyProfileHidden = profile?.show_results_publicly === false;
+
         if (json && Array.isArray(json) && json.length > 0) {
           const formatted = json.map((row: any) => {
             const seatNo = row.seat_no ? String(row.seat_no).toUpperCase().trim() : '';
-            if (row.is_hidden) {
-              if (seatNo) hidden.add(seatNo);
-            } else {
-              if (seatNo) hidden.delete(seatNo);
+            if (row.is_hidden && seatNo) {
+              hidden.add(seatNo);
             }
+            const isRowHidden = (seatNo && hidden.has(seatNo)) || !!row.is_hidden || (seatNo === mySeat && isMyProfileHidden);
+            if (isRowHidden && seatNo) {
+              hidden.add(seatNo);
+            }
+
             const mappedRow: any = {
               'Seat No': seatNo,
               'Name': row.name,
-              'is_hidden': !!row.is_hidden,
+              'is_hidden': isRowHidden,
             };
             
             SUBJECTS_DATA.forEach(sub => {
@@ -193,7 +223,17 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
             const fallbackJson = await fallbackRes.json();
             if (Array.isArray(fallbackJson) && fallbackJson.length > 0) {
               const formatted = fallbackJson.map((row: any) => {
-                const mappedRow: any = { 'Seat No': row.seat_no, 'Name': row.name, 'is_hidden': false };
+                const seatNo = row.seat_no ? String(row.seat_no).toUpperCase().trim() : '';
+                const isRowHidden = (seatNo && hidden.has(seatNo)) || !!row.is_hidden || (seatNo === mySeat && isMyProfileHidden);
+                if (isRowHidden && seatNo) {
+                  hidden.add(seatNo);
+                }
+
+                const mappedRow: any = { 
+                  'Seat No': seatNo, 
+                  'Name': row.name, 
+                  'is_hidden': isRowHidden 
+                };
                 SUBJECTS_DATA.forEach(sub => {
                   if (row[sub.id] !== undefined && row[sub.id] !== null && row[sub.id] !== '') {
                     mappedRow[sub.id] = row[sub.id];
@@ -222,6 +262,29 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
     };
 
     fetchResults();
+  }, [profile?.show_results_publicly, profile?.seat_no]);
+
+  // Live visibility state sync whenever profile privacy changes in auth store
+  useEffect(() => {
+    if (!profile?.seat_no) return;
+    const mySeat = String(profile.seat_no).toUpperCase().trim();
+    const isHidden = profile.show_results_publicly === false;
+
+    setHiddenSeatNos(prev => {
+      const next = new Set(prev);
+      if (isHidden) next.add(mySeat);
+      else next.delete(mySeat);
+      localStorage.setItem('hidden_seats', JSON.stringify(Array.from(next)));
+      return next;
+    });
+
+    setData(prev => prev.map(student => {
+      const sSeat = String(student['Seat No'] || '').toUpperCase().trim();
+      if (sSeat === mySeat) {
+        return { ...student, is_hidden: isHidden };
+      }
+      return student;
+    }));
   }, [profile?.show_results_publicly, profile?.seat_no]);
 
   const handleEditClick = (student: any, startEditing: boolean = false) => {
@@ -620,231 +683,251 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
 
         {/* Results View */}
         {sortedAndFilteredData.length === 1 && searchQuery.trim() !== '' ? (
-          <StudentResultCard 
-            student={sortedAndFilteredData[0]} 
-            onPrefill={onPrefill} 
-            onMarksUpdated={handleMarksUpdated}
-          />
+          (() => {
+            const single = sortedAndFilteredData[0];
+            const sSeat = String(single['Seat No'] || '').toUpperCase().trim();
+            const mySeat = String(profile?.seat_no || '').toUpperCase().trim();
+            const isOwner = !!mySeat && sSeat === mySeat;
+            const isHidden = (sSeat && hiddenSeatNos.has(sSeat)) || !!single.is_hidden || (isOwner && profile?.show_results_publicly === false);
+            return (
+              <StudentResultCard 
+                student={{ ...single, is_hidden: isHidden }} 
+                onPrefill={onPrefill} 
+                onMarksUpdated={handleMarksUpdated}
+              />
+            );
+          })()
         ) : (
-          <div 
-            className="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-2xl border border-border bg-surface/40 shadow-inner relative overscroll-contain touch-pan-x touch-pan-y"
-            onScroll={(e) => setIsScrolled(e.currentTarget.scrollLeft > 5)}
-          >
-            <table className="w-full text-left border-separate border-spacing-0 whitespace-nowrap">
-              <thead className="sticky top-0 z-40 shadow-sm">
-                <tr className="bg-surfaceHighlight shadow-sm">
-                  <th className="hidden sm:table-cell p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] text-center bg-surfaceHighlight sticky top-0 z-20 border-b border-border">#</th>
-                  <th 
-                    className="hidden sm:table-cell p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[90px] sm:min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors bg-surfaceHighlight sticky top-0 z-20 border-b border-border"
-                    onClick={() => handleSort('Seat No')}
-                  >
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      Seat No {sortConfig?.key === 'Seat No' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-brand-500" /> : <ChevronDown size={14} className="text-brand-500" />)}
-                    </div>
-                  </th>
-                  <th 
-                    className="p-2 sm:p-4 font-bold text-textMuted text-[10px] sm:text-sm transition-colors min-w-[210px] max-w-[210px] sm:min-w-[200px] sm:max-w-none sticky top-0 left-0 z-30 bg-surfaceHighlight shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] border-b border-border"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 w-full">
-                      <div className="flex items-center gap-1 cursor-pointer hover:text-brand-500 transition-colors" onClick={() => handleSort('Name')}>
-                        Name {sortConfig?.key === 'Name' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-brand-500" /> : <ChevronDown size={14} className="text-brand-500" />)}
-                      </div>
-                      <div className="sm:hidden flex items-center gap-1 font-mono text-[9px] font-normal cursor-pointer hover:text-brand-500 transition-colors" onClick={() => handleSort('Seat No')}>
-                        Seat No {sortConfig?.key === 'Seat No' && (sortConfig.direction === 'asc' ? <ChevronUp size={12} className="text-brand-500" /> : <ChevronDown size={12} className="text-brand-500" />)}
-                      </div>
-                    </div>
-                  </th>
-                  {effectiveSubject === ALL_SUBJECTS ? (
-                    SUBJECTS_DATA.map(sub => {
-                      // Color-code by semester: Sem1=blue, Sem2=green, Sem3=amber
-                      const semColors: Record<number, string> = {
-                        1: 'bg-blue-50 text-blue-700 border-blue-200',
-                        2: 'bg-green-50 text-green-700 border-green-200',
-                        3: 'bg-amber-50 text-amber-700 border-amber-200',
-                      };
-                      const semBadge: Record<number, string> = {
-                        1: 'bg-blue-100 text-blue-700',
-                        2: 'bg-green-100 text-green-700',
-                        3: 'bg-amber-100 text-amber-700',
-                      };
-                      const colClass = semColors[sub.semester] || 'bg-surface text-textMuted border-border';
-                      const badgeClass = semBadge[sub.semester] || 'bg-surface text-textMuted';
-                      return (
-                        <th
-                          key={sub.id}
-                          className={`p-1 px-1.5 sm:p-4 font-bold text-[10px] sm:text-sm cursor-pointer hover:opacity-80 transition-opacity border-l border-b ${colClass} sticky top-0 z-10`}
-                          onClick={() => handleSort(sub.id)}
-                        >
-                          <div className="flex flex-col items-end gap-0.5 sm:gap-1">
-                            <span className={`text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded ${badgeClass} uppercase tracking-wider`}>
-                              Sem {sub.semester}{sub.semester === 3 ? ' ⚠' : ''}
-                            </span>
-                            <div className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider">
-                              {sub.code}
-                              {sortConfig?.key === sub.id && (sortConfig.direction === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />)}
-                            </div>
-                            <div className="text-[10px] sm:text-xs max-w-[70px] sm:max-w-none truncate" title={sub.name}>{sub.name}</div>
-                          </div>
-                        </th>
-                      );
-                    })
-                  ) : (
+          <div>
+            {/* Mobile Horizontal Swipe Helper */}
+            <div className="sm:hidden flex items-center justify-between px-3 py-1.5 mb-2.5 text-[10px] font-bold text-gray-700 bg-amber-50 border border-amber-300/80 rounded-xl shadow-[1px_1px_0px_0px_#000]">
+              <span className="flex items-center gap-1.5">
+                <span className="text-xs">👉</span> Swipe sideways to view all courses
+              </span>
+              <span className="font-mono text-[9px] text-[#801618] font-black">
+                {sortedAndFilteredData.length} records
+              </span>
+            </div>
+
+            <div 
+              className="overflow-x-auto overflow-y-auto max-h-[65vh] sm:max-h-[75vh] rounded-2xl border-2 border-black bg-surface/40 shadow-inner relative overscroll-x-contain [-webkit-overflow-scrolling:touch] touch-pan-x"
+              onScroll={(e) => setIsScrolled(e.currentTarget.scrollLeft > 5)}
+            >
+              <table className="w-full text-left border-separate border-spacing-0 whitespace-nowrap">
+                <thead className="sticky top-0 z-40 shadow-sm">
+                  <tr className="bg-surfaceHighlight shadow-sm">
+                    <th className="hidden sm:table-cell p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] text-center bg-surfaceHighlight sticky top-0 z-20 border-b border-border">#</th>
                     <th 
-                      className="p-2 sm:p-4 font-bold text-brand-600 text-xs sm:text-sm cursor-pointer hover:bg-brand-500/20 transition-colors bg-brand-500/10 sticky top-0 z-10 border-b border-brand-500/20"
-                      onClick={() => handleSort(effectiveSubject)}
+                      className="hidden sm:table-cell p-2 sm:p-4 font-bold text-textMuted text-xs sm:text-sm min-w-[90px] sm:min-w-[140px] cursor-pointer hover:bg-border/30 transition-colors bg-surfaceHighlight sticky top-0 z-20 border-b border-border"
+                      onClick={() => handleSort('Seat No')}
                     >
-                      <div className="flex items-center justify-end gap-1 sm:gap-2">
-                        <span className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-500/25 text-brand-600 uppercase tracking-wider mr-1 sm:mr-2">
-                          Sem {SUBJECTS_DATA.find(s => s.id === effectiveSubject)?.semester}
-                        </span>
-                        <span className="max-w-[100px] sm:max-w-none truncate" title={SUBJECTS_DATA.find(s => s.id === effectiveSubject)?.name}>{SUBJECTS_DATA.find(s => s.id === effectiveSubject)?.name}</span> Marks 
-                        {sortConfig?.key === effectiveSubject && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-brand-600" /> : <ChevronDown size={14} className="text-brand-600" />)}
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        Seat No {sortConfig?.key === 'Seat No' && (sortConfig.direction === 'asc' ? <ChevronUp size={14} className="text-brand-500" /> : <ChevronDown size={14} className="text-brand-500" />)}
                       </div>
                     </th>
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={effectiveSubject === ALL_SUBJECTS ? SUBJECTS_DATA.length + 3 : 4} className="p-12 text-center text-textMuted font-medium">
-                      <div className="animate-spin w-10 h-10 border-4 border-brand-400 border-t-transparent rounded-full mx-auto mb-4"></div>
-                      Loading official results...
-                    </td>
-                  </tr>
-                ) : sortedAndFilteredData.length === 0 ? (
-                  <tr>
-                    <td colSpan={effectiveSubject === ALL_SUBJECTS ? SUBJECTS_DATA.length + 3 : 4} className="p-12 text-center text-textMuted font-medium">
-                      <div className="bg-surface border border-border rounded-xl p-6 inline-block">
-                        No matching results found for "{searchQuery}".
+                    <th 
+                      className="py-1.5 px-2 sm:p-4 font-bold text-textMuted text-[9.5px] sm:text-sm transition-colors w-[125px] min-w-[125px] max-w-[135px] sm:w-auto sm:min-w-[200px] sm:max-w-[280px] sticky top-0 left-0 z-30 bg-surfaceHighlight shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] border-b border-border"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2 w-full">
+                        <div className="flex items-center gap-1 cursor-pointer hover:text-brand-500 transition-colors" onClick={() => handleSort('Name')}>
+                          <span>Name</span> {sortConfig?.key === 'Name' && (sortConfig.direction === 'asc' ? <ChevronUp size={12} className="text-brand-500" /> : <ChevronDown size={12} className="text-brand-500" />)}
+                        </div>
+                        <div className="sm:hidden flex items-center gap-1 font-mono text-[8px] font-normal cursor-pointer hover:text-brand-500 transition-colors" onClick={() => handleSort('Seat No')}>
+                          <span>Seat</span> {sortConfig?.key === 'Seat No' && (sortConfig.direction === 'asc' ? <ChevronUp size={10} className="text-brand-500" /> : <ChevronDown size={10} className="text-brand-500" />)}
+                        </div>
                       </div>
-                    </td>
-                  </tr>
-                ) : (
-                  sortedAndFilteredData.map((student, index) => {
-                    const seatNo = String(student['Seat No'] || '').toUpperCase().trim();
-                    const mySeatNo = String(profile?.seat_no || '').toUpperCase().trim();
-                    const isMyProfileHidden = profile?.show_results_publicly === false;
-                    const isHidden = (seatNo && hiddenSeatNos.has(seatNo)) || !!student.is_hidden || (seatNo === mySeatNo && isMyProfileHidden);
-                    const isOwner = !!mySeatNo && seatNo === mySeatNo;
-                    const canViewMarks = !isHidden || (!!profile?.is_admin && showAdminPrivateRecords);
-
-                    return (
-                      // PERF FIX: replaced motion.tr (framer-motion per-row animation with staggered delay)
-                      // with a plain <tr> using CSS transitions.
-                      // On a 100-row table, motion.tr was creating 100 RAF loops simultaneously
-                      // causing massive mobile paint thrashing.
-                      <tr
-                        key={student['Seat No']}
-                        onClick={() => {
-                          setSelectedStudentModal({ ...student, is_hidden: isHidden });
-                          setModalStartEditing(false);
-                        }}
-                        className={`transition-colors group cursor-pointer animate-in fade-in duration-200 ${
-                          isOwner 
-                            ? 'bg-amber-50/80 hover:bg-amber-100/60 border-l-4 border-l-[#801618]' 
-                            : 'hover:bg-rose-50/40'
-                        }`}
-                        title="Click to view full student results & load into calculator"
-                        style={{ animationDelay: `${Math.min(index * 15, 400)}ms` }}
-                      >
-                        <td className={`hidden sm:table-cell p-2 sm:p-4 text-center font-medium text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] group-hover:bg-surfaceHighlight transition-colors duration-150 border-b border-border/50 ${isOwner ? 'bg-amber-50/80 font-bold text-[#801618]' : 'bg-surface text-textMuted'}`}>
-                          {index + 1}
-                        </td>
-                        <td className={`hidden sm:table-cell p-2 sm:p-4 font-mono text-xs sm:text-sm font-bold min-w-[90px] sm:min-w-[140px] group-hover:bg-surfaceHighlight transition-colors duration-150 border-b border-border/50 ${isOwner ? 'bg-amber-50/80 text-[#801618]' : 'bg-surface text-textMuted'}`}>
-                          {student['Seat No']}
-                        </td>
-                        <td className={`p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[210px] max-w-[210px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] border-b border-border/50 ${isOwner ? 'bg-amber-50/90' : 'bg-surface'}`}>
-                          <div className="flex items-center justify-between gap-1 w-full h-full">
-                            <div className="flex flex-col min-w-0 flex-1">
-                              <span className="truncate leading-tight font-bold group-hover:text-[#801618] transition-colors flex items-center gap-1.5" title={student['Name']}>
-                                <span>{isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}</span>
-                                {isOwner && (
-                                  <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#801618] text-white border border-black shadow-[1px_1px_0px_0px_#000] shrink-0">
-                                    You
-                                  </span>
-                                )}
-                                {isHidden && (
-                                  <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border shrink-0 flex items-center gap-1 ${isOwner ? 'bg-red-100 text-red-800 border-red-400' : 'bg-gray-100 text-gray-700 border-gray-300'}`}>
-                                    <Lock size={9} />
-                                    {isOwner ? 'Private' : 'Hidden'}
-                                  </span>
-                                )}
+                    </th>
+                    {effectiveSubject === ALL_SUBJECTS ? (
+                      SUBJECTS_DATA.map(sub => {
+                        const semColors: Record<number, string> = {
+                          1: 'bg-blue-50 text-blue-700 border-blue-200',
+                          2: 'bg-green-50 text-green-700 border-green-200',
+                          3: 'bg-amber-50 text-amber-700 border-amber-200',
+                        };
+                        const semBadge: Record<number, string> = {
+                          1: 'bg-blue-100 text-blue-700',
+                          2: 'bg-green-100 text-green-700',
+                          3: 'bg-amber-100 text-amber-700',
+                        };
+                        const colClass = semColors[sub.semester] || 'bg-surface text-textMuted border-border';
+                        const badgeClass = semBadge[sub.semester] || 'bg-surface text-textMuted';
+                        return (
+                          <th
+                            key={sub.id}
+                            className={`p-1 px-1.5 sm:p-4 font-bold text-[9.5px] sm:text-sm cursor-pointer hover:opacity-80 transition-opacity border-l border-b ${colClass} sticky top-0 z-10 min-w-[56px] sm:min-w-[85px]`}
+                            onClick={() => handleSort(sub.id)}
+                          >
+                            <div className="flex flex-col items-end gap-0.5 sm:gap-1">
+                              <span className={`text-[7.5px] sm:text-[9px] font-bold px-1 py-0.2 sm:px-1.5 sm:py-0.5 rounded ${badgeClass} uppercase tracking-wider`}>
+                                Sem {sub.semester}{sub.semester === 3 ? ' ⚠' : ''}
                               </span>
-
-                              <span className="sm:hidden font-mono text-[9px] text-textMuted mt-0.5 leading-tight">
-                                {student['Seat No']}
-                              </span>
+                              <div className="flex items-center gap-0.5 sm:gap-1 text-[9px] sm:text-xs font-semibold uppercase tracking-wider">
+                                {sub.code}
+                                {sortConfig?.key === sub.id && (sortConfig.direction === 'asc' ? <ChevronUp size={11} /> : <ChevronDown size={11} />)}
+                              </div>
+                              <div className="text-[8.5px] sm:text-xs max-w-[60px] sm:max-w-none truncate" title={sub.name}>{sub.name}</div>
                             </div>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditClick({ ...student, is_hidden: isHidden }, isOwner || !!profile?.is_admin);
-                              }}
-                              title={isOwner ? "Edit your marks" : `Open and load marks for ${student['Name']}`}
-                              className={`${isOwner ? 'opacity-100 flex' : !isScrolled ? 'opacity-0 group-hover:opacity-100' : 'hidden'} transition-opacity p-1 px-1.5 rounded bg-[#801618] text-white border-2 border-black shrink-0 ml-1 shadow-[1px_1px_0px_0px_#000] active:scale-95 items-center gap-1 text-[10px] font-black`}
-                            >
-                              <Pencil size={11} strokeWidth={2.5} />
-                              {isOwner && <span className="hidden sm:inline">Edit</span>}
-                            </button>
-                          </div>
-                        </td>
-                        
-                        {effectiveSubject === ALL_SUBJECTS ? (
-                          SUBJECTS_DATA.map(sub => {
-                            const mark = student[sub.id];
-                            const isMissing = mark === undefined || mark === null || mark === '' || (typeof mark === 'string' && isNaN(Number(mark)));
-                            const unannounced = mark === "Results Unannounced" || mark === undefined || mark === null || mark === '';
-                            return (
-                              <td key={sub.id} className={`p-1 px-1.5 sm:p-4 text-right border-l border-b border-border/30 ${!canViewMarks ? 'bg-gray-50/40' : ''}`}>
-                                {!canViewMarks ? (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] sm:text-[9.5px] font-mono font-bold bg-gray-100 text-gray-500 border border-gray-200" title="Marks hidden by student">
-                                    <Lock size={8} className="opacity-70" />
-                                    <span>Hidden</span>
-                                  </span>
-                                ) : isMissing ? (
-                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8.5px] sm:text-[10px] font-bold bg-surfaceHighlight text-gray-500 border border-border/40">
-                                    {unannounced ? "Unannounced" : "Missing"}
-                                  </span>
-                                ) : (
-                                  <span className={`inline-flex items-center text-xs sm:text-sm ${getMarkColor(Number(mark))}`}>
-                                    {mark}
-                                  </span>
-                                )}
-                              </td>
-                            );
-                          })
-                        ) : (
-                          <td className="p-1 px-1.5 sm:p-4 text-right bg-brand-500/5 group-hover:bg-brand-500/10 transition-colors border-b border-border/30">
-                            {(() => {
-                              const mark = student[effectiveSubject];
+                          </th>
+                        );
+                      })
+                    ) : (
+                      <th 
+                        className="p-1.5 sm:p-4 font-bold text-brand-600 text-xs sm:text-sm cursor-pointer hover:bg-brand-500/20 transition-colors bg-brand-500/10 sticky top-0 z-10 border-b border-brand-500/20"
+                        onClick={() => handleSort(effectiveSubject)}
+                      >
+                        <div className="flex items-center justify-end gap-1 sm:gap-2">
+                          <span className="text-[7.5px] sm:text-[9px] font-bold px-1 py-0.5 sm:px-1.5 rounded bg-brand-500/25 text-brand-600 uppercase tracking-wider mr-1 sm:mr-2">
+                            Sem {SUBJECTS_DATA.find(s => s.id === effectiveSubject)?.semester}
+                          </span>
+                          <span className="max-w-[100px] sm:max-w-none truncate" title={SUBJECTS_DATA.find(s => s.id === effectiveSubject)?.name}>{SUBJECTS_DATA.find(s => s.id === effectiveSubject)?.name}</span> Marks 
+                          {sortConfig?.key === effectiveSubject && (sortConfig.direction === 'asc' ? <ChevronUp size={13} className="text-brand-600" /> : <ChevronDown size={13} className="text-brand-600" />)}
+                        </div>
+                      </th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={effectiveSubject === ALL_SUBJECTS ? SUBJECTS_DATA.length + 3 : 4} className="p-12 text-center text-textMuted font-medium">
+                        <div className="animate-spin w-10 h-10 border-4 border-brand-400 border-t-transparent rounded-full mx-auto mb-4"></div>
+                        Loading official results...
+                      </td>
+                    </tr>
+                  ) : sortedAndFilteredData.length === 0 ? (
+                    <tr>
+                      <td colSpan={effectiveSubject === ALL_SUBJECTS ? SUBJECTS_DATA.length + 3 : 4} className="p-12 text-center text-textMuted font-medium">
+                        <div className="bg-surface border border-border rounded-xl p-6 inline-block">
+                          No matching results found for "{searchQuery}".
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    sortedAndFilteredData.map((student, index) => {
+                      const seatNo = String(student['Seat No'] || '').toUpperCase().trim();
+                      const mySeatNo = String(profile?.seat_no || '').toUpperCase().trim();
+                      const isMyProfileHidden = profile?.show_results_publicly === false;
+                      const isHidden = (seatNo && hiddenSeatNos.has(seatNo)) || !!student.is_hidden || (seatNo === mySeatNo && isMyProfileHidden);
+                      const isOwner = !!mySeatNo && seatNo === mySeatNo;
+                      const canViewMarks = !isHidden || isOwner || (!!profile?.is_admin && showAdminPrivateRecords);
+
+                      return (
+                        <tr
+                          key={student['Seat No']}
+                          onTouchStart={handleTouchStart}
+                          onTouchMove={handleTouchMove}
+                          onTouchEnd={handleTouchEnd}
+                          onClick={() => {
+                            if (isTouchDragging.current) return;
+                            setSelectedStudentModal({ ...student, is_hidden: isHidden });
+                            setModalStartEditing(false);
+                          }}
+                          className={`transition-colors group cursor-pointer animate-in fade-in duration-200 ${
+                            isOwner 
+                              ? 'bg-amber-50/80 hover:bg-amber-100/60 border-l-4 border-l-[#801618]' 
+                              : 'hover:bg-rose-50/40'
+                          }`}
+                          title="Click to view full student results & load into calculator"
+                          style={{ animationDelay: `${Math.min(index * 15, 400)}ms` }}
+                        >
+                          <td className={`hidden sm:table-cell p-2 sm:p-4 text-center font-medium text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] group-hover:bg-surfaceHighlight transition-colors duration-150 border-b border-border/50 ${isOwner ? 'bg-amber-50 font-bold text-[#801618]' : 'bg-surface text-textMuted'}`}>
+                            {index + 1}
+                          </td>
+                          <td className={`hidden sm:table-cell p-2 sm:p-4 font-mono text-xs sm:text-sm font-bold min-w-[90px] sm:min-w-[140px] group-hover:bg-surfaceHighlight transition-colors duration-150 border-b border-border/50 ${isOwner ? 'bg-amber-50 text-[#801618]' : 'bg-surface text-textMuted'}`}>
+                            {student['Seat No']}
+                          </td>
+                          <td className={`py-1.5 px-2 sm:p-4 text-[10px] sm:text-xs text-textMain font-semibold w-[125px] min-w-[125px] max-w-[135px] sm:w-auto sm:min-w-[200px] sm:max-w-[280px] sticky left-0 z-20 group-hover:bg-surfaceHighlight transition-colors duration-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] border-b border-border/50 ${isOwner ? 'bg-amber-50' : 'bg-surface'}`}>
+                            <div className="flex items-center justify-between gap-1 w-full h-full">
+                              <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
+                                <span className="truncate leading-tight font-bold group-hover:text-[#801618] transition-colors flex items-center gap-1 text-[9.5px] sm:text-xs" title={student['Name']}>
+                                  <span className="truncate">{isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}</span>
+                                  {isOwner && (
+                                    <span className="text-[7.5px] sm:text-[9px] font-black uppercase tracking-wider px-1 py-0.2 sm:px-1.5 sm:py-0.5 rounded bg-[#801618] text-white border border-black shadow-[1px_1px_0px_0px_#000] shrink-0">
+                                      You
+                                    </span>
+                                  )}
+                                  {isHidden && (
+                                    <span className={`text-[7.5px] sm:text-[9px] font-black uppercase tracking-wider px-1 py-0.2 sm:px-1.5 sm:py-0.5 rounded border shrink-0 flex items-center gap-0.5 ${isOwner ? 'bg-red-100 text-red-800 border-red-400' : 'bg-gray-100 text-gray-700 border-gray-300'}`}>
+                                      <Lock size={8} />
+                                      <span className="hidden sm:inline">{isOwner ? 'Private' : 'Hidden'}</span>
+                                    </span>
+                                  )}
+                                </span>
+
+                                <span className="sm:hidden font-mono text-[8px] text-textMuted mt-0.5 leading-none truncate">
+                                  {student['Seat No']}
+                                </span>
+                              </div>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditClick({ ...student, is_hidden: isHidden }, isOwner || !!profile?.is_admin);
+                                }}
+                                title={isOwner ? "Edit your marks" : `Open and load marks for ${student['Name']}`}
+                                className={`${isOwner ? 'opacity-100 flex' : !isScrolled ? 'opacity-0 group-hover:opacity-100' : 'hidden'} transition-opacity p-0.5 sm:p-1 px-1 sm:px-1.5 rounded bg-[#801618] text-white border border-black sm:border-2 shrink-0 ml-0.5 shadow-[1px_1px_0px_0px_#000] active:scale-95 items-center gap-0.5 text-[8.5px] sm:text-[10px] font-black`}
+                              >
+                                <Pencil size={9} strokeWidth={2.5} className="sm:w-[11px] sm:h-[11px]" />
+                                {isOwner && <span className="hidden sm:inline">Edit</span>}
+                              </button>
+                            </div>
+                          </td>
+                          
+                          {effectiveSubject === ALL_SUBJECTS ? (
+                            SUBJECTS_DATA.map(sub => {
+                              const mark = student[sub.id];
                               const isMissing = mark === undefined || mark === null || mark === '' || (typeof mark === 'string' && isNaN(Number(mark)));
                               const unannounced = mark === "Results Unannounced" || mark === undefined || mark === null || mark === '';
-                              return !canViewMarks ? (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200">
-                                  <Lock size={11} />
-                                  <span>Marks Hidden</span>
-                                </span>
-                              ) : isMissing ? (
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-surfaceHighlight text-gray-500 border border-border">
-                                  {unannounced ? "Results Unannounced" : mark}
-                                </span>
-                              ) : (
-                                <span className={`inline-flex items-center px-3.5 py-1.5 rounded-lg text-sm border shadow-sm ${getMarkColor(Number(mark))} ${Number(mark) >= 80 ? 'bg-green-500/10 border-green-500/30' : Number(mark) < 25 ? 'bg-red-500/10 border-red-500/30' : 'bg-surfaceHighlight border-border'}`}>
-                                  {mark}
-                                </span>
+                              return (
+                                <td key={sub.id} className={`p-1 px-1.5 sm:p-4 text-right border-l border-b border-border/30 min-w-[56px] sm:min-w-[85px] ${!canViewMarks ? 'bg-gray-50/60' : ''}`}>
+                                  {!canViewMarks ? (
+                                    <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1 py-0.5 sm:px-1.5 sm:py-0.5 rounded text-[7.5px] sm:text-[9.5px] font-mono font-bold bg-gray-100 text-gray-500 border border-gray-200" title="Marks hidden by student">
+                                      <Lock size={8} className="opacity-70" />
+                                      <span>Hidden</span>
+                                    </span>
+                                  ) : isMissing ? (
+                                    <span className="inline-flex items-center px-1 py-0.5 rounded text-[7.5px] sm:text-[10px] font-bold bg-surfaceHighlight text-gray-500 border border-border/40">
+                                      {unannounced ? "Unannounced" : "Missing"}
+                                    </span>
+                                  ) : (
+                                    <span className={`inline-flex items-center text-[10.5px] sm:text-sm font-semibold ${getMarkColor(Number(mark))}`}>
+                                      {mark}
+                                    </span>
+                                  )}
+                                </td>
                               );
-                            })()}
-                          </td>
-                        )}
+                            })
+                          ) : (
+                            <td className="p-1 px-1.5 sm:p-4 text-right bg-brand-500/5 group-hover:bg-brand-500/10 transition-colors border-b border-border/30 min-w-[70px] sm:min-w-[100px]">
+                              {(() => {
+                                const mark = student[effectiveSubject];
+                                const isMissing = mark === undefined || mark === null || mark === '' || (typeof mark === 'string' && isNaN(Number(mark)));
+                                const unannounced = mark === "Results Unannounced" || mark === undefined || mark === null || mark === '';
+                                return !canViewMarks ? (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[9.5px] sm:text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200">
+                                    <Lock size={10} />
+                                    <span>Marks Hidden</span>
+                                  </span>
+                                ) : isMissing ? (
+                                  <span className="inline-flex items-center px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[9.5px] sm:text-xs font-bold bg-surfaceHighlight text-gray-500 border border-border">
+                                    {unannounced ? "Results Unannounced" : mark}
+                                  </span>
+                                ) : (
+                                  <span className={`inline-flex items-center px-2 py-0.5 sm:px-3.5 sm:py-1.5 rounded-lg text-xs sm:text-sm border shadow-sm ${getMarkColor(Number(mark))} ${Number(mark) >= 80 ? 'bg-green-500/10 border-green-500/30' : Number(mark) < 25 ? 'bg-red-500/10 border-red-500/30' : 'bg-surfaceHighlight border-border'}`}>
+                                    {mark}
+                                  </span>
+                                );
+                              })()}
+                            </td>
+                          )}
 
-                      </tr>
-                    )
-                  })
+                        </tr>
+                      )
+                    })
 
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
