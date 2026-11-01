@@ -25,3 +25,4 @@ export const isSectionAStudent = (seatNo: string | undefined | null): boolean =>
   if (!seatNo) return false;
   return SECTION_A_SEATS.has(String(seatNo).trim().toUpperCase());
 };
+

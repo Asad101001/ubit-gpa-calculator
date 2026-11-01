@@ -8,7 +8,7 @@ import { shareNative, shareWhatsApp, copyToClipboard, buildCGPAShareText } from 
 
 import { getGradePoint, getLetterGrade as getLetterGradeUtil, getMarkColor } from '../lib/utils';
 import { generateTranscriptPDF } from '../lib/transcriptGenerator';
-import { SEM1_COURSES, SEM2_COURSES, SEM3_COURSES, SEM4_COURSES, SEM5_COURSES } from '../lib/utils';
+import { SEM1_COURSES, SEM2_COURSES, SEM3_COURSES } from '../lib/utils';
 import { TentativeCGPA } from './TentativeCGPA';
 import { triggerConfetti } from '../lib/confetti';
 import { useAuthStore } from '../store/useAuthStore';
@@ -20,8 +20,6 @@ const SUBJECTS_META = [
   ...SEM2_COURSES.map(c => ({ ...c, sem: 2 })),
 ];
 const SEM3_META = SEM3_COURSES.map(c => ({ ...c, sem: 3 }));
-const SEM4_META = SEM4_COURSES.map(c => ({ ...c, sem: 4 }));
-const SEM5_META = SEM5_COURSES.map(c => ({ ...c, sem: 5 }));
 
 // Valid database column subjects (Semesters 1, 2, and 3 - 18 courses)
 const VALID_DB_SUBJECTS = new Set([
@@ -76,8 +74,6 @@ export const StudentResultCard = ({
   const sem1Subs = SUBJECTS_META.filter(s => s.sem === 1);
   const sem2Subs = SUBJECTS_META.filter(s => s.sem === 2);
   const sem3Subs = SEM3_META;
-  const sem4Subs = SEM4_META;
-  const sem5Subs = SEM5_META;
 
   useEffect(() => {
     if (initialIsEditing && canEdit) {
@@ -272,7 +268,6 @@ export const StudentResultCard = ({
     const s1: Record<string, number | ''> = SEM1_COURSES.reduce((a, c) => ({ ...a, [c.code]: '' }), {});
     const s2: Record<string, number | ''> = SEM2_COURSES.reduce((a, c) => ({ ...a, [c.code]: '' }), {});
     const s3: Record<string, number | ''> = SEM3_COURSES.reduce((a, c) => ({ ...a, [c.code]: '' }), {});
-    const s4: Record<string, number | ''> = SEM4_COURSES.reduce((a, c) => ({ ...a, [c.code]: '' }), {});
     sem1Subs.forEach((sub, i) => {
       const raw = student[sub.id];
       const m = raw !== undefined && !isNaN(Number(raw)) ? Number(raw) : null;
@@ -288,12 +283,7 @@ export const StudentResultCard = ({
       const m = raw !== undefined && !isNaN(Number(raw)) ? Number(raw) : null;
       if (m !== null) s3[SEM3_COURSES[i]?.code] = m;
     });
-    sem4Subs.forEach((sub, i) => {
-      const raw = student[sub.id];
-      const m = raw !== undefined && !isNaN(Number(raw)) ? Number(raw) : null;
-      if (m !== null) s4[SEM4_COURSES[i]?.code] = m;
-    });
-    onPrefill(s1, s2, s3, s4);
+    onPrefill(s1, s2, s3);
   };
 
   const SubjectRow = ({ sub, delay }: { sub: typeof SUBJECTS_META[0], delay: number }) => {
@@ -699,130 +689,6 @@ export const StudentResultCard = ({
         <div className="px-5 py-3 bg-amber-50/30 border-t border-amber-100 flex items-center gap-2">
           <AlertTriangle size={13} className="text-amber-500" />
           <span className="text-xs text-amber-700 italic">Results not yet finalized — marks shown are tentative</span>
-        </div>
-      </motion.div>
-
-      {/* Semester 4 — Exams Approaching */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="glass rounded-xl border-border overflow-hidden opacity-90"
-      >
-        <div className="flex items-center justify-between px-5 py-3 bg-rose-50 border-b-2 border-[#801618]/30">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-sm bg-[#801618]" />
-            <span className="text-sm font-black text-black uppercase tracking-wider">Semester 4</span>
-            <span className="ml-2 px-2 py-0.5 text-[9px] font-bold bg-[#801618] text-white border border-black rounded uppercase tracking-wider">
-              Exams Approaching
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-700">18 Total Credit Hours</span>
-            <span className="text-xs font-black px-2.5 py-1 rounded-lg border-2 text-[#801618] bg-white border-black shadow-[1.5px_1.5px_0px_0px_#000]">
-              Upcoming Exams
-            </span>
-          </div>
-        </div>
-        <div className="hidden sm:flex items-center gap-3 px-5 py-2 bg-rose-50/40 border-b border-rose-200/50">
-          <span className="text-[9px] font-bold text-gray-500 uppercase w-14 shrink-0">Code</span>
-          <span className="flex-1 text-[9px] font-bold text-gray-500 uppercase">Course</span>
-          <span className="text-[9px] font-bold text-gray-500 uppercase w-24 text-center shrink-0">Credit Hours</span>
-          <span className="text-[9px] font-bold text-gray-500 uppercase w-32 text-right shrink-0">Status / Result</span>
-        </div>
-        <div className="px-5">
-          {sem4Subs.map((sub) => {
-            const raw = student[sub.id];
-            const marks = raw !== undefined && raw !== null && raw !== '' && !isNaN(Number(raw)) ? Number(raw) : null;
-            const gp = marks !== null ? getGradePoint(marks) : null;
-            return (
-              <div key={sub.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 py-3 border-b border-rose-100/70 last:border-0">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 flex-1">
-                  <span className="text-[10px] font-black text-[#801618]/80 w-14 shrink-0 font-mono hidden sm:block">{sub.code}</span>
-                  <div className="flex flex-col">
-                    <span className="text-xs sm:text-sm text-textMain font-medium leading-tight">
-                      {sub.name} <span className="sm:hidden text-[10px] text-[#801618]/80 font-mono ml-1">({sub.code})</span>
-                    </span>
-                    <span className="text-[10px] text-gray-500 mt-0.5">
-                      Instructor: {sub.instructor} {sub.subInstructor ? `• ${sub.subInstructor}` : ''}
-                    </span>
-                  </div>
-                </div>
-                <span className="hidden sm:block text-[10px] text-textMuted shrink-0 w-24 text-center">{sub.credits} Credit Hours</span>
-                {!canViewMarks ? (
-                  <span className="shrink-0 flex items-center gap-1 text-xs font-bold text-rose-800/60 font-mono bg-rose-100/60 px-2.5 py-1 rounded-lg border border-rose-200">
-                    <Lock size={11} className="opacity-70" /> Hidden by Student
-                  </span>
-                ) : marks === null ? (
-                  <span className="shrink-0 sm:w-32 text-left sm:text-right text-[10px] text-[#801618] font-bold italic pr-2">
-                    ⏳ Pending Exam
-                  </span>
-                ) : (
-                  <div className="shrink-0 flex items-center justify-end gap-1.5 w-32">
-                    <span className={`text-sm ${getMarkColor(marks)} w-6 text-center`}>{marks}</span>
-                    <span className="text-[10px] bg-rose-100 border border-rose-300 px-1.5 py-0.5 rounded font-bold text-[#801618] w-6 text-center">{getLetterGrade(marks)}</span>
-                    <span className="text-xs font-bold text-gray-900 w-8 text-right">{gp?.toFixed(1)}</span>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        <div className="px-5 py-2.5 bg-rose-50/50 border-t border-rose-100 flex items-center justify-between text-[11px] text-gray-600">
-          <span>Semester 4 Exams Schedule in Progress</span>
-          <span className="font-mono font-bold text-[#801618]">DCS UBIT</span>
-        </div>
-      </motion.div>
-
-      {/* Semester 5 — Upcoming (BS 3rd Year) */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.45 }}
-        className="glass rounded-xl border-border overflow-hidden opacity-90"
-      >
-        <div className="flex items-center justify-between px-5 py-3 bg-purple-50 border-b-2 border-purple-200">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-sm bg-purple-600" />
-            <span className="text-sm font-black text-purple-950 uppercase tracking-wider">Semester 5 (BS 3rd Year)</span>
-            <span className="ml-2 px-2 py-0.5 text-[9px] font-bold bg-purple-200 text-purple-900 border border-purple-400 rounded uppercase tracking-wider">
-              Yet to Start
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-purple-800">18 Total Credit Hours</span>
-            <span className="text-xs font-bold px-2 py-0.5 rounded bg-white text-purple-900 border border-purple-300">
-              Curriculum Planned
-            </span>
-          </div>
-        </div>
-        <div className="hidden sm:flex items-center gap-3 px-5 py-2 bg-purple-50/40 border-b border-purple-100">
-          <span className="text-[9px] font-bold text-purple-600/70 uppercase w-14 shrink-0">Code</span>
-          <span className="flex-1 text-[9px] font-bold text-purple-600/70 uppercase">Course</span>
-          <span className="text-[9px] font-bold text-purple-600/70 uppercase w-24 text-center shrink-0">Credit Hours</span>
-          <span className="text-[9px] font-bold text-purple-600/70 uppercase w-32 text-right shrink-0">Track</span>
-        </div>
-        <div className="px-5">
-          {sem5Subs.map((sub) => (
-            <div key={sub.code} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 py-2.5 border-b border-purple-100/60 last:border-0">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 flex-1">
-                <span className="text-[10px] font-black text-purple-700 w-14 shrink-0 font-mono hidden sm:block">{sub.code}</span>
-                <div>
-                  <span className="text-xs sm:text-sm text-textMain font-medium leading-tight">
-                    {sub.name} <span className="sm:hidden text-[10px] text-purple-700 font-mono ml-1">({sub.code})</span>
-                  </span>
-                </div>
-              </div>
-              <span className="hidden sm:block text-[10px] text-textMuted shrink-0 w-24 text-center">{sub.credits} Credit Hours</span>
-              <span className="shrink-0 sm:w-32 text-left sm:text-right text-[10px] font-mono text-purple-800 font-bold pr-2">
-                {sub.type}
-              </span>
-            </div>
-          ))}
-        </div>
-        <div className="px-5 py-2.5 bg-purple-50/50 border-t border-purple-100 flex items-center justify-between text-[11px] text-purple-700">
-          <span>Official 5th semester courses planned at Department of Computer Science</span>
-          <span className="font-mono font-bold">18 Cr Total</span>
         </div>
       </motion.div>
 
