@@ -585,12 +585,10 @@ function App() {
                     <motion.div key="results" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
                       <Suspense fallback={<ViewFallback />}>
                         <ResultsPortal
-                          onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>, s4?: Record<string, number | ''>, s5?: Record<string, number | ''>) => {
+                          onPrefill={(s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>) => {
                             setSem1Grades(s1);
                             setSem2Grades(s2);
                             setSem3Grades(s3 || SEM3_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
-                            setSem4Grades(s4 || SEM4_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
-                            setSem5Grades(s5 || SEM5_COURSES.reduce((acc, c) => ({ ...acc, [c.code]: '' }), {}));
                             navigateTo('calculator');
                             setTimeout(() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' }), 100);
                           }}

@@ -34,7 +34,7 @@ export { getMarkColor };
 
 interface Props {
   student: Record<string, any>;
-  onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>, s4?: Record<string, number | ''>, s5?: Record<string, number | ''>) => void;
+  onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>) => void;
   autoOpenReport?: boolean;
   initialIsEditing?: boolean;
   onMarksUpdated?: (seatNo: string, updatedMarks: Record<string, any>) => void;

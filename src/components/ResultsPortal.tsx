@@ -77,7 +77,7 @@ export const countMissingInSem = (student: any, sem: number): number => {
 };
 
 interface ResultsPortalProps {
-  onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>, s4?: Record<string, number | ''>) => void;
+  onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>) => void;
 }
 
 export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {

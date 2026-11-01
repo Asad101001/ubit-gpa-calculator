@@ -217,7 +217,7 @@ export const HomePage = ({ navigateTo }: HomePageProps) => {
                     Physical University Marksheets (PDF Archive)
                   </h4>
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#801618] text-white border border-black uppercase">
-                    Sem 1 – 4 Scans
+                    Sem 1 – 3 Scans
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-gray-600 font-medium mt-1 max-w-2xl leading-relaxed">
