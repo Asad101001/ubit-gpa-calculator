@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Calculator, AlertTriangle, Send, Loader2, Edit3, Save, X, CheckCircle, XCircle, Lock, Share2 } from 'lucide-react';
 
@@ -29,13 +29,25 @@ export { getMarkColor };
 
 interface Props {
   student: Record<string, any>;
-  onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>, s4?: Record<string, number | ''>) => void;
+  onPrefill?: (s1: Record<string, number | ''>, s2: Record<string, number | ''>, s3?: Record<string, number | ''>, s4?: Record<string, number | ''>, s5?: Record<string, number | ''>) => void;
   autoOpenReport?: boolean;
+  initialIsEditing?: boolean;
+  onMarksUpdated?: (seatNo: string, updatedMarks: Record<string, any>) => void;
 }
 
-export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpenReport = false }: Props) => {
+export const StudentResultCard = ({ 
+  student: initialStudent, 
+  onPrefill, 
+  autoOpenReport = false,
+  initialIsEditing = false,
+  onMarksUpdated
+}: Props) => {
   const { user, profile, openAuthModal } = useAuthStore();
   const [student, setStudent] = useState<Record<string, any>>(initialStudent);
+
+  useEffect(() => {
+    setStudent(initialStudent);
+  }, [initialStudent]);
   
   const [isReportModalOpen, setIsReportModalOpen] = useState(autoOpenReport);
   const [reportMessage, setReportMessage] = useState('');
@@ -47,7 +59,8 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
   const [editedMarks, setEditedMarks] = useState<Record<string, number | ''>>({});
   const [isSavingMarks, setIsSavingMarks] = useState(false);
 
-  const isOwner = !!profile?.seat_no && profile.seat_no.toUpperCase() === String(student['Seat No']).toUpperCase();
+  const seatUpper = String(student['Seat No'] || student['seat_no'] || '').toUpperCase().trim();
+  const isOwner = !!profile?.seat_no && profile.seat_no.toUpperCase().trim() === seatUpper;
   const isAdmin = profile?.is_admin ?? false;
   const isHidden = !!student.is_hidden || (isOwner && profile?.show_results_publicly === false);
   const canViewMarks = !isHidden || isOwner || isAdmin;
@@ -58,6 +71,18 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
   const sem3Subs = SEM3_META;
   const sem4Subs = SEM4_META;
   const sem5Subs = SEM5_META;
+
+  useEffect(() => {
+    if (initialIsEditing && canEdit) {
+      const initial: Record<string, number | ''> = {};
+      [...SUBJECTS_META, ...SEM3_META, ...SEM4_META, ...SEM5_META].forEach(s => {
+        const val = student[s.id];
+        initial[s.id] = (val !== undefined && val !== null && !isNaN(Number(val))) ? Number(val) : '';
+      });
+      setEditedMarks(initial);
+      setIsEditing(true);
+    }
+  }, [initialIsEditing, canEdit]);
 
   const startEditing = () => {
     if (!user) {
@@ -71,7 +96,7 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
     }
 
     const initial: Record<string, number | ''> = {};
-    [...SUBJECTS_META, ...SEM3_META, ...SEM4_META].forEach(s => {
+    [...SUBJECTS_META, ...SEM3_META, ...SEM4_META, ...SEM5_META].forEach(s => {
       const val = student[s.id];
       initial[s.id] = (val !== undefined && val !== null && !isNaN(Number(val))) ? Number(val) : '';
     });
@@ -122,6 +147,9 @@ export const StudentResultCard = ({ student: initialStudent, onPrefill, autoOpen
       }
 
       setStudent(prev => ({ ...prev, ...updates }));
+      if (onMarksUpdated) {
+        onMarksUpdated(targetSeatNo, updates);
+      }
       setIsEditing(false);
       triggerConfetti();
       toast.success('Marks updated successfully! 🎉');

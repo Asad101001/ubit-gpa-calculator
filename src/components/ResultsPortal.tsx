@@ -58,7 +58,7 @@ interface ResultsPortalProps {
 }
 
 export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
-  const { profile } = useAuthStore();
+  const { user, profile } = useAuthStore();
   const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hiddenSeatNos, setHiddenSeatNos] = useState<Set<string>>(new Set());
@@ -71,6 +71,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>({ key: 'Seat No', direction: 'asc' });
   const [isScrolled, setIsScrolled] = useState(false);
   const [selectedStudentModal, setSelectedStudentModal] = useState<any | null>(null);
+  const [modalStartEditing, setModalStartEditing] = useState(false);
   const [isMarksheetsModalOpen, setIsMarksheetsModalOpen] = useState(false);
 
   const currentSubjectDoc = useMemo(() => {
@@ -223,8 +224,33 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
     fetchResults();
   }, [profile?.show_results_publicly, profile?.seat_no]);
 
-  const handleEditClick = (student: any) => {
+  const handleEditClick = (student: any, startEditing: boolean = false) => {
     setSelectedStudentModal(student);
+    setModalStartEditing(startEditing);
+  };
+
+  const handleMarksUpdated = (seatNo: string, updatedMarks: Record<string, any>) => {
+    const normalized: Record<string, any> = {};
+    Object.entries(updatedMarks).forEach(([k, v]) => {
+      normalized[k] = (v === null || v === undefined || v === '') ? 'Results Unannounced' : v;
+    });
+
+    setData(prev => prev.map(student => {
+      const sNo = String(student['Seat No'] || '').toUpperCase().trim();
+      if (sNo === seatNo.toUpperCase().trim()) {
+        return { ...student, ...normalized };
+      }
+      return student;
+    }));
+
+    setSelectedStudentModal((prev: any) => {
+      if (!prev) return null;
+      const sNo = String(prev['Seat No'] || '').toUpperCase().trim();
+      if (sNo === seatNo.toUpperCase().trim()) {
+        return { ...prev, ...normalized };
+      }
+      return prev;
+    });
   };
 
   const handleSort = (key: string) => {
@@ -468,6 +494,46 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
           </button>
         </div>
 
+        {/* Logged-In Student Quick Action Banner to Edit Marks */}
+        {user && profile?.seat_no && (
+          <div className="mb-6 p-4 sm:p-5 bg-gradient-to-r from-amber-50 via-rose-50 to-amber-50 border-2 border-black rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[4px_4px_0px_0px_#000]">
+            <div className="flex items-start sm:items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#801618] border-2 border-black flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_#000]">
+                <Pencil size={18} className="text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="text-xs sm:text-sm font-black text-black">
+                    Your Verified Seat: <span className="font-mono text-[#801618]">{profile.seat_no}</span>
+                  </h4>
+                  <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-400">
+                    Logged In
+                  </span>
+                </div>
+                <p className="text-[11px] sm:text-xs text-gray-700 font-medium mt-0.5">
+                  You can edit or update your subject marks directly in the results portal.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                const mySeat = String(profile?.seat_no || '').toUpperCase().trim();
+                if (!mySeat) return;
+                const myStudent = data.find(s => String(s['Seat No'] || '').toUpperCase().trim() === mySeat);
+                if (myStudent) {
+                  const isHidden = (mySeat && hiddenSeatNos.has(mySeat)) || !!myStudent.is_hidden || profile?.show_results_publicly === false;
+                  setSelectedStudentModal({ ...myStudent, is_hidden: isHidden });
+                  setModalStartEditing(true);
+                }
+              }}
+              className="px-4 py-2.5 bg-[#801618] hover:bg-[#9b1b1e] text-white font-black text-xs sm:text-sm rounded-xl border-2 border-black shrink-0 active:scale-95 transition-all shadow-[3px_3px_0px_0px_#000] flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Pencil size={14} strokeWidth={2.5} />
+              <span>Edit My Marks</span>
+            </button>
+          </div>
+        )}
+
         {/* Controls */}
         <div className="flex flex-col lg:flex-row gap-4 mb-6">
           <div className="flex-1 relative group">
@@ -557,6 +623,7 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
           <StudentResultCard 
             student={sortedAndFilteredData[0]} 
             onPrefill={onPrefill} 
+            onMarksUpdated={handleMarksUpdated}
           />
         ) : (
           <div 
@@ -655,8 +722,8 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                   </tr>
                 ) : (
                   sortedAndFilteredData.map((student, index) => {
-                    const seatNo = String(student['Seat No'] || '').toUpperCase();
-                    const mySeatNo = String(profile?.seat_no || '').toUpperCase();
+                    const seatNo = String(student['Seat No'] || '').toUpperCase().trim();
+                    const mySeatNo = String(profile?.seat_no || '').toUpperCase().trim();
                     const isMyProfileHidden = profile?.show_results_publicly === false;
                     const isHidden = (seatNo && hiddenSeatNos.has(seatNo)) || !!student.is_hidden || (seatNo === mySeatNo && isMyProfileHidden);
                     const isOwner = !!mySeatNo && seatNo === mySeatNo;
@@ -669,26 +736,38 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                       // causing massive mobile paint thrashing.
                       <tr
                         key={student['Seat No']}
-                        onClick={() => setSelectedStudentModal({ ...student, is_hidden: isHidden })}
-                        className="hover:bg-rose-50/40 transition-colors group cursor-pointer animate-in fade-in duration-200"
+                        onClick={() => {
+                          setSelectedStudentModal({ ...student, is_hidden: isHidden });
+                          setModalStartEditing(false);
+                        }}
+                        className={`transition-colors group cursor-pointer animate-in fade-in duration-200 ${
+                          isOwner 
+                            ? 'bg-amber-50/80 hover:bg-amber-100/60 border-l-4 border-l-[#801618]' 
+                            : 'hover:bg-rose-50/40'
+                        }`}
                         title="Click to view full student results & load into calculator"
                         style={{ animationDelay: `${Math.min(index * 15, 400)}ms` }}
                       >
-                        <td className="hidden sm:table-cell p-2 sm:p-4 text-center text-textMuted font-medium text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 border-b border-border/50">
+                        <td className={`hidden sm:table-cell p-2 sm:p-4 text-center font-medium text-xs sm:text-sm min-w-[40px] sm:min-w-[60px] group-hover:bg-surfaceHighlight transition-colors duration-150 border-b border-border/50 ${isOwner ? 'bg-amber-50/80 font-bold text-[#801618]' : 'bg-surface text-textMuted'}`}>
                           {index + 1}
                         </td>
-                        <td className="hidden sm:table-cell p-2 sm:p-4 font-mono text-xs sm:text-sm text-textMuted font-bold min-w-[90px] sm:min-w-[140px] bg-surface group-hover:bg-surfaceHighlight transition-colors duration-150 border-b border-border/50">
+                        <td className={`hidden sm:table-cell p-2 sm:p-4 font-mono text-xs sm:text-sm font-bold min-w-[90px] sm:min-w-[140px] group-hover:bg-surfaceHighlight transition-colors duration-150 border-b border-border/50 ${isOwner ? 'bg-amber-50/80 text-[#801618]' : 'bg-surface text-textMuted'}`}>
                           {student['Seat No']}
                         </td>
-                        <td className="p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[210px] max-w-[210px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 bg-surface group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] border-b border-border/50">
+                        <td className={`p-2 sm:p-4 text-[11px] sm:text-xs text-textMain font-semibold min-w-[210px] max-w-[210px] sm:max-w-[300px] sm:min-w-[200px] sticky left-0 z-20 group-hover:bg-surfaceHighlight transition-colors duration-300 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15),1px_0_0_rgba(var(--color-border),0.5)] border-b border-border/50 ${isOwner ? 'bg-amber-50/90' : 'bg-surface'}`}>
                           <div className="flex items-center justify-between gap-1 w-full h-full">
                             <div className="flex flex-col min-w-0 flex-1">
                               <span className="truncate leading-tight font-bold group-hover:text-[#801618] transition-colors flex items-center gap-1.5" title={student['Name']}>
                                 <span>{isScrolled ? (displayNames.get(student['Seat No']) || student['Name']) : student['Name']}</span>
+                                {isOwner && (
+                                  <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#801618] text-white border border-black shadow-[1px_1px_0px_0px_#000] shrink-0">
+                                    You
+                                  </span>
+                                )}
                                 {isHidden && (
                                   <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border shrink-0 flex items-center gap-1 ${isOwner ? 'bg-red-100 text-red-800 border-red-400' : 'bg-gray-100 text-gray-700 border-gray-300'}`}>
                                     <Lock size={9} />
-                                    {isOwner ? 'Private (You)' : 'Hidden'}
+                                    {isOwner ? 'Private' : 'Hidden'}
                                   </span>
                                 )}
                               </span>
@@ -697,18 +776,17 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                                 {student['Seat No']}
                               </span>
                             </div>
-                            {!isScrolled && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditClick({ ...student, is_hidden: isHidden });
-                                }}
-                                title={`Open and load marks for ${student['Name']}`}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-[#801618] text-white border-2 border-black shrink-0 ml-1 shadow-[1px_1px_0px_0px_#000] active:scale-95"
-                              >
-                                <Pencil size={11} strokeWidth={2.5} />
-                              </button>
-                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditClick({ ...student, is_hidden: isHidden }, isOwner || !!profile?.is_admin);
+                              }}
+                              title={isOwner ? "Edit your marks" : `Open and load marks for ${student['Name']}`}
+                              className={`${isOwner ? 'opacity-100 flex' : !isScrolled ? 'opacity-0 group-hover:opacity-100' : 'hidden'} transition-opacity p-1 px-1.5 rounded bg-[#801618] text-white border-2 border-black shrink-0 ml-1 shadow-[1px_1px_0px_0px_#000] active:scale-95 items-center gap-1 text-[10px] font-black`}
+                            >
+                              <Pencil size={11} strokeWidth={2.5} />
+                              {isOwner && <span className="hidden sm:inline">Edit</span>}
+                            </button>
                           </div>
                         </td>
                         
@@ -779,7 +857,10 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setSelectedStudentModal(null)}
+              onClick={() => {
+                setSelectedStudentModal(null);
+                setModalStartEditing(false);
+              }}
               className="fixed inset-0 bg-black/80 backdrop-blur-sm"
             />
             <motion.div 
@@ -791,7 +872,10 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
             >
               <div className="relative">
                 <button
-                  onClick={() => setSelectedStudentModal(null)}
+                  onClick={() => {
+                    setSelectedStudentModal(null);
+                    setModalStartEditing(false);
+                  }}
                   className="absolute -top-3 -right-3 z-30 p-2 bg-[#801618] hover:bg-[#9b1b1e] text-white rounded-full border-2 border-black font-black text-xs shadow-[2px_2px_0px_0px_#000] active:scale-95"
                   aria-label="Close student card"
                 >
@@ -799,8 +883,11 @@ export const ResultsPortal = ({ onPrefill }: ResultsPortalProps) => {
                 </button>
                 <StudentResultCard
                   student={selectedStudentModal}
+                  initialIsEditing={modalStartEditing}
+                  onMarksUpdated={handleMarksUpdated}
                   onPrefill={(s1, s2, s3) => {
                     setSelectedStudentModal(null);
+                    setModalStartEditing(false);
                     if (onPrefill) onPrefill(s1, s2, s3);
                   }}
                 />

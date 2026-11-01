@@ -153,6 +153,17 @@ export const OFFICIAL_MARKSHEETS: MarksheetDocument[] = [
     url: '/results/3rd%20Semester/CS-451%20Data%20Structures%20&%20Appliactions%20[Ms.%20Maryam%20Feroze].pdf',
   },
   {
+    id: 'cs453',
+    code: 'CS-453',
+    title: 'Software Engineering Fundamentals',
+    instructor: 'Dr. Shaista Raees',
+    semester: 3,
+    filename: 'CS-453 Software Engineering Fundamentals [Dr. Shaista Raees].pdf',
+    fileType: 'pdf',
+    sizeKB: 351,
+    url: '/results/3rd%20Semester/CS-453%20Software%20Engineering%20Fundamentals%20[Dr.%20Shaista%20Raees].pdf',
+  },
+  {
     id: 'cs455',
     code: 'CS-455',
     title: 'Computer Organization & Assembly Language',
